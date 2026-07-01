@@ -51,9 +51,9 @@ export default function Notification({ navigation }) {
           <NotificationCard key={item.id}>
             <IconWrapper type={item.type}>
               {item.type === 'FIRE' ? (
-                <FireIcon width={28} height={28} fill="#FF8933" /> 
+                <FireIcon width={28} height={28} color="#FF8933" /> 
               ) : (
-                <IceIcon width={28} height={28} fill="#7CC4FF" /> 
+                <IceIcon width={28} height={28} color="#7CC4FF" /> 
               )}
             </IconWrapper>
 

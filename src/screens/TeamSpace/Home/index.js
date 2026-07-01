@@ -3,7 +3,7 @@ import { StatusBar } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header'; 
 
-import FolderIcon from '../../../assets/icons/ic_folder.svg';
+import FolderIcon from '../../../assets/icons/ic_folder_outline.svg';
 import PeopleAddIcon from '../../../assets/icons/ic_people1.svg';
 import PeopleGroupIcon from '../../../assets/icons/ic_people2.svg';
 import PlusIcon from '../../../assets/icons/ic_plus.svg';

@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["jest"]
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "src/navigation/index.js", "src/navigation/index.js", "src/screens/MyPage/Main/index.js", "src/locales/i18n.js"],
   "exclude": ["**/node_modules", "**/Pods"]
 }
