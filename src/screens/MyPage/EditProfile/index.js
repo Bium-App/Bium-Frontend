@@ -5,7 +5,7 @@ import Header from '../../../components/Header';
 import PlusIcon from '../../../assets/icons/ic_plus.svg';
 
 import {
-  Container, // SafeArea 대신 Container 사용
+  Container,
   KeyboardContainer,
   ScrollContainer,
   ProfileContainer,
@@ -24,6 +24,9 @@ export default function EditProfile({ navigation }) {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
+  
+  // 💡 전화번호 상태 추가
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   return (
     <Container>
@@ -91,6 +94,18 @@ export default function EditProfile({ navigation }) {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
+              />
+            </InputGroup>
+
+            {/* 💡 요청하신 전화번호 입력란 추가 완료! */}
+            <InputGroup>
+              <Label>전화번호</Label>
+              <Input
+                placeholder="010-0000-0000"
+                placeholderTextColor="#AAAAAA"
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                keyboardType="phone-pad" // 터치 시 숫자 키패드가 뜨도록 설정
               />
             </InputGroup>
 

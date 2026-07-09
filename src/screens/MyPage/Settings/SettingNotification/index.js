@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Switch } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// 💡 프로젝트 공동 헤더 컴포넌트 사용 원칙 적용
 import Header from '../../../../components/Header';
 
 import {
@@ -9,6 +11,8 @@ import {
   Content,
   RowItem,
   RowText,
+  CustomToggle, // 💡 커스텀 토글 배경 임포트
+  ToggleCircle, // 💡 커스텀 토글 동그라미 임포트
 } from './SettingNotification.styles';
 
 export default function SettingNotification({ navigation }) {
@@ -16,6 +20,7 @@ export default function SettingNotification({ navigation }) {
   const [isEventEnabled, setIsEventEnabled] = useState(true);
   const [isPushEnabled, setIsPushEnabled] = useState(true);
 
+  // 설정값 불러오기 로직 유지
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -24,6 +29,7 @@ export default function SettingNotification({ navigation }) {
         
         if (savedEvent !== null) setIsEventEnabled(JSON.parse(savedEvent));
         if (savedPush !== null) setIsPushEnabled(JSON.parse(savedPush));
+        
         if (savedEvent !== 'false' && savedPush !== 'false') {
           setIsAllEnabled(true);
         } else {
@@ -36,6 +42,7 @@ export default function SettingNotification({ navigation }) {
     loadSettings();
   }, []);
 
+  // 설정값 저장 로직 유지
   const saveSetting = async (key, value) => {
     try {
       await AsyncStorage.setItem(key, JSON.stringify(value));
@@ -80,37 +87,40 @@ export default function SettingNotification({ navigation }) {
       />
       
       <Content>
+        {/* 1. 모든 알림 받기 */}
         <RowItem>
           <RowText>모든 알림 받기</RowText>
-          <Switch
-            trackColor={{ false: '#E8E8E8', true: '#FF8933' }}
-            thumbColor="#FFFFFF"
-            ios_backgroundColor="#E8E8E8"
-            onValueChange={toggleAll}
-            value={isAllEnabled}
-          />
+          <CustomToggle 
+            activeOpacity={0.8} 
+            isOn={isAllEnabled} 
+            onPress={() => toggleAll(!isAllEnabled)}
+          >
+            <ToggleCircle isOn={isAllEnabled} />
+          </CustomToggle>
         </RowItem>
 
+        {/* 2. 이벤트/혜택 알림 */}
         <RowItem>
           <RowText>이벤트/혜택 알림</RowText>
-          <Switch
-            trackColor={{ false: '#E8E8E8', true: '#FF8933' }}
-            thumbColor="#FFFFFF"
-            ios_backgroundColor="#E8E8E8"
-            onValueChange={toggleEvent}
-            value={isEventEnabled}
-          />
+          <CustomToggle 
+            activeOpacity={0.8} 
+            isOn={isEventEnabled} 
+            onPress={() => toggleEvent(!isEventEnabled)}
+          >
+            <ToggleCircle isOn={isEventEnabled} />
+          </CustomToggle>
         </RowItem>
 
+        {/* 3. 푸시알림 */}
         <RowItem>
           <RowText>푸시알림</RowText>
-          <Switch
-            trackColor={{ false: '#E8E8E8', true: '#FF8933' }}
-            thumbColor="#FFFFFF"
-            ios_backgroundColor="#E8E8E8"
-            onValueChange={togglePush}
-            value={isPushEnabled}
-          />
+          <CustomToggle 
+            activeOpacity={0.8} 
+            isOn={isPushEnabled} 
+            onPress={() => togglePush(!isPushEnabled)}
+          >
+            <ToggleCircle isOn={isPushEnabled} />
+          </CustomToggle>
         </RowItem>
       </Content>
     </Container>

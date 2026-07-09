@@ -19,7 +19,7 @@ export const ScrollContainer = styled.ScrollView.attrs({
 
 export const ProfileContainer = styled.View`
   align-self: center; 
-  margin-top: 60px; 
+  margin-top: 10px; 
   margin-bottom: 32px; 
 `;
 
@@ -56,8 +56,8 @@ export const InputGroup = styled.View`
 `;
 
 export const Label = styled.Text`
-  font-size: 17x; /* 글자 크기 14 -> 17 수정   */
-  font-weight: 500; /* 글자 굵기 (Bold) - > Medium 수정  */
+  font-size: 17px; /* 💡 17x로 되어있던 오타 수정 완료 */
+  font-weight: 500; 
   color: #000000; 
   margin-bottom: 8px; 
 `;
@@ -65,7 +65,7 @@ export const Label = styled.Text`
 export const Input = styled.TextInput`
   height: 52px; 
   border-width: 1px; 
-  border-color: #D9D9D9; /* 테두리 색상 E0E0E0 -> D9D9D9 변경 */
+  border-color: #D9D9D9; 
   border-radius: 8px; 
   padding: 0 16px; 
   font-size: 15px; 
@@ -84,7 +84,7 @@ export const SubmitButton = styled.TouchableOpacity`
 `;
 
 export const SubmitText = styled.Text`
-  font-size: 17px; /* 버튼 글자 크기 16 -> 17 수정  */
-  font-weight: 500; /* 버튼 글자 굵기 (Bold) -> Medium 수정  */
+  font-size: 17px; 
+  font-weight: 500; 
   color: #FFFFFF; 
 `;

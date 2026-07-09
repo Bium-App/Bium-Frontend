@@ -44,18 +44,15 @@ import {
   InputLabel,
   TitleInput,
   ContentInput,
-  ContentInputMultiline,
   HelperText,
   Divider,
   ToggleRow,
   ToggleLabel,
   HeaderBackButton,
   NoticeAddButton,
-  SmallSwitch,
-  DateActionRow,
-  DateActionLabel,
-  DateActionBox,
-  DateActionBoxLeft,
+  CustomToggle,
+  ToggleCircle,
+  DateRightWrapper,
   DateActionText
 } from './ProjectDetail.styles';
 
@@ -79,17 +76,14 @@ export default function ProjectDetail({ navigation }) {
   const [noticeContent, setNoticeContent] = useState('');
   const [isPinned, setIsPinned] = useState(false); 
   const [isNotiEnabled, setIsNotiEnabled] = useState(false); 
-  
   const [isNoticeTitleFocused, setIsNoticeTitleFocused] = useState(false);
   const [isNoticeContentFocused, setIsNoticeContentFocused] = useState(false);
-
   const [isTodoModalVisible, setTodoModalVisible] = useState(false);
   const [todoTitle, setTodoTitle] = useState('');
   const [todoContent, setTodoContent] = useState('');
-  
   const [isTodoTitleFocused, setIsTodoTitleFocused] = useState(false);
   const [isTodoContentFocused, setIsTodoContentFocused] = useState(false);
-
+  const [isTodoNotiEnabled, setIsTodoNotiEnabled] = useState(false); 
   const [date, setDate] = useState(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedDateStr, setSelectedDateStr] = useState(''); 
@@ -113,6 +107,7 @@ export default function ProjectDetail({ navigation }) {
     setIsTodoTitleFocused(false);
     setIsTodoContentFocused(false);
     setSelectedDateStr('');
+    setIsTodoNotiEnabled(false);
   };
 
   const dummySchedules = [
@@ -123,7 +118,7 @@ export default function ProjectDetail({ navigation }) {
 
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
-      <Icon name="chevron-back" size={26} color="#FF8933" />
+      <Icon name="chevron-back" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
 
@@ -136,7 +131,7 @@ export default function ProjectDetail({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         
         <SearchContainer>
-          <Icon name="search-outline" size={20} color="#000000" />
+          <Icon name="search-outline" size={20} color="#000000" />   
           <SearchInput placeholder="검색" placeholderTextColor="#000000" />
         </SearchContainer>
 
@@ -145,17 +140,14 @@ export default function ProjectDetail({ navigation }) {
             <TabText isActive={true}>홈</TabText>
           </TabItem>
           <TabSeparator />
-          
           <TabItem isActive={false} onPress={() => navigation.replace('ProjectTodo')} activeOpacity={0.7}>
             <TabText isActive={false}>할일</TabText>
           </TabItem>
           <TabSeparator />
-
           <TabItem isActive={false} onPress={() => navigation.replace('Schedule')} activeOpacity={0.7}>
             <TabText isActive={false}>일정</TabText>
           </TabItem>
           <TabSeparator />
-
           <TabItem isActive={false} onPress={() => navigation.replace('Files')} activeOpacity={0.7}>
             <TabText isActive={false}>파일</TabText>
           </TabItem>
@@ -170,7 +162,7 @@ export default function ProjectDetail({ navigation }) {
           </SectionHeader>
           <NoticeCard activeOpacity={0.8}>
             <NoticeIconWrapper>
-              <MegaphoneIcon width={24} height={24} color="#FF8933" />
+              <MegaphoneIcon width={27} height={23} color="#FF8933" />
             </NoticeIconWrapper>
             <NoticeContent>
               <NoticeTitle>공지 제목</NoticeTitle>
@@ -183,7 +175,7 @@ export default function ProjectDetail({ navigation }) {
         <SectionContainer>
           <SectionHeader>
             <SectionTitle>할일 체크리스트</SectionTitle>
-            <Icon name="ellipsis-horizontal" size={20} color="#FF8933" />
+            <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
           </SectionHeader>
           <ListCard>
             {todos.map((todo, index) => (
@@ -206,7 +198,7 @@ export default function ProjectDetail({ navigation }) {
           </ListCard>
           
           <AddTodoButton activeOpacity={0.8} onPress={openTodoModal}>
-            <Icon name="add" size={20} color="#FFFFFF" />
+            <Icon name="add" size={15} color="#FFFFFF" />
             <AddTodoText>새로운 할 일 추가</AddTodoText>
           </AddTodoButton>
         </SectionContainer>
@@ -214,13 +206,13 @@ export default function ProjectDetail({ navigation }) {
         <SectionContainer>
           <SectionHeader>
             <SectionTitle>일정</SectionTitle>
-            <Icon name="ellipsis-horizontal" size={20} color="#FF8933" />
+            <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
           </SectionHeader>
           <ListCard>
             {dummySchedules.map((schedule, index) => (
               <ListItem key={schedule.id} isLast={index === dummySchedules.length - 1}>
                 <ListIconWrapper>
-                  <CalendarIcon width={20} height={20} color="#FF8933" />
+                  <CalendarIcon width={24} height={24} color="#FF8933" />
                 </ListIconWrapper>
                 <ListItemText>{schedule.title}</ListItemText>
               </ListItem>
@@ -252,7 +244,7 @@ export default function ProjectDetail({ navigation }) {
               <InputLabel isFirst={true}>제목</InputLabel>
               <TitleInput
                 placeholder="제목을 입력하세요."
-                placeholderTextColor="#AAAAAA" 
+                placeholderTextColor="#999999" 
                 value={noticeTitle}
                 onChangeText={setNoticeTitle}
                 isFocused={isNoticeTitleFocused} 
@@ -263,7 +255,7 @@ export default function ProjectDetail({ navigation }) {
               <InputLabel isFirst={false}>내용</InputLabel>
               <ContentInput
                 placeholder="내용을 입력하세요."
-                placeholderTextColor="#AAAAAA"
+                placeholderTextColor="#999999"
                 value={noticeContent}
                 onChangeText={setNoticeContent}
                 isFocused={isNoticeContentFocused}
@@ -276,26 +268,26 @@ export default function ProjectDetail({ navigation }) {
 
               <ToggleRow>
                 <ToggleLabel>고정</ToggleLabel>
-                <SmallSwitch
-                  trackColor={{ false: '#E5E5E5', true: '#FF8933' }} 
-                  thumbColor="#FFFFFF" 
-                  ios_backgroundColor="#E5E5E5" 
-                  onValueChange={setIsPinned}
-                  value={isPinned}
-                />
+                <CustomToggle 
+                  activeOpacity={0.8} 
+                  isOn={isPinned} 
+                  onPress={() => setIsPinned(!isPinned)}
+                >
+                  <ToggleCircle isOn={isPinned} />
+                </CustomToggle>
               </ToggleRow>
 
               <Divider isSpaced={false} />
 
               <ToggleRow>
                 <ToggleLabel>알림 발송</ToggleLabel>
-                <SmallSwitch
-                  trackColor={{ false: '#E5E5E5', true: '#FF8933' }}
-                  thumbColor="#FFFFFF"
-                  ios_backgroundColor="#E5E5E5"
-                  onValueChange={setIsNotiEnabled}
-                  value={isNotiEnabled}
-                />
+                <CustomToggle 
+                  activeOpacity={0.8} 
+                  isOn={isNotiEnabled} 
+                  onPress={() => setIsNotiEnabled(!isNotiEnabled)}
+                >
+                  <ToggleCircle isOn={isNotiEnabled} />
+                </CustomToggle>
               </ToggleRow>
             </ModalBody>
           </ModalContainer>
@@ -323,7 +315,7 @@ export default function ProjectDetail({ navigation }) {
             <ModalBody>
               <InputLabel isFirst={true}>제목</InputLabel>
               <TitleInput
-                placeholder="일정 제목"
+                placeholder="제목을 입력하세요."
                 placeholderTextColor="#999999"
                 value={todoTitle}
                 onChangeText={setTodoTitle}
@@ -333,10 +325,9 @@ export default function ProjectDetail({ navigation }) {
               />
 
               <InputLabel isFirst={false}>내용</InputLabel>
-              <ContentInputMultiline 
-                multiline={true} 
-                placeholder="내용을 입력하시오..."
-                placeholderTextColor="#AAAAAA"
+              <ContentInput
+                placeholder="내용을 입력하세요."
+                placeholderTextColor="#999999"
                 value={todoContent}
                 onChangeText={setTodoContent}
                 isFocused={isTodoContentFocused}
@@ -344,18 +335,31 @@ export default function ProjectDetail({ navigation }) {
                 onBlur={() => setIsTodoContentFocused(false)}
               />
 
-              <DateActionRow>
-                <DateActionLabel>날짜</DateActionLabel>
-                <DateActionBox activeOpacity={0.7} onPress={() => setIsDatePickerOpen(true)}>
-                  <DateActionBoxLeft>
-                    <CalendarIcon width={18} height={18} color="#FF8933" />
-                    <DateActionText>
-                      {selectedDateStr || '날짜 선택'}
-                    </DateActionText>
-                  </DateActionBoxLeft>
-                  <Icon name="chevron-forward" size={18} color="#FF8933" />
-                </DateActionBox>
-              </DateActionRow>
+              <Divider isSpaced={true} />
+
+              <ToggleRow>
+                <ToggleLabel>날짜</ToggleLabel>
+                <DateRightWrapper activeOpacity={0.7} onPress={() => setIsDatePickerOpen(true)}>
+                  <CalendarIcon width={17} height={17} color="#FF8933" />
+                  <DateActionText>
+                    {selectedDateStr || '날짜 선택'}
+                  </DateActionText>
+                  <Icon name="chevron-forward" size={17} color="#999999" />
+                </DateRightWrapper>
+              </ToggleRow>
+
+              <Divider isSpaced={false} />
+
+              <ToggleRow>
+                <ToggleLabel>알림 발송</ToggleLabel>
+                <CustomToggle 
+                  activeOpacity={0.8} 
+                  isOn={isTodoNotiEnabled} 
+                  onPress={() => setIsTodoNotiEnabled(!isTodoNotiEnabled)}
+                >
+                  <ToggleCircle isOn={isTodoNotiEnabled} />
+                </CustomToggle>
+              </ToggleRow>
             </ModalBody>
           </ModalContainer>
         </ModalOverlay>

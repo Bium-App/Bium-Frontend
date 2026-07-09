@@ -40,13 +40,19 @@ import Language from '../screens/MyPage/Settings/Language';
 import SettingNotification from '../screens/MyPage/Settings/SettingNotification';
 import Privacy from '../screens/MyPage/Settings/PrivacySecurity';
 
-// 💡 [추가됨] 개인정보 및 보안 하위 6개 화면 import
-// import TwoFactorAuth from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth';
+// 💡 [2단계 인증 전체 화면 import 세팅 완료!] 
+import TwoFactorIntro from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/TwoFactorIntro';
+import PasswordCheck from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/PasswordCheck';
+import MethodSelect from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/MethodSelect';
+import VerifyCode from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/VerifyCode';
+import Success from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/Success';
+import Management from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/Management';
+
 import DeviceManagement from '../screens/MyPage/Settings/PrivacySecurity/DeviceManagement';
 import ServiceSuggestion from '../screens/MyPage/Settings/PrivacySecurity/ServiceSuggestion';
 import PrivacyPolicy from '../screens/MyPage/Settings/PrivacySecurity/PrivacyPolicy';
-// import MarketingConsent from '../screens/MyPage/Settings/PrivacySecurity/MarketingConsent';
-// import PermissionSetup from '../screens/MyPage/Settings/PrivacySecurity/PermissionSetup';
+import MarketingConsent from '../screens/MyPage/Settings/PrivacySecurity/MarketingConsent';
+import PermissionSetup from '../screens/MyPage/Settings/PrivacySecurity/PermissionSetup';
 
 import Trash from '../screens/MyPage/Settings/Trash'; 
 
@@ -116,13 +122,19 @@ export default function Navigation() {
         <Stack.Screen name="SettingNotification" component={SettingNotification} />
         <Stack.Screen name="Privacy" component={Privacy} />
         
-        {/* 💡 [추가됨] 개인정보 및 보안 하위 6개 스택 등록 */}
-        {/* <Stack.Screen name="TwoFactorAuth" component={TwoFactorAuth} /> */}
+        {/* 💡 [2단계 인증 스택 등록 완료!] */}
+        <Stack.Screen name="TwoFactorIntro" component={TwoFactorIntro} />
+        <Stack.Screen name="PasswordCheck" component={PasswordCheck} />
+        <Stack.Screen name="MethodSelect" component={MethodSelect} />
+        <Stack.Screen name="VerifyCode" component={VerifyCode} />
+        <Stack.Screen name="Success" component={Success} />
+        <Stack.Screen name="Management" component={Management} />
+
         <Stack.Screen name="DeviceManagement" component={DeviceManagement} />
         <Stack.Screen name="ServiceSuggestion" component={ServiceSuggestion} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
-        {/* <Stack.Screen name="MarketingConsent" component={MarketingConsent} /> */}
-        {/* <Stack.Screen name="PermissionSetup" component={PermissionSetup} /> */}
+        <Stack.Screen name="MarketingConsent" component={MarketingConsent} />
+        <Stack.Screen name="PermissionSetup" component={PermissionSetup} />
 
         <Stack.Screen name="Trash" component={Trash} />
         <Stack.Screen name="Notice" component={Notice} />

@@ -85,7 +85,8 @@ export const ProjectCard = styled.TouchableOpacity`
   shadow-offset: 0px 1px;
   shadow-opacity: 0.25;
   shadow-radius: 3px;
-  elevation: 3;
+  elevation: 1;
+
 `;
 
 export const FolderCircle = styled.View`

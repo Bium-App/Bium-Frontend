@@ -17,7 +17,8 @@ export const SearchContainer = styled.View`
 export const SearchInput = styled.TextInput`
   flex: 1;
   margin-left: 8px;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight:200;
   color: #000000;
   padding: 0;
 `;
@@ -49,7 +50,7 @@ export const TabSeparator = styled.View`
 
 export const TabText = styled.Text`
   font-size: 14px; 
-  font-weight: ${({ isActive }) => (isActive ? '700' : '500')}; 
+  font-weight: 400;
   color: ${({ isActive }) => (isActive ? '#FF8933' : '#000000')}; 
 `;
 
@@ -73,7 +74,7 @@ export const SectionTitle = styled.Text`
 export const NoticeCard = styled.TouchableOpacity`
   flex-direction: row; 
   background-color: #FFFFFF; 
-  border-radius: 8px; 
+  border-radius: 5px; /* 8-> 5 */ 
   border-width: 1px; 
   border-color: #FF8933; 
   padding: 16px; 
@@ -97,6 +98,7 @@ export const NoticeTitle = styled.Text`
 
 export const NoticeDesc = styled.Text`
   font-size: 12px; 
+  font-weight:400;
   color: #000000; 
 `;
 
@@ -135,12 +137,11 @@ export const ListIconWrapper = styled.View`
   margin-right: 12px; 
 `;
 
-
 export const ListItemText = styled.Text`
   font-size: 13px; 
+  font-weight: 400;
   color: #000000; 
 `;
-
 
 export const TodoItemText = styled.Text`
   font-size: 13px; 
@@ -160,7 +161,7 @@ export const AddTodoButton = styled.TouchableOpacity`
 
 export const AddTodoText = styled.Text`
   font-size: 16px; 
-  font-weight: 400; 
+  font-weight: 500; 
   color: #FFFFFF; 
   margin-left: 6px; 
 `;
@@ -184,7 +185,7 @@ export const ModalHeader = styled.View`
   flex-direction: row; 
   align-items: center; 
   justify-content: space-between; 
-  background-color: #FFFFFF; 
+  background-color: #FFE8D6; 
   padding: 16px 20px; 
   border-bottom-width: 1px; 
   border-bottom-color: #F0F0F0; 
@@ -196,7 +197,8 @@ export const ModalHeaderButton = styled.TouchableOpacity`
 
 export const ModalCancelText = styled.Text`
   font-size: 15px; 
-  color: #AAAAAA; 
+  font-weight:500;
+  color: #B0B0B0; 
 `;
 
 export const ModalTitleText = styled.Text`
@@ -207,7 +209,7 @@ export const ModalTitleText = styled.Text`
 
 export const ModalSaveText = styled.Text`
   font-size: 15px; 
-  font-weight: 600; 
+  font-weight: 500; 
   color: #FF8933; 
 `;
 
@@ -217,7 +219,7 @@ export const ModalBody = styled.View`
 
 export const InputLabel = styled.Text`
   font-size: 15px; 
-  font-weight: 600; 
+  font-weight: 500; 
   color: #000000; 
   margin-bottom: 8px; 
   margin-top: ${({ isFirst }) => (isFirst ? 0 : 20)}px; 
@@ -226,37 +228,28 @@ export const InputLabel = styled.Text`
 export const TitleInput = styled.TextInput`
   background-color: ${({ isFocused }) => (isFocused ? '#FFE8D6' : '#FFFFFF')}; 
   border-width: 1px; 
-  border-color: ${({ isFocused }) => (isFocused ? '#FF8933' : '#E0E0E0')}; 
+  border-color: ${({ isFocused }) => (isFocused ? '#FF8933' : '#E8E8E8')}; 
   border-radius: 8px; 
   padding: 12px 14px; 
-  font-size: 14px; 
-  color: #000000; 
-`;
-
-export const ContentInputMultiline = styled.TextInput`
-  background-color: ${({ isFocused }) => (isFocused ? '#FFE8D6' : '#FFFFFF')}; 
-  border-width: 1px; 
-  border-color: ${({ isFocused }) => (isFocused ? '#FF8933' : '#E0E0E0')}; 
-  border-radius: 8px; 
-  padding: 12px 14px; 
-  font-size: 14px; 
-  color: #000000; 
-  height: 140px; 
-  text-align-vertical: top; 
+  font-size: 13px; 
+  font-weight:400;
+  color: #999999; 
 `;
 
 export const ContentInput = styled.TextInput`
-  background-color: ${({ isFocused }) => (isFocused ? '#FFF3EB' : '#F5F5F5')}; 
+  background-color: ${({ isFocused }) => (isFocused ? '#FFE8D6' : '#E8E8E8')}; 
   border-width: 1px; 
   border-color: ${({ isFocused }) => (isFocused ? '#FF8933' : 'transparent')}; 
   border-radius: 8px; 
-  padding: 12px; 
-  font-size: 14px; 
+  padding: 12px 14px; 
+  font-size: 13px; 
+  font-weight:400; 
   color: #000000; 
 `;
 
 export const HelperText = styled.Text`
   font-size: 10px; 
+  font-weight:400;
   color: #999999; 
   margin-top: 6px; 
   margin-left: 4px; 
@@ -276,10 +269,6 @@ export const Divider = styled.View`
   margin-top: ${({ isSpaced }) => (isSpaced ? 24 : 0)}px; 
 `;
 
-export const SmallSwitch = styled.Switch`
-  transform: scale(0.8); 
-`;
-
 export const ToggleRow = styled.View`
   flex-direction: row; 
   align-items: center; 
@@ -293,50 +282,36 @@ export const ToggleLabel = styled.Text`
   color: #000000; 
 `;
 
+export const CustomToggle = styled.TouchableOpacity`
+  width: 52px;
+  height: 30px;
+  border-radius: 15px;
+  background-color: ${props => (props.isOn ? '#FF8933' : '#E8E8E8')};
+  justify-content: center;
+  padding: 2px;
+`;
+
+export const ToggleCircle = styled.View`
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background-color: #FFFFFF;
+  align-self: ${props => (props.isOn ? 'flex-end' : 'flex-start')};
+  shadow-color: #000;
+  shadow-offset: 0px 2px;
+  shadow-opacity: 0.1;
+  shadow-radius: 2px;
+  elevation: 2;
+`;
+
 export const DateRightWrapper = styled.TouchableOpacity`
   flex-direction: row; 
   align-items: center; 
 `;
 
-export const DateSelectText = styled.Text`
+export const DateActionText = styled.Text`
   font-size: 14px; 
   color: ${({ hasValue }) => (hasValue ? '#FF8933' : '#9C9C9C')}; 
   margin-left: 6px; 
   margin-right: 4px; 
-`;
-
-export const DateActionRow = styled.View`
-  flex-direction: row; 
-  align-items: center; 
-  margin-top: 20px; 
-`;
-
-export const DateActionLabel = styled.Text`
-  font-size: 15px; 
-  font-weight: 600; 
-  color: #000000; 
-  margin-right: 16px; 
-`;
-
-export const DateActionBox = styled.TouchableOpacity`
-  flex: 1; 
-  flex-direction: row; 
-  align-items: center; 
-  justify-content: space-between; 
-  border-width: 1px; 
-  border-color: #FF8933; 
-  border-radius: 8px; 
-  padding: 12px 14px; 
-  background-color: #FFF3EB; 
-`;
-
-export const DateActionBoxLeft = styled.View`
-  flex-direction: row; 
-  align-items: center;
-`;
-
-export const DateActionText = styled.Text`
-  font-size: 15px; 
-  color: #FF8933; 
-  margin-left: 6px; 
 `;
