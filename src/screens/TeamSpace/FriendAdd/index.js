@@ -1,7 +1,8 @@
 import React from 'react';
-import { StatusBar, ScrollView, Text } from 'react-native';
+import { StatusBar, ScrollView, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
+import AsyncState from '../../../components/AsyncState';
 import { useFriendAdd } from '../../../hooks/userFriendAdd';
 
 import UserOutlineIcon from '../../../assets/icons/ic_user_outline.svg';
@@ -43,8 +44,15 @@ export default function FriendAdd({ navigation }) {
     recommendedFriends,
     requestCount,
     isLoading,
+    isSearching,
+    isSubmitting,
+    initialErrorMessage,
+    searchErrorMessage,
+    fetchInitialData,
+    searchFriends,
     handleAddFriend,
   } = useFriendAdd();
+  const normalizedSearchQuery = searchQuery.trim();
 
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
@@ -70,7 +78,16 @@ export default function FriendAdd({ navigation }) {
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Header title="친구 추가" left={backButton} right={rightButton} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchInitialData}
+            tintColor="#FF8933"
+          />
+        }
+      >
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
           <SearchInput
@@ -81,14 +98,15 @@ export default function FriendAdd({ navigation }) {
           />
         </SearchContainer>
 
-        {searchQuery.length > 0 && (
+        {normalizedSearchQuery.length > 0 && (
           <ListCard>
-            {searchResults.length === 0 ? (
-              <Text
-                style={{ textAlign: 'center', padding: 20, color: '#AAAAAA' }}
-              >
-                검색 결과가 없습니다.
-              </Text>
+            {isSearching || searchErrorMessage || searchResults.length === 0 ? (
+              <AsyncState
+                isLoading={isSearching}
+                errorMessage={searchErrorMessage}
+                emptyMessage="검색 결과가 없습니다."
+                onRetry={() => searchFriends(normalizedSearchQuery)}
+              />
             ) : (
               searchResults.map((user, index) => (
                 <React.Fragment key={user.id}>
@@ -114,7 +132,7 @@ export default function FriendAdd({ navigation }) {
                     <AddFriendBtn
                       activeOpacity={0.8}
                       onPress={() => handleAddFriend(user.id)}
-                      disabled={isLoading}
+                      disabled={isSubmitting}
                     >
                       <PlusIcon width={14} height={14} color="#FFFFFF" />
                       <AddFriendBtnText>친구추가</AddFriendBtnText>
@@ -129,11 +147,12 @@ export default function FriendAdd({ navigation }) {
         <SectionTitle>추천 친구</SectionTitle>
         <ListCard>
           {recommendedFriends.length === 0 ? (
-            <Text
-              style={{ textAlign: 'center', padding: 20, color: '#AAAAAA' }}
-            >
-              추천 친구가 없습니다.
-            </Text>
+            <AsyncState
+              isLoading={isLoading}
+              errorMessage={initialErrorMessage}
+              emptyMessage="추천 친구가 없습니다."
+              onRetry={fetchInitialData}
+            />
           ) : (
             recommendedFriends.map((user, index) => (
               <React.Fragment key={user.id}>
@@ -159,7 +178,7 @@ export default function FriendAdd({ navigation }) {
                   <AddFriendBtn
                     activeOpacity={0.8}
                     onPress={() => handleAddFriend(user.id)}
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   >
                     <PlusIcon width={14} height={14} color="#FFFFFF" />
                     <AddFriendBtnText>친구추가</AddFriendBtnText>

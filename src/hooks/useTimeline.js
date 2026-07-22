@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
 import dayjs from 'dayjs';
 import { getUserMemosApi } from '../api/memos';
 import { getUserId } from '../utils/authStorage';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const getRemainingTime = expiredAt => {
   const seconds = dayjs(expiredAt).diff(dayjs(), 'second');
@@ -17,12 +17,17 @@ export const useTimeline = () => {
   const [icePinnedMemos, setIcePinnedMemos] = useState([]);
   const [iceRegularMemos, setIceRegularMemos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const fetchMemos = useCallback(async () => {
     setIsLoading(true);
+    setErrorMessage('');
     try {
       const userId = await getUserId();
-      if (!userId) return;
+      if (!userId) {
+        setErrorMessage('로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+        return;
+      }
       const memos = await getUserMemosApi(userId);
       const mapped = memos.map(memo => ({
         id: String(memo.memoId),
@@ -42,15 +47,20 @@ export const useTimeline = () => {
       setIcePinnedMemos(iceMemos.filter(memo => memo.isPinned));
       setIceRegularMemos(iceMemos.filter(memo => !memo.isPinned));
     } catch (error) {
-      Alert.alert(
-        '오류',
-        error.response?.data?.message ??
-          '타임라인 데이터를 불러오는데 실패했습니다.',
+      setErrorMessage(
+        getApiErrorMessage(error, '타임라인 데이터를 불러오는데 실패했습니다.'),
       );
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  return { fireMemos, icePinnedMemos, iceRegularMemos, isLoading, fetchMemos };
+  return {
+    fireMemos,
+    icePinnedMemos,
+    iceRegularMemos,
+    isLoading,
+    errorMessage,
+    fetchMemos,
+  };
 };

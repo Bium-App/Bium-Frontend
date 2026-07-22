@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import {
@@ -7,6 +6,7 @@ import {
   getTeamFilesApi,
   renameTeamFileApi,
 } from '../api/files';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const getFileType = fileName => {
   const extension = fileName?.split('.').pop()?.toLowerCase();
@@ -19,10 +19,12 @@ const getFileType = fileName => {
 export const useTeamFiles = teamSpaceId => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const fetchFiles = useCallback(async () => {
     if (!teamSpaceId) return;
     setIsLoading(true);
+    setErrorMessage('');
     try {
       const data = await getTeamFilesApi(teamSpaceId);
       setFiles(
@@ -42,9 +44,8 @@ export const useTeamFiles = teamSpaceId => {
         })),
       );
     } catch (error) {
-      Alert.alert(
-        '오류',
-        error.response?.data?.message ?? '팀 파일을 불러오지 못했습니다.',
+      setErrorMessage(
+        getApiErrorMessage(error, '팀 파일을 불러오지 못했습니다.'),
       );
     } finally {
       setIsLoading(false);
@@ -67,5 +68,12 @@ export const useTeamFiles = teamSpaceId => {
     await fetchFiles();
   };
 
-  return { files, isLoading, fetchFiles, renameFile, deleteFile };
+  return {
+    files,
+    isLoading,
+    errorMessage,
+    fetchFiles,
+    renameFile,
+    deleteFile,
+  };
 };

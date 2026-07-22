@@ -3,6 +3,7 @@ import { StatusBar, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
+import AsyncState from '../../components/AsyncState';
 import { useTimeline } from '../../hooks/useTimeline';
 
 import FireIcon from '../../assets/icons/ic_fire.svg';
@@ -49,8 +50,18 @@ export default function Timeline({ navigation }) {
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
 
   // 뷰모델에서 서버 데이터와 로딩 상태, 통신 함수를 가져옵니다.
-  const { fireMemos, icePinnedMemos, iceRegularMemos, isLoading, fetchMemos } =
-    useTimeline();
+  const {
+    fireMemos,
+    icePinnedMemos,
+    iceRegularMemos,
+    isLoading,
+    errorMessage,
+    fetchMemos,
+  } = useTimeline();
+  const hasActiveMemos =
+    activeTab === 'fire'
+      ? fireMemos.length > 0
+      : icePinnedMemos.length > 0 || iceRegularMemos.length > 0;
 
   // 화면이 켜질 때 서버에서 데이터를 불러옵니다.
   useFocusEffect(
@@ -205,7 +216,18 @@ export default function Timeline({ navigation }) {
           />
         }
       >
-        {activeTab === 'fire' ? (
+        {!hasActiveMemos ? (
+          <AsyncState
+            isLoading={isLoading}
+            errorMessage={errorMessage}
+            emptyMessage={
+              activeTab === 'fire'
+                ? '저장된 불 메모가 없습니다.'
+                : '저장된 얼음 메모가 없습니다.'
+            }
+            onRetry={fetchMemos}
+          />
+        ) : activeTab === 'fire' ? (
           renderFireMemos()
         ) : (
           <>

@@ -5,9 +5,11 @@ import {
   StatusBar,
   ScrollView,
   Modal,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
+import AsyncState from '../../../components/AsyncState';
 import { useTeamFiles } from '../../../hooks/useTeamFiles';
 
 import FolderOutlineIcon from '../../../assets/icons/ic_folder_outline.svg';
@@ -56,7 +58,8 @@ import {
 
 export default function Files({ route, navigation }) {
   const { projectId } = route.params || {};
-  const { files, renameFile, deleteFile } = useTeamFiles(projectId);
+  const { files, isLoading, errorMessage, fetchFiles, renameFile, deleteFile } =
+    useTeamFiles(projectId);
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
   const [renameInput, setRenameInput] = useState('');
@@ -116,12 +119,18 @@ export default function Files({ route, navigation }) {
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <Header
-        title={`프로젝트 #${projectId ?? '-'}`}
-        left={backButton}
-      />
+      <Header title={`프로젝트 #${projectId ?? '-'}`} left={backButton} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchFiles}
+            tintColor="#FF8933"
+          />
+        }
+      >
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
           <SearchInput
@@ -162,55 +171,72 @@ export default function Files({ route, navigation }) {
         </TabContainer>
         <SectionContainer>
           <ListCard>
-            {fileList.map((file, index) => (
-              <TouchableListItem
-                key={file.id}
-                isLast={index === fileList.length - 1}
-                activeOpacity={0.7}
-              >
-                <ListItemLeft>
-                  <IconWrapper>
-                    {file.type === 'folder' && (
-                      <FolderOutlineIcon
-                        width={35}
-                        height={35}
+            {fileList.length === 0 ? (
+              <AsyncState
+                isLoading={files.length === 0 && isLoading}
+                errorMessage={files.length === 0 ? errorMessage : ''}
+                emptyMessage={
+                  searchQuery.trim()
+                    ? '검색 결과가 없습니다.'
+                    : '등록된 파일이 없습니다.'
+                }
+                onRetry={fetchFiles}
+              />
+            ) : (
+              fileList.map((file, index) => (
+                <TouchableListItem
+                  key={file.id}
+                  isLast={index === fileList.length - 1}
+                  activeOpacity={0.7}
+                >
+                  <ListItemLeft>
+                    <IconWrapper>
+                      {file.type === 'folder' && (
+                        <FolderOutlineIcon
+                          width={35}
+                          height={35}
+                          color="#FF8933"
+                        />
+                      )}
+                      {file.type === 'file' && (
+                        <FileDocIcon width={35} height={35} color="#FF8933" />
+                      )}
+                      {file.type === 'image' && (
+                        <FileImageIcon width={35} height={35} color="#FF8933" />
+                      )}
+                    </IconWrapper>
+                    <TextColumn>
+                      <ListItemTitle>{file.title}</ListItemTitle>
+                      <ListItemSubtitle>{file.info}</ListItemSubtitle>
+                    </TextColumn>
+                  </ListItemLeft>
+                  <ListItemRight>
+                    <ActionIconBtn
+                      activeOpacity={0.7}
+                      onPress={() =>
+                        file.fileUrl && Linking.openURL(file.fileUrl)
+                      }
+                    >
+                      <DownloadIcon
+                        width={21.6}
+                        height={19.6}
                         color="#FF8933"
                       />
-                    )}
-                    {file.type === 'file' && (
-                      <FileDocIcon width={35} height={35} color="#FF8933" />
-                    )}
-                    {file.type === 'image' && (
-                      <FileImageIcon width={35} height={35} color="#FF8933" />
-                    )}
-                  </IconWrapper>
-                  <TextColumn>
-                    <ListItemTitle>{file.title}</ListItemTitle>
-                    <ListItemSubtitle>{file.info}</ListItemSubtitle>
-                  </TextColumn>
-                </ListItemLeft>
-                <ListItemRight>
-                  <ActionIconBtn
-                    activeOpacity={0.7}
-                    onPress={() =>
-                      file.fileUrl && Linking.openURL(file.fileUrl)
-                    }
-                  >
-                    <DownloadIcon width={21.6} height={19.6} color="#FF8933" />
-                  </ActionIconBtn>
-                  <ActionIconBtn
-                    activeOpacity={0.7}
-                    onPress={() => handleOpenPopup(file)}
-                  >
-                    <Icon
-                      name="ellipsis-horizontal"
-                      size={20}
-                      color="#AAAAAA"
-                    />
-                  </ActionIconBtn>
-                </ListItemRight>
-              </TouchableListItem>
-            ))}
+                    </ActionIconBtn>
+                    <ActionIconBtn
+                      activeOpacity={0.7}
+                      onPress={() => handleOpenPopup(file)}
+                    >
+                      <Icon
+                        name="ellipsis-horizontal"
+                        size={20}
+                        color="#AAAAAA"
+                      />
+                    </ActionIconBtn>
+                  </ListItemRight>
+                </TouchableListItem>
+              ))
+            )}
           </ListCard>
         </SectionContainer>
       </ScrollView>

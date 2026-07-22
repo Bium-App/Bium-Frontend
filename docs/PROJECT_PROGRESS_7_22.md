@@ -67,7 +67,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 | 화면 | 상태 | 구현 내용 / 남은 내용 |
 | --- | --- | --- |
 | Home | 코드 연결 완료 | 목록, 수정 진입, FIRE/ICE, 고정, 휴지통, 새로고침 |
-| Timeline | 코드 연결 완료 | 목록 표시, 메모 수정 진입, 검색·알림 이동 |
+| Timeline | 코드 연결 완료 | 목록·수정 진입, 로딩·오류·빈 상태·새로고침 |
 | MemoEditor | 일부 | 생성·수정 완료, 이미지 선택기 도입 후 업로드 UI 재노출 |
 | Search | 일부 | 4개 도메인 표시, 메모 이동 완료, 팀 결과 `teamSpaceId` 필요 |
 | Notification | 일부 | 목록·읽음·삭제, MEMO 이동 완료, FRIEND/TEAM 규칙 필요 |
@@ -78,14 +78,14 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 | --- | --- | --- |
 | TeamSpace/Home | 코드 연결 완료 | 내 팀 목록·검색, memberCount, 재진입 새로고침 |
 | TeamCreate | 코드 연결 완료 | 팀 생성, 친구 검색·추천·선택, 팀원 추가 |
-| ProjectDetail | 일부 | 공지·할 일 CRUD 및 검색, 월별 일정 검색·표시 |
+| ProjectDetail | 일부 | 공지·할 일 CRUD, 월별 일정, 검색·조회 상태·새로고침 |
 | AddNotice | 코드 연결 완료 | 제목·내용·isPinned 공지 생성 |
 | ProjectTodo, AddTodo | 코드 연결 완료 | 목록·검색·생성·수정·삭제·완료 토글 |
 | Schedule, AddSchedule | 일부 | 월별 목록·검색·그룹, 일정 생성 완료 |
 | EditSchedule | 미노출 | 상세 API 또는 목록의 `content` 확정 전 라우트 제거 |
-| Files | 일부 | 목록·검색·다운로드·이름 변경·삭제만 노출 |
-| FriendAdd | 코드 연결 완료 | 검색·추천·요청, 받은 요청 수 |
-| FriendRequestList | 코드 연결 완료 | 받은/보낸 요청, 수락·거절·취소 |
+| Files | 일부 | 목록·검색·다운로드·이름 변경·삭제, 조회 상태·새로고침 |
+| FriendAdd | 코드 연결 완료 | 검색·추천·요청, 받은 요청 수, 조회 상태·새로고침 |
+| FriendRequestList | 코드 연결 완료 | 받은/보낸 요청 처리, 검색·조회 상태·새로고침 |
 
 ### 마이페이지 계정과 설정
 
@@ -159,7 +159,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 - 이미지·문서 선택기 설치와 URI -> Blob 변환
 - 메모·프로필·문의·팀 파일 업로드 UI
 - Refresh Token을 Keychain/Keystore로 이전
-- 로딩·빈 상태·오류·중복 클릭 UX 추가 점검
+- 나머지 화면의 로딩·빈 상태·오류·중복 클릭 UX 추가 점검
 
 ### 서버 또는 계약이 있어야 가능한 작업
 

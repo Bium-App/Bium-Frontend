@@ -15,6 +15,7 @@ import {
 } from '../api/teamSpaces';
 import { getTeamSchedulesApi } from '../api/schedules';
 import { getUserId } from '../utils/authStorage';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const getMonthParams = () => ({
   year: dayjs().year(),
@@ -26,6 +27,7 @@ export const useProjectDetail = projectId => {
   const [todos, setTodos] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [isNoticeModalVisible, setNoticeModalVisible] = useState(false);
   const [editingNoticeId, setEditingNoticeId] = useState(null);
@@ -49,6 +51,7 @@ export const useProjectDetail = projectId => {
   const fetchDashboardData = useCallback(async () => {
     if (!projectId) return;
     setIsLoading(true);
+    setErrorMessage('');
     try {
       const { year, month } = getMonthParams();
       const [noticeData, todoData, scheduleData] = await Promise.all([
@@ -85,10 +88,8 @@ export const useProjectDetail = projectId => {
         })),
       );
     } catch (error) {
-      Alert.alert(
-        '오류',
-        error.response?.data?.message ??
-          '대시보드 데이터를 불러오지 못했습니다.',
+      setErrorMessage(
+        getApiErrorMessage(error, '대시보드 데이터를 불러오지 못했습니다.'),
       );
     } finally {
       setIsLoading(false);
@@ -263,6 +264,8 @@ export const useProjectDetail = projectId => {
     todos,
     schedules,
     isLoading,
+    errorMessage,
+    fetchDashboardData,
     isNoticeModalVisible,
     editingNoticeId,
     noticeTitle,

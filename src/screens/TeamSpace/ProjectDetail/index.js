@@ -1,7 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, StatusBar, ScrollView, Modal, Text } from 'react-native';
+import {
+  Alert,
+  StatusBar,
+  ScrollView,
+  Modal,
+  Text,
+  RefreshControl,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
+import AsyncState from '../../../components/AsyncState';
 import DatePicker from 'react-native-date-picker';
 import { useProjectDetail } from '../../../hooks/useProjectDetail';
 
@@ -69,6 +77,8 @@ export default function ProjectDetail({ route, navigation }) {
     todos,
     schedules,
     isLoading,
+    errorMessage,
+    fetchDashboardData,
     isNoticeModalVisible,
     editingNoticeId,
     noticeTitle,
@@ -110,6 +120,8 @@ export default function ProjectDetail({ route, navigation }) {
     toggleTodo,
   } = useProjectDetail(projectId);
   const [searchQuery, setSearchQuery] = useState('');
+  const hasDashboardData =
+    notices.length > 0 || todos.length > 0 || schedules.length > 0;
 
   const normalizedSearchQuery = searchQuery.trim().toLowerCase();
   const filteredNotices = useMemo(
@@ -137,6 +149,16 @@ export default function ProjectDetail({ route, navigation }) {
       ),
     [normalizedSearchQuery, schedules],
   );
+  const hasFilteredDashboardData =
+    filteredNotices.length > 0 ||
+    filteredTodos.length > 0 ||
+    filteredSchedules.length > 0;
+  const showDashboardState =
+    !hasDashboardData && (isLoading || Boolean(errorMessage));
+  const showSearchEmpty =
+    hasDashboardData &&
+    normalizedSearchQuery.length > 0 &&
+    !hasFilteredDashboardData;
 
   const confirmDeleteNotice = () => {
     Alert.alert('공지 삭제', '이 공지를 삭제하시겠습니까?', [
@@ -164,7 +186,16 @@ export default function ProjectDetail({ route, navigation }) {
 
       <Header title="프로젝트 상세" left={backButton} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchDashboardData}
+            tintColor="#FF8933"
+          />
+        }
+      >
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
           <SearchInput
@@ -205,120 +236,145 @@ export default function ProjectDetail({ route, navigation }) {
           </TabItem>
         </TabContainer>
 
-        <SectionContainer>
-          <SectionHeader>
-            <SectionTitle>공지사항</SectionTitle>
-            <NoticeAddButton
-              onPress={() => navigation.navigate('AddNotice', { projectId })}
-              activeOpacity={0.7}
-            >
-              <PlusIcon width={16} height={16} color="#FF8933" />
-            </NoticeAddButton>
-          </SectionHeader>
-          {filteredNotices.length === 0 ? (
-            <Text
-              style={{ textAlign: 'center', marginTop: 20, color: '#AAAAAA' }}
-            >
-              등록된 공지가 없습니다.
-            </Text>
-          ) : (
-            filteredNotices.map(notice => (
-              <NoticeCard
-                key={notice.id}
-                activeOpacity={0.8}
-                onPress={() => openNoticeModal(notice)}
-              >
-                <NoticeIconWrapper>
-                  <MegaphoneIcon width={27} height={23} color="#FF8933" />
-                </NoticeIconWrapper>
-                <NoticeContent>
-                  <NoticeTitle>{notice.title}</NoticeTitle>
-                  <NoticeDesc>{notice.content}</NoticeDesc>
-                </NoticeContent>
-                <NoticeTime>{notice.timeAgo}</NoticeTime>
-              </NoticeCard>
-            ))
-          )}
-        </SectionContainer>
+        {showDashboardState ? (
+          <AsyncState
+            isLoading={isLoading}
+            errorMessage={errorMessage}
+            emptyMessage="프로젝트에 등록된 내용이 없습니다."
+            onRetry={fetchDashboardData}
+          />
+        ) : showSearchEmpty ? (
+          <AsyncState emptyMessage="검색 결과가 없습니다." />
+        ) : null}
 
-        <SectionContainer>
-          <SectionHeader>
-            <SectionTitle>할일 체크리스트</SectionTitle>
-            <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
-          </SectionHeader>
-          <ListCard>
-            {filteredTodos.length === 0 ? (
-              <Text
-                style={{
-                  textAlign: 'center',
-                  paddingVertical: 20,
-                  color: '#AAAAAA',
-                }}
-              >
-                할 일이 없습니다.
-              </Text>
-            ) : (
-              filteredTodos.map((todo, index) => (
-                <TouchableListItem
-                  key={todo.id}
-                  isLast={index === filteredTodos.length - 1}
+        {!showDashboardState && !showSearchEmpty ? (
+          <>
+            <SectionContainer>
+              <SectionHeader>
+                <SectionTitle>공지사항</SectionTitle>
+                <NoticeAddButton
+                  onPress={() =>
+                    navigation.navigate('AddNotice', { projectId })
+                  }
                   activeOpacity={0.7}
-                  onPress={() => toggleTodo(todo.id)}
-                  onLongPress={() => openTodoModal(todo)}
                 >
-                  <ListIconWrapper>
-                    <Icon
-                      name={todo.isDone ? 'checkbox-outline' : 'square-outline'}
-                      size={22}
-                      color={todo.isDone ? '#FF8933' : '#A6A6A6'}
-                    />
-                  </ListIconWrapper>
-                  <TodoItemText isDone={todo.isDone}>{todo.title}</TodoItemText>
-                </TouchableListItem>
-              ))
-            )}
-          </ListCard>
+                  <PlusIcon width={16} height={16} color="#FF8933" />
+                </NoticeAddButton>
+              </SectionHeader>
+              {filteredNotices.length === 0 ? (
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    marginTop: 20,
+                    color: '#AAAAAA',
+                  }}
+                >
+                  등록된 공지가 없습니다.
+                </Text>
+              ) : (
+                filteredNotices.map(notice => (
+                  <NoticeCard
+                    key={notice.id}
+                    activeOpacity={0.8}
+                    onPress={() => openNoticeModal(notice)}
+                  >
+                    <NoticeIconWrapper>
+                      <MegaphoneIcon width={27} height={23} color="#FF8933" />
+                    </NoticeIconWrapper>
+                    <NoticeContent>
+                      <NoticeTitle>{notice.title}</NoticeTitle>
+                      <NoticeDesc>{notice.content}</NoticeDesc>
+                    </NoticeContent>
+                    <NoticeTime>{notice.timeAgo}</NoticeTime>
+                  </NoticeCard>
+                ))
+              )}
+            </SectionContainer>
 
-          <AddTodoButton
-            activeOpacity={0.8}
-            onPress={() => openTodoModal()}
-          >
-            <Icon name="add" size={15} color="#FFFFFF" />
-            <AddTodoText>새로운 할 일 추가</AddTodoText>
-          </AddTodoButton>
-        </SectionContainer>
+            <SectionContainer>
+              <SectionHeader>
+                <SectionTitle>할일 체크리스트</SectionTitle>
+                <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
+              </SectionHeader>
+              <ListCard>
+                {filteredTodos.length === 0 ? (
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      paddingVertical: 20,
+                      color: '#AAAAAA',
+                    }}
+                  >
+                    할 일이 없습니다.
+                  </Text>
+                ) : (
+                  filteredTodos.map((todo, index) => (
+                    <TouchableListItem
+                      key={todo.id}
+                      isLast={index === filteredTodos.length - 1}
+                      activeOpacity={0.7}
+                      onPress={() => toggleTodo(todo.id)}
+                      onLongPress={() => openTodoModal(todo)}
+                    >
+                      <ListIconWrapper>
+                        <Icon
+                          name={
+                            todo.isDone ? 'checkbox-outline' : 'square-outline'
+                          }
+                          size={22}
+                          color={todo.isDone ? '#FF8933' : '#A6A6A6'}
+                        />
+                      </ListIconWrapper>
+                      <TodoItemText isDone={todo.isDone}>
+                        {todo.title}
+                      </TodoItemText>
+                    </TouchableListItem>
+                  ))
+                )}
+              </ListCard>
 
-        <SectionContainer>
-          <SectionHeader>
-            <SectionTitle>일정</SectionTitle>
-            <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
-          </SectionHeader>
-          <ListCard>
-            {filteredSchedules.length === 0 ? (
-              <Text
-                style={{
-                  textAlign: 'center',
-                  paddingVertical: 20,
-                  color: '#AAAAAA',
-                }}
+              <AddTodoButton
+                activeOpacity={0.8}
+                onPress={() => openTodoModal()}
               >
-                등록된 일정이 없습니다.
-              </Text>
-            ) : (
-              filteredSchedules.map((schedule, index) => (
-                <ListItem
-                  key={schedule.id}
-                  isLast={index === filteredSchedules.length - 1}
-                >
-                  <ListIconWrapper>
-                    <CalendarIcon width={24} height={24} color="#FF8933" />
-                  </ListIconWrapper>
-                  <ListItemText>{schedule.title}</ListItemText>
-                </ListItem>
-              ))
-            )}
-          </ListCard>
-        </SectionContainer>
+                <Icon name="add" size={15} color="#FFFFFF" />
+                <AddTodoText>새로운 할 일 추가</AddTodoText>
+              </AddTodoButton>
+            </SectionContainer>
+
+            <SectionContainer>
+              <SectionHeader>
+                <SectionTitle>일정</SectionTitle>
+                <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
+              </SectionHeader>
+              <ListCard>
+                {filteredSchedules.length === 0 ? (
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      paddingVertical: 20,
+                      color: '#AAAAAA',
+                    }}
+                  >
+                    등록된 일정이 없습니다.
+                  </Text>
+                ) : (
+                  filteredSchedules.map((schedule, index) => (
+                    <ListItem
+                      key={schedule.id}
+                      isLast={index === filteredSchedules.length - 1}
+                    >
+                      <ListIconWrapper>
+                        <CalendarIcon width={24} height={24} color="#FF8933" />
+                      </ListIconWrapper>
+                      <ListItemText>{schedule.title}</ListItemText>
+                    </ListItem>
+                  ))
+                )}
+              </ListCard>
+            </SectionContainer>
+          </>
+        ) : null}
       </ScrollView>
 
       <Modal

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -8,6 +8,7 @@ import {
   sendFriendRequestApi,
 } from '../api/friends';
 import { getUserId } from '../utils/authStorage';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const mapFriend = friend => ({
   id: String(friend.userId),
@@ -25,12 +26,23 @@ export const useFriendAdd = () => {
   const [recommendedFriends, setRecommendedFriends] = useState([]);
   const [requestCount, setRequestCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [initialErrorMessage, setInitialErrorMessage] = useState('');
+  const [searchErrorMessage, setSearchErrorMessage] = useState('');
+  const searchRequestIdRef = useRef(0);
 
   const fetchInitialData = useCallback(async () => {
     setIsLoading(true);
+    setInitialErrorMessage('');
     try {
       const userId = await getUserId();
-      if (!userId) return;
+      if (!userId) {
+        setInitialErrorMessage(
+          '로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.',
+        );
+        return;
+      }
       const [recommended, received] = await Promise.all([
         getRecommendedFriendsApi(userId),
         getReceivedFriendRequestsApi(userId),
@@ -38,9 +50,8 @@ export const useFriendAdd = () => {
       setRecommendedFriends(recommended.map(mapFriend));
       setRequestCount(received.length);
     } catch (error) {
-      Alert.alert(
-        '오류',
-        error.response?.data?.message ?? '친구 정보를 불러오지 못했습니다.',
+      setInitialErrorMessage(
+        getApiErrorMessage(error, '친구 정보를 불러오지 못했습니다.'),
       );
     } finally {
       setIsLoading(false);
@@ -53,30 +64,61 @@ export const useFriendAdd = () => {
     }, [fetchInitialData]),
   );
 
+  const searchFriends = useCallback(async keyword => {
+    const normalizedKeyword = keyword.trim();
+    if (!normalizedKeyword) {
+      searchRequestIdRef.current += 1;
+      setSearchResults([]);
+      setSearchErrorMessage('');
+      setIsSearching(false);
+      return;
+    }
+
+    const requestId = searchRequestIdRef.current + 1;
+    searchRequestIdRef.current = requestId;
+    setIsSearching(true);
+    setSearchErrorMessage('');
+    try {
+      const result = await searchFriendsApi(normalizedKeyword);
+      if (searchRequestIdRef.current === requestId) {
+        setSearchResults(result.map(mapFriend));
+      }
+    } catch (error) {
+      if (searchRequestIdRef.current === requestId) {
+        setSearchResults([]);
+        setSearchErrorMessage(
+          getApiErrorMessage(error, '친구를 검색하지 못했습니다.'),
+        );
+      }
+    } finally {
+      if (searchRequestIdRef.current === requestId) {
+        setIsSearching(false);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     const keyword = searchQuery.trim();
+    searchRequestIdRef.current += 1;
     if (!keyword) {
       setSearchResults([]);
+      setSearchErrorMessage('');
+      setIsSearching(false);
       return undefined;
     }
 
-    const timerId = setTimeout(async () => {
-      try {
-        const result = await searchFriendsApi(keyword);
-        setSearchResults(result.map(mapFriend));
-      } catch (error) {
-        Alert.alert(
-          '검색 실패',
-          error.response?.data?.message ?? '친구를 검색하지 못했습니다.',
-        );
-      }
-    }, 300);
+    setIsSearching(true);
+    setSearchErrorMessage('');
+    const timerId = setTimeout(() => searchFriends(keyword), 300);
 
-    return () => clearTimeout(timerId);
-  }, [searchQuery]);
+    return () => {
+      clearTimeout(timerId);
+      searchRequestIdRef.current += 1;
+    };
+  }, [searchFriends, searchQuery]);
 
   const handleAddFriend = async receiverId => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       const requesterId = await getUserId();
       if (!requesterId) throw new Error('사용자 정보를 찾을 수 없습니다.');
@@ -90,7 +132,7 @@ export const useFriendAdd = () => {
           '친구 요청에 실패했습니다.',
       );
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -101,6 +143,12 @@ export const useFriendAdd = () => {
     recommendedFriends,
     requestCount,
     isLoading,
+    isSearching,
+    isSubmitting,
+    initialErrorMessage,
+    searchErrorMessage,
+    fetchInitialData,
+    searchFriends,
     handleAddFriend,
   };
 };
