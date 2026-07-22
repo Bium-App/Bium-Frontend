@@ -11,8 +11,8 @@
 
 | 항목              | 확정 규격                                              | 프론트 적용                                 |
 | ----------------- | ------------------------------------------------------ | ------------------------------------------- |
-| 로컬 Base URL     | `http://localhost:8080`                                | `src/config/api.js`에서 관리                |
-| 임시/운영 URL     | 로컬 또는 AWS 임시 IP, 출시 전 도메인 연결             | 주소 확정 후 설정값만 교체                  |
+| 로컬 Base URL     | iOS `localhost:8080`, Android `10.0.2.2:8080`          | `local` 환경에서 플랫폼별 자동 선택         |
+| 임시/운영 URL     | AWS 임시 IP, 출시 전 운영 도메인                       | 빌드 시 `BLAZE_API_BASE_URL`로 주입          |
 | 인증              | 보호 API에 `Authorization: Bearer {Access_Token}`      | axios 요청 interceptor에서 자동 첨부        |
 | 일반 Content-Type | `application/json`                                     | 공통 client 기본 헤더                       |
 | 바이너리          | S3에 직접 PUT 후 API에는 URL 메타데이터만 전달         | Presigned URL 발급·PUT·메타 저장 함수 분리  |
@@ -96,10 +96,32 @@ src/screens/.../index.js
 - API body의 DateTime을 `YYYY-MM-DDTHH:mm:ss`로 생성
 - DELETE body `{ "memoIds": [...] }` 지원
 - Presigned URL은 API 인증 요청, S3 PUT은 Base URL/Bearer 없이 별도 요청
+- `local`, `aws`, `production` API 환경을 빌드 시점에 분리
+
+### API 환경 실행 명령
+
+```sh
+# 로컬: iOS 시뮬레이터
+npm run start:local
+npm run ios:local
+
+# AWS 임시 서버
+BLAZE_API_BASE_URL=http://서버IP:8080 npm run start:aws
+BLAZE_API_BASE_URL=http://서버IP:8080 npm run ios:aws
+
+# 운영
+BLAZE_API_BASE_URL=https://api.example.com npm run start:production
+BLAZE_API_BASE_URL=https://api.example.com npm run ios:production
+```
+
+Android는 같은 방식으로 `android:local`, `android:aws`,
+`android:production`을 사용한다. 환경을 변경하면 Metro를 종료한 뒤 다시
+시작해야 한다. 실제 기기 로컬 테스트는 `BLAZE_API_BASE_URL`에 개발 PC의
+LAN 주소를 넣는다.
 
 ## 5. 실서버 연동 순서
 
-1. `src/config/api.js`에 백엔드가 준 개발 Base URL을 입력한다.
+1. 백엔드 개발 주소를 `BLAZE_API_BASE_URL`에 넣고 `aws` 환경으로 실행한다.
 2. 회원가입 → 인증번호 발송/검증 → 로그인을 확인한다.
 3. 로그인 응답 4개 필드와 보호 API의 Bearer 헤더를 확인한다.
 4. access token을 만료시켜 refresh → 원 요청 재시도를 확인한다.
@@ -113,7 +135,6 @@ src/screens/.../index.js
 
 ## 6. 아직 남은 프론트 작업
 
-- 개발/AWS/운영 Base URL 환경 분리
 - refresh token을 AsyncStorage에서 Keychain/Keystore로 이전
 - 이미지/문서 선택기 패키지 연결과 URI → Blob 변환
 - 메모 이미지, 프로필 이미지, 문의 첨부, 팀 파일 업로드 UI 완성

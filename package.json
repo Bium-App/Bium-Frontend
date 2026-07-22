@@ -3,10 +3,19 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "android": "npm run android:local",
+    "android:local": "BLAZE_API_ENV=local react-native run-android",
+    "android:aws": "BLAZE_API_ENV=aws react-native run-android",
+    "android:production": "BLAZE_API_ENV=production react-native run-android",
+    "ios": "npm run ios:local",
+    "ios:local": "BLAZE_API_ENV=local react-native run-ios",
+    "ios:aws": "BLAZE_API_ENV=aws react-native run-ios",
+    "ios:production": "BLAZE_API_ENV=production react-native run-ios",
     "lint": "eslint .",
-    "start": "react-native start",
+    "start": "npm run start:local",
+    "start:local": "BLAZE_API_ENV=local react-native start --reset-cache",
+    "start:aws": "BLAZE_API_ENV=aws react-native start --reset-cache",
+    "start:production": "BLAZE_API_ENV=production react-native start --reset-cache",
     "test": "jest"
   },
   "dependencies": {

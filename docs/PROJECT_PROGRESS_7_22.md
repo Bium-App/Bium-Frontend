@@ -37,7 +37,7 @@ src/screens/.../index.js
 
 | 항목 | 프론트 코드 상태 | 서버 준비 후 확인 |
 | --- | --- | --- |
-| Base URL | `http://localhost:8080` 단일 실제 서버 주소 | 개발/AWS/운영 주소 분리 |
+| Base URL | local/AWS/production 빌드 환경 분리 | 실제 AWS·운영 주소 주입 |
 | Authorization | 보호 요청에 Bearer 자동 첨부 | 실제 Header 확인 |
 | 401 refresh | 동시 요청 중복 방지, 토큰 갱신 후 1회 재시도 | 30분 만료 시나리오 |
 | refresh 실패 | 세션 삭제 후 Login 초기화 | 만료·위조 토큰 확인 |
@@ -155,7 +155,6 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 
 ### 서버 없이 가능한 작업
 
-- 개발/AWS/운영 Base URL 환경 분리
 - 이미지·문서 선택기 설치와 URI -> Blob 변환
 - 메모·프로필·문의·팀 파일 업로드 UI
 - Refresh Token을 Keychain/Keystore로 이전

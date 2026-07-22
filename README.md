@@ -11,11 +11,25 @@ First, you will need to run **Metro**, the JavaScript build tool for React Nativ
 To start the Metro dev server, run the following command from the root of your React Native project:
 
 ```sh
-# Using npm
+# 로컬 백엔드
 npm start
 
 # OR using Yarn
 yarn start
+```
+
+API 환경은 Metro를 시작할 때 선택합니다.
+
+| 환경 | Metro 실행 | Base URL |
+| --- | --- | --- |
+| 로컬 | `npm run start:local` | iOS `localhost:8080`, Android 에뮬레이터 `10.0.2.2:8080` |
+| AWS 임시 서버 | `BLAZE_API_BASE_URL=http://서버IP:8080 npm run start:aws` | `BLAZE_API_BASE_URL` |
+| 운영 | `BLAZE_API_BASE_URL=https://api.example.com npm run start:production` | `BLAZE_API_BASE_URL` |
+
+환경을 바꿀 때는 실행 중인 Metro를 종료하고 해당 환경 명령으로 다시 시작해야 합니다. 실제 기기는 로컬 PC의 LAN 주소를 주입합니다.
+
+```sh
+BLAZE_API_BASE_URL=http://192.168.0.10:8080 npm run start:local
 ```
 
 ## Step 2: Build and run your app
@@ -25,8 +39,11 @@ With Metro running, open a new terminal window/pane from the root of your React 
 ### Android
 
 ```sh
-# Using npm
+# 로컬 환경
 npm run android
+
+# AWS 환경
+BLAZE_API_BASE_URL=http://서버IP:8080 npm run android:aws
 
 # OR using Yarn
 yarn android
@@ -51,8 +68,11 @@ bundle exec pod install
 For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
 
 ```sh
-# Using npm
+# 로컬 환경
 npm run ios
+
+# AWS 환경
+BLAZE_API_BASE_URL=http://서버IP:8080 npm run ios:aws
 
 # OR using Yarn
 yarn ios
