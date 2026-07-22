@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
+import { useFindId } from '../../hooks/useFindId';
 
 import {
   Container,
@@ -14,18 +15,26 @@ import {
   SubmitButtonText,
   LinksRow,
   LinkText,
-  LinkDivider
+  LinkDivider,
 } from './FindId.styles';
 
 export default function FindId({ navigation }) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const { name, setName, email, setEmail, isLoading, findLoginId } =
+    useFindId();
+
+  const handleSubmit = () => {
+    findLoginId(loginId => {
+      Alert.alert('아이디 찾기 완료', `회원님의 아이디는 ${loginId}입니다.`, [
+        { text: '로그인', onPress: () => navigation.navigate('Login') },
+      ]);
+    });
+  };
   return (
     <Container>
       <Header
         left={
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="chevron-back-outline" size={24} color="#AAAAAA" /> 
+            <Icon name="chevron-back-outline" size={24} color="#AAAAAA" />
           </TouchableOpacity>
         }
       />
@@ -35,7 +44,7 @@ export default function FindId({ navigation }) {
         <InputWrapper>
           <InputField
             placeholder="이름"
-            placeholderTextColor="#AAAAAA" 
+            placeholderTextColor="#AAAAAA"
             value={name}
             onChangeText={setName}
           />
@@ -43,18 +52,18 @@ export default function FindId({ navigation }) {
         <InputWrapper>
           <InputField
             placeholder="이메일"
-            placeholderTextColor="#AAAAAA" 
+            placeholderTextColor="#AAAAAA"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </InputWrapper>
-        <SubmitButton onPress={() => console.log('아이디 찾기 요청')}>
+        <SubmitButton disabled={isLoading} onPress={handleSubmit}>
           <SubmitButtonText>아이디 찾기</SubmitButtonText>
         </SubmitButton>
         <LinksRow>
-          <TouchableOpacity onPress={() => console.log('비밀번호 찾기 이동')}>
+          <TouchableOpacity onPress={() => navigation.navigate('FindPassword')}>
             <LinkText>비밀번호 찾기</LinkText>
           </TouchableOpacity>
           <LinkDivider>|</LinkDivider>

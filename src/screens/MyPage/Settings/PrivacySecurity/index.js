@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from '../../../../components/Header'; 
+import Header from '../../../../components/Header';
+import { useUserSettings } from '../../../../hooks/useUserSettings';
 
 import {
   Container,
   ScrollContainer,
   MenuCard,
-  MenuText
+  MenuText,
 } from './PrivacySecurity.styles';
 
 // 📋 기존 메뉴 리스트 (1번 메뉴의 targetScreen은 상황에 따라 바뀌어야 하므로 삭제했습니다)
@@ -21,22 +22,17 @@ const MENU_LIST = [
 ];
 
 export default function PrivacySecurity({ navigation }) {
-  
-  // 💡 [핵심 해결] 2단계 인증 설정 완료 여부를 체크하는 가짜 상태(Mock State)입니다.
-  // 서버 연동 전까지 이 값을 true / false 로 바꿔가며 두 화면을 모두 테스트할 수 있습니다!
-  // - true: 이미 설정 완료된 유저 -> 'Management(관리)' 화면으로 이동
-  // - false: 처음 설정하는 유저 -> 'TwoFactorIntro(인트로)' 화면으로 이동
-  const [is2FASetupComplete, setIs2FASetupComplete] = useState(true);
+  const { settings } = useUserSettings();
 
-  const handlePressMenu = (menuItem) => {
+  const handlePressMenu = menuItem => {
     // 1번 메뉴(2단계 인증 설정)를 눌렀을 때의 특별 처리
     if (menuItem.id === 1) {
-      if (is2FASetupComplete) {
+      if (settings.use2fa) {
         navigation.navigate('Management'); // 완료된 유저는 관리 페이지로!
       } else {
         navigation.navigate('TwoFactorIntro'); // 안 된 유저는 설정 페이지로!
       }
-    } 
+    }
     // 나머지 메뉴들은 기존처럼 정해진 타겟 스크린으로 이동
     else if (menuItem.targetScreen) {
       navigation.navigate(menuItem.targetScreen);
@@ -47,18 +43,21 @@ export default function PrivacySecurity({ navigation }) {
     <Container>
       <Header
         left={
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="개인정보 및 보안" 
+        title="개인정보 및 보안"
       />
 
       <ScrollContainer showsVerticalScrollIndicator={false}>
-        {MENU_LIST.map((menu) => (
-          <MenuCard 
-            key={menu.id} 
-            activeOpacity={0.7} 
+        {MENU_LIST.map(menu => (
+          <MenuCard
+            key={menu.id}
+            activeOpacity={0.7}
             onPress={() => handlePressMenu(menu)}
           >
             <MenuText>{menu.title}</MenuText>

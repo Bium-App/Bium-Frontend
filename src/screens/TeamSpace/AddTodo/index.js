@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { StatusBar } from 'react-native';
-import Header from '../../../components/Header'; 
+import { StatusBar, Switch } from 'react-native';
+import Header from '../../../components/Header';
 import DatePicker from 'react-native-date-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useAddTodo } from '../../../hooks/userAddTodo';
 
 import CalendarIcon from '../../../assets/icons/ic_calendar.svg';
 
@@ -20,41 +21,58 @@ import {
   DateActionLabel,
   DateActionBox,
   DateActionBoxLeft,
-  DateActionText
+  DateActionText,
+  NotificationRow,
+  NotificationLabel,
 } from './AddTodo.styles';
 
-export default function AddTodo({ navigation }) {
-  const [todoTitle, setTodoTitle] = useState('');
-  const [todoContent, setTodoContent] = useState('');
+export default function AddTodo({ route, navigation }) {
+  // 파라미터에서 프로젝트 ID 추출
+  const { projectId, todoData } = route.params || {};
+
+  // 뷰모델 연결
+  const {
+    todoTitle,
+    setTodoTitle,
+    todoContent,
+    setTodoContent,
+    date,
+    setDate,
+    isDatePickerOpen,
+    setIsDatePickerOpen,
+    selectedDateStr,
+    setSelectedDateStr,
+    isTodoNotiEnabled,
+    setIsTodoNotiEnabled,
+    isLoading,
+    handleSaveTodo,
+  } = useAddTodo(projectId, navigation, todoData);
+
   const [isTitleFocused, setIsTitleFocused] = useState(false);
   const [isContentFocused, setIsContentFocused] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const [selectedDateStr, setSelectedDateStr] = useState(''); 
+
   const headerLeft = (
-    <HeaderCancelButton 
-      onPress={() => navigation.goBack()} 
-      activeOpacity={0.7}
-    >
+    <HeaderCancelButton onPress={() => navigation.goBack()} activeOpacity={0.7}>
       <HeaderCancelText>취소</HeaderCancelText>
     </HeaderCancelButton>
   );
+
   const headerRight = (
-    <HeaderSaveButton 
-      onPress={() => {
-        navigation.goBack();
-      }} 
+    <HeaderSaveButton
+      onPress={handleSaveTodo}
       activeOpacity={0.7}
+      disabled={isLoading}
     >
       <HeaderSaveText>저장</HeaderSaveText>
     </HeaderSaveButton>
   );
+
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Header 
+      <Header
         left={headerLeft}
-        title="할일 추가" 
+        title={todoData ? '할일 수정' : '할일 추가'}
         right={headerRight}
       />
       <ContentBody showsVerticalScrollIndicator={false}>
@@ -64,13 +82,13 @@ export default function AddTodo({ navigation }) {
           placeholderTextColor="#999999"
           value={todoTitle}
           onChangeText={setTodoTitle}
-          isFocused={isTitleFocused} 
-          onFocus={() => setIsTitleFocused(true)} 
-          onBlur={() => setIsTitleFocused(false)} 
+          isFocused={isTitleFocused}
+          onFocus={() => setIsTitleFocused(true)}
+          onBlur={() => setIsTitleFocused(false)}
         />
         <InputLabel isFirst={false}>내용</InputLabel>
         <ContentInputMultiline
-          multiline={true} 
+          multiline={true}
           placeholder="내용을 입력하시오..."
           placeholderTextColor="#999999"
           value={todoContent}
@@ -81,43 +99,46 @@ export default function AddTodo({ navigation }) {
         />
         <DateActionRow>
           <DateActionLabel>날짜</DateActionLabel>
-          <DateActionBox 
-            activeOpacity={0.7} 
-            onPress={() => setIsDatePickerOpen(true)} 
+          <DateActionBox
+            activeOpacity={0.7}
+            onPress={() => setIsDatePickerOpen(true)}
           >
             <DateActionBoxLeft>
-              <CalendarIcon 
-                width={18} 
-                height={18} 
-                color="#FF8933" 
-              />
-              <DateActionText>
-                {selectedDateStr || '날짜 선택'}
-              </DateActionText>
+              <CalendarIcon width={18} height={18} color="#FF8933" />
+              <DateActionText>{selectedDateStr || '날짜 선택'}</DateActionText>
             </DateActionBoxLeft>
-            <Icon 
-              name="chevron-forward" 
-              size={18} 
-              color="#999999" 
-            />
+            <Icon name="chevron-forward" size={18} color="#999999" />
           </DateActionBox>
         </DateActionRow>
+        <NotificationRow>
+          <NotificationLabel>알림 발송</NotificationLabel>
+          <Switch
+            value={isTodoNotiEnabled}
+            onValueChange={setIsTodoNotiEnabled}
+            trackColor={{ false: '#D1D5DB', true: '#FFD0AD' }}
+            thumbColor={isTodoNotiEnabled ? '#FF8933' : '#FFFFFF'}
+          />
+        </NotificationRow>
       </ContentBody>
       <DatePicker
-        modal 
+        modal
         mode="date"
-        open={isDatePickerOpen} 
-        date={date} 
+        open={isDatePickerOpen}
+        date={date}
         title="날짜 선택"
-        confirmText="확인" 
-        cancelText="닫기" 
-        onConfirm={(selectedDate) => {
-          setIsDatePickerOpen(false); 
-          setDate(selectedDate); 
-          setSelectedDateStr(`${selectedDate.getFullYear()}년 ${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일`);
+        confirmText="확인"
+        cancelText="닫기"
+        onConfirm={selectedDate => {
+          setIsDatePickerOpen(false);
+          setDate(selectedDate);
+          setSelectedDateStr(
+            `${selectedDate.getFullYear()}년 ${
+              selectedDate.getMonth() + 1
+            }월 ${selectedDate.getDate()}일`,
+          );
         }}
         onCancel={() => {
-          setIsDatePickerOpen(false); 
+          setIsDatePickerOpen(false);
         }}
       />
     </Container>

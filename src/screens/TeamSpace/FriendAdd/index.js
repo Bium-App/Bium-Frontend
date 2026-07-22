@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { StatusBar, ScrollView } from 'react-native';
+import React from 'react';
+import { StatusBar, ScrollView, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from '../../../components/Header'; 
+import Header from '../../../components/Header';
+import { useFriendAdd } from '../../../hooks/userFriendAdd';
+
 import UserOutlineIcon from '../../../assets/icons/ic_user_outline.svg';
 import BulbIcon from '../../../assets/icons/ic_bulb.svg';
 import NoticeIcon from '../../../assets/icons/ic_notice.svg';
@@ -29,11 +31,20 @@ import {
   TipText,
   HeaderRightButton,
   BadgeContainer,
-  BadgeText
-} from './FriendAdd.styles'; 
+  BadgeText,
+} from './FriendAdd.styles';
 
 export default function FriendAdd({ navigation }) {
-  const [searchQuery, setSearchQuery] = useState('');
+  // 뷰모델 상태 및 함수 연결
+  const {
+    searchQuery,
+    handleSearch,
+    searchResults,
+    recommendedFriends,
+    requestCount,
+    isLoading,
+    handleAddFriend,
+  } = useFriendAdd();
 
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
@@ -42,18 +53,23 @@ export default function FriendAdd({ navigation }) {
   );
 
   const rightButton = (
-    <HeaderRightButton onPress={() => navigation.navigate('FriendRequestList')} activeOpacity={0.8}>
+    <HeaderRightButton
+      onPress={() => navigation.navigate('FriendRequestList')}
+      activeOpacity={0.8}
+    >
       <FriendRequestIcon width={22} height={22} color="#000000" />
-            <BadgeContainer>
-        <BadgeText>1</BadgeText>
-      </BadgeContainer>
+      {requestCount > 0 && (
+        <BadgeContainer>
+          <BadgeText>{requestCount}</BadgeText>
+        </BadgeContainer>
+      )}
     </HeaderRightButton>
   );
 
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Header title="친구 추가" left={backButton} right={rightButton} />      
+      <Header title="친구 추가" left={backButton} right={rightButton} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
@@ -61,71 +77,115 @@ export default function FriendAdd({ navigation }) {
             placeholder="검색"
             placeholderTextColor="#000000"
             value={searchQuery}
-            onChangeText={setSearchQuery} 
+            onChangeText={handleSearch}
           />
         </SearchContainer>
 
-        <ListCard>
-          <ListItem isLast={false} isCompact={true}>
-            <AvatarCircle>
-              <UserOutlineIcon width={17} height={17} color="#FF8933" />
-            </AvatarCircle>
-            <ProfileTextColumn>
-              <ProfileName>@fahskdhaskjd</ProfileName>
-            </ProfileTextColumn>
-          </ListItem>
+        {searchQuery.length > 0 && (
+          <ListCard>
+            {searchResults.length === 0 ? (
+              <Text
+                style={{ textAlign: 'center', padding: 20, color: '#AAAAAA' }}
+              >
+                검색 결과가 없습니다.
+              </Text>
+            ) : (
+              searchResults.map((user, index) => (
+                <React.Fragment key={user.id}>
+                  <ListItem isLast={false} isCompact={true}>
+                    <AvatarCircle>
+                      <UserOutlineIcon width={17} height={17} color="#FF8933" />
+                    </AvatarCircle>
+                    <ProfileTextColumn>
+                      <ProfileName>사용자 #{user.id}</ProfileName>
+                    </ProfileTextColumn>
+                  </ListItem>
+                  <ListItem
+                    isLast={index === searchResults.length - 1}
+                    isCompact={false}
+                  >
+                    <AvatarCircle>
+                      <AvatarText>{user.name?.charAt(0) || '?'}</AvatarText>
+                    </AvatarCircle>
+                    <ProfileTextColumn>
+                      <ProfileName>{user.name}</ProfileName>
+                      {user.desc && <ProfileDesc>{user.desc}</ProfileDesc>}
+                    </ProfileTextColumn>
+                    <AddFriendBtn
+                      activeOpacity={0.8}
+                      onPress={() => handleAddFriend(user.id)}
+                      disabled={isLoading}
+                    >
+                      <PlusIcon width={14} height={14} color="#FFFFFF" />
+                      <AddFriendBtnText>친구추가</AddFriendBtnText>
+                    </AddFriendBtn>
+                  </ListItem>
+                </React.Fragment>
+              ))
+            )}
+          </ListCard>
+        )}
 
-          <ListItem isLast={true} isCompact={false}>
-            <AvatarCircle>
-              <AvatarText>홍</AvatarText>
-            </AvatarCircle>
-            <ProfileTextColumn>
-              <ProfileName>홍길동</ProfileName>
-            </ProfileTextColumn>
-            <AddFriendBtn activeOpacity={0.8}>
-              <PlusIcon width={14} height={14} color="#FFFFFF" />
-              <AddFriendBtnText>친구추가</AddFriendBtnText>
-            </AddFriendBtn>
-          </ListItem>
-        </ListCard>
-        
         <SectionTitle>추천 친구</SectionTitle>
         <ListCard>
-          <ListItem isLast={false} isCompact={true}>
-            <AvatarCircle>
-              <UserOutlineIcon width={17} height={17} color="#FF8933" />
-            </AvatarCircle>
-            <ProfileTextColumn>
-              <ProfileName>@fahskdhaskjd</ProfileName>
-            </ProfileTextColumn>
-          </ListItem>
-          <ListItem isLast={true} isCompact={false}>
-            <AvatarCircle>
-              <AvatarText>홍</AvatarText>
-            </AvatarCircle>
-            <ProfileTextColumn>
-              <ProfileName>홍길동</ProfileName>
-              <ProfileDesc>불 메모 많이 사용</ProfileDesc>
-            </ProfileTextColumn>
-            <AddFriendBtn activeOpacity={0.8}>
-              <PlusIcon width={14} height={14} color="#FFFFFF" />
-              <AddFriendBtnText>친구추가</AddFriendBtnText>
-            </AddFriendBtn>
-          </ListItem>
+          {recommendedFriends.length === 0 ? (
+            <Text
+              style={{ textAlign: 'center', padding: 20, color: '#AAAAAA' }}
+            >
+              추천 친구가 없습니다.
+            </Text>
+          ) : (
+            recommendedFriends.map((user, index) => (
+              <React.Fragment key={user.id}>
+                <ListItem isLast={false} isCompact={true}>
+                  <AvatarCircle>
+                    <UserOutlineIcon width={17} height={17} color="#FF8933" />
+                  </AvatarCircle>
+                  <ProfileTextColumn>
+                    <ProfileName>사용자 #{user.id}</ProfileName>
+                  </ProfileTextColumn>
+                </ListItem>
+                <ListItem
+                  isLast={index === recommendedFriends.length - 1}
+                  isCompact={false}
+                >
+                  <AvatarCircle>
+                    <AvatarText>{user.name?.charAt(0) || '?'}</AvatarText>
+                  </AvatarCircle>
+                  <ProfileTextColumn>
+                    <ProfileName>{user.name}</ProfileName>
+                    {user.desc && <ProfileDesc>{user.desc}</ProfileDesc>}
+                  </ProfileTextColumn>
+                  <AddFriendBtn
+                    activeOpacity={0.8}
+                    onPress={() => handleAddFriend(user.id)}
+                    disabled={isLoading}
+                  >
+                    <PlusIcon width={14} height={14} color="#FFFFFF" />
+                    <AddFriendBtnText>친구추가</AddFriendBtnText>
+                  </AddFriendBtn>
+                </ListItem>
+              </React.Fragment>
+            ))
+          )}
         </ListCard>
-        
+
         <TipContainer>
           <TipRow>
             <TipIconCircle>
               <BulbIcon width={20} height={20} color="#FF8933" />
             </TipIconCircle>
-            <TipText>친구를 추가하면 함께 프로젝트를{'\n'}더 쉽게 관리할 수 있어요.</TipText>
+            <TipText>
+              친구를 추가하면 함께 프로젝트를{'\n'}더 쉽게 관리할 수 있어요.
+            </TipText>
           </TipRow>
           <TipRow>
             <TipIconCircle>
               <NoticeIcon width={20} height={20} color="#FF8933" />
             </TipIconCircle>
-            <TipText>추천 친구는 같은 프로젝트 멤버를 기준으로{'\n'}제안돼요.</TipText>
+            <TipText>
+              추천 친구는 같은 프로젝트 멤버를 기준으로{'\n'}제안돼요.
+            </TipText>
           </TipRow>
         </TipContainer>
       </ScrollView>

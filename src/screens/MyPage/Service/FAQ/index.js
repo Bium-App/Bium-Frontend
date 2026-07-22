@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import { TouchableOpacity, LayoutAnimation, UIManager, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header'; 
-import ImgFaq from '../../../../assets/icons/img_faq.svg'; 
+
+// 💡 종이와 돋보기를 각각 분리해서 임포트합니다.
+import ImgFaqPaper from '../../../../assets/icons/img_faq_paper.svg'; 
+import ImgFaqGlass from '../../../../assets/icons/img_faq_glass.svg'; 
 
 import {
   Container,
   ScrollContainer,
   TopSection,
   IllustrationBackground,
+  GlassWrapper,
   Title,
   Subtitle,
   SearchContainer,
@@ -95,6 +99,7 @@ const FAQ_DATA = [
 export default function FAQ({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState(null);
+  
   const toggleExpand = (id) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpandedId(expandedId === id ? null : id);
@@ -119,12 +124,15 @@ export default function FAQ({ navigation }) {
         
         <TopSection>
           <IllustrationBackground>
-            <ImgFaq 
-              width={122} 
-              height={118} 
-              style={{ transform: [{ translateX: 12 }, { translateY: 5 }] }} 
-            />
+            {/* 1. 배경 한가운데에 종이를 먼저 깔아줍니다 */}
+            <ImgFaqPaper width={100} height={132} />
+            
+            {/* 2. 그 위에 GlassWrapper를 올려서 절대 좌표(우측 하단)로 띄워줍니다 */}
+            <GlassWrapper>
+              <ImgFaqGlass width={90} height={90} />
+            </GlassWrapper>
           </IllustrationBackground>
+          
           <Title>궁금하신 내용을 찾아보세요</Title>
           <Subtitle>자주 묻는 질문에서 빠르게 해결할 수 있어요.</Subtitle>
         </TopSection>

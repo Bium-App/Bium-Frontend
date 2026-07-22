@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { navigationRef } from './navigationRef';
 
 import StartScreen from '../screens/StartScreen';
 import Splash from '../screens/Splash';
@@ -40,7 +41,7 @@ import Language from '../screens/MyPage/Settings/Language';
 import SettingNotification from '../screens/MyPage/Settings/SettingNotification';
 import Privacy from '../screens/MyPage/Settings/PrivacySecurity';
 
-// 💡 [2단계 인증 전체 화면 import 세팅 완료!] 
+// 💡 [2단계 인증 전체 화면 import 세팅 완료!]
 import TwoFactorIntro from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/TwoFactorIntro';
 import PasswordCheck from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/PasswordCheck';
 import MethodSelect from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/MethodSelect';
@@ -54,29 +55,26 @@ import PrivacyPolicy from '../screens/MyPage/Settings/PrivacySecurity/PrivacyPol
 import MarketingConsent from '../screens/MyPage/Settings/PrivacySecurity/MarketingConsent';
 import PermissionSetup from '../screens/MyPage/Settings/PrivacySecurity/PermissionSetup';
 
-import Trash from '../screens/MyPage/Settings/Trash'; 
+import Trash from '../screens/MyPage/Settings/Trash';
 
 import Notice from '../screens/MyPage/Service/Notice';
 import CustomerCenter from '../screens/MyPage/Service/CustomerCenter';
 import Inquiry from '../screens/MyPage/Service/Inquiry';
+import InquiryHistory from '../screens/MyPage/Service/InquiryHistory';
 import FAQ from '../screens/MyPage/Service/FAQ';
 import PhoneInquiry from '../screens/MyPage/Service/PhoneInquiry';
 
 import Logout from '../screens/MyPage/account/Logout';
 import Withdrawal from '../screens/MyPage/account/Withdrawal';
 
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const renderTabBar = (props) => <Footer {...props} />;
+const renderTabBar = props => <Footer {...props} />;
 
 function FooterTabs() {
   return (
-    <Tab.Navigator
-      tabBar={renderTabBar}
-      screenOptions={{ headerShown: false }}
-    >
+    <Tab.Navigator tabBar={renderTabBar} screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Timeline" component={Timeline} />
       <Tab.Screen name="MemoEditor" component={MemoEditor} />
@@ -88,9 +86,9 @@ function FooterTabs() {
 
 export default function Navigation() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator 
-        initialRouteName="StartScreen" 
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator
+        initialRouteName="StartScreen"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="StartScreen" component={StartScreen} />
@@ -104,10 +102,26 @@ export default function Navigation() {
         <Stack.Screen name="Notification" component={Notification} />
 
         {/* 팀 스페이스 */}
-        <Stack.Screen name="ProjectDetail" component={ProjectDetail} options={{ animation: 'none' }} />
-        <Stack.Screen name="ProjectTodo" component={ProjectTodo} options={{ animation: 'none' }} />
-        <Stack.Screen name="Schedule" component={Schedule} options={{ animation: 'none' }} />
-        <Stack.Screen name="Files" component={Files} options={{ animation: 'none' }} />
+        <Stack.Screen
+          name="ProjectDetail"
+          component={ProjectDetail}
+          options={{ animation: 'none' }}
+        />
+        <Stack.Screen
+          name="ProjectTodo"
+          component={ProjectTodo}
+          options={{ animation: 'none' }}
+        />
+        <Stack.Screen
+          name="Schedule"
+          component={Schedule}
+          options={{ animation: 'none' }}
+        />
+        <Stack.Screen
+          name="Files"
+          component={Files}
+          options={{ animation: 'none' }}
+        />
         <Stack.Screen name="AddNotice" component={AddNotice} />
         <Stack.Screen name="AddTodo" component={AddTodo} />
         <Stack.Screen name="AddSchedule" component={AddSchedule} />
@@ -119,9 +133,12 @@ export default function Navigation() {
         {/* 🚨 마이페이지 하위 스택 */}
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="Language" component={Language} />
-        <Stack.Screen name="SettingNotification" component={SettingNotification} />
+        <Stack.Screen
+          name="SettingNotification"
+          component={SettingNotification}
+        />
         <Stack.Screen name="Privacy" component={Privacy} />
-        
+
         {/* 💡 [2단계 인증 스택 등록 완료!] */}
         <Stack.Screen name="TwoFactorIntro" component={TwoFactorIntro} />
         <Stack.Screen name="PasswordCheck" component={PasswordCheck} />
@@ -140,6 +157,7 @@ export default function Navigation() {
         <Stack.Screen name="Notice" component={Notice} />
         <Stack.Screen name="CustomerCenter" component={CustomerCenter} />
         <Stack.Screen name="Inquiry" component={Inquiry} />
+        <Stack.Screen name="InquiryHistory" component={InquiryHistory} />
         <Stack.Screen name="FAQ" component={FAQ} />
         <Stack.Screen name="PhoneInquiry" component={PhoneInquiry} />
         <Stack.Screen name="Logout" component={Logout} />

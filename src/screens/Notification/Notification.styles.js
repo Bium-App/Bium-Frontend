@@ -2,7 +2,7 @@ import styled from 'styled-components/native';
 
 export const Container = styled.View`
   flex: 1;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const ListContainer = styled.ScrollView.attrs({
@@ -15,21 +15,21 @@ export const ListContainer = styled.ScrollView.attrs({
   flex: 1;
 `;
 
-export const NotificationCard = styled.View`
+export const NotificationCard = styled.TouchableOpacity`
   flex-direction: row;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
   align-items: center;
-  
+
   elevation: 1;
-  shadow-color: #6B6EA1;
+  shadow-color: #6b6ea1;
   shadow-offset: 0px 1px;
   shadow-opacity: 0.25;
   shadow-radius: 3px;
   border-width: 1px;
-  border-color: #EEEEEE;
+  border-color: #eeeeee;
 `;
 
 export const IconWrapper = styled.View`
@@ -55,7 +55,7 @@ export const CardTitle = styled.Text`
 
 export const CardDescription = styled.Text`
   font-size: 13px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 `;
 
 export const RightContent = styled.View`
@@ -66,7 +66,7 @@ export const RightContent = styled.View`
 
 export const TimeText = styled.Text`
   font-size: 12px;
-  color: #BBBBBB;
+  color: #bbbbbb;
 `;
 
 export const DeleteButton = styled.TouchableOpacity`

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Platform, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, Platform, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
 import PlusIcon from '../../../assets/icons/ic_plus.svg';
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
 
 import {
   Container,
@@ -16,37 +17,77 @@ import {
   Label,
   Input,
   SubmitButton,
-  SubmitText
+  SubmitText,
 } from './EditProfile.styles';
 
 export default function EditProfile({ navigation }) {
+  const { user, isLoading, updateProfile } = useCurrentUser();
   const [nickname, setNickname] = useState('');
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  
-  // 💡 전화번호 상태 추가
-  const [phoneNumber, setPhoneNumber] = useState('');
+
+  useEffect(() => {
+    setNickname(user?.nickname ?? '');
+  }, [user]);
+
+  const handleSubmit = async () => {
+    if (!nickname.trim()) {
+      Alert.alert('알림', '닉네임을 입력해주세요.');
+      return;
+    }
+
+    try {
+      await updateProfile({
+        nickname: nickname.trim(),
+        profileImageUrl: user?.profileImageUrl,
+      });
+      Alert.alert('완료', '내 정보가 수정되었습니다.', [
+        { text: '확인', onPress: () => navigation.goBack() },
+      ]);
+    } catch (error) {
+      Alert.alert(
+        '오류',
+        error.response?.data?.message ?? '내 정보 수정에 실패했습니다.',
+      );
+    }
+  };
 
   return (
     <Container>
       <Header
         left={
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
         title="내 정보 수정"
       />
-      
-      <KeyboardContainer behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+
+      <KeyboardContainer
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <ScrollContainer showsVerticalScrollIndicator={false}>
-          
           <ProfileContainer>
             <ProfileImageWrapper>
-              <Icon name="person" size={88} color="#AEAEB2" />
+              {user?.profileImageUrl ? (
+                <Image
+                  source={{ uri: user.profileImageUrl }}
+                  style={{ width: '100%', height: '100%' }}
+                />
+              ) : (
+                <Icon name="person" size={88} color="#AEAEB2" />
+              )}
             </ProfileImageWrapper>
-            <BadgeWrapper activeOpacity={0.7}>
+            <BadgeWrapper
+              activeOpacity={0.7}
+              onPress={() =>
+                Alert.alert(
+                  '안내',
+                  'S3 업로드 API는 연결됐습니다. 이미지 선택기 연결 후 업로드를 사용할 수 있습니다.',
+                )
+              }
+            >
               <PlusIcon width={14} height={14} color="#FFFFFF" />
             </BadgeWrapper>
           </ProfileContainer>
@@ -63,57 +104,44 @@ export default function EditProfile({ navigation }) {
             </InputGroup>
 
             <InputGroup>
-              <Label>아이디</Label>
+              <Label>사용자 번호</Label>
               <Input
-                placeholder="example3"
-                placeholderTextColor="#AAAAAA"
-                value={userId}
-                onChangeText={setUserId}
-                autoCapitalize="none"
+                value={user?.userId ? String(user.userId) : ''}
+                editable={false}
               />
             </InputGroup>
 
             <InputGroup>
-              <Label>비밀번호</Label>
-              <Input
-                placeholder="example1234#"
-                placeholderTextColor="#AAAAAA"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-              />
+              <Label>이름</Label>
+              <Input value={user?.name ?? ''} editable={false} />
             </InputGroup>
 
             <InputGroup>
               <Label>이메일</Label>
               <Input
-                placeholder="example@email.com"
-                placeholderTextColor="#AAAAAA"
-                value={email}
-                onChangeText={setEmail}
+                value={user?.email ?? ''}
+                editable={false}
                 keyboardType="email-address"
-                autoCapitalize="none"
               />
             </InputGroup>
 
-            {/* 💡 요청하신 전화번호 입력란 추가 완료! */}
             <InputGroup>
               <Label>전화번호</Label>
               <Input
-                placeholder="010-0000-0000"
-                placeholderTextColor="#AAAAAA"
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                keyboardType="phone-pad" // 터치 시 숫자 키패드가 뜨도록 설정
+                value={user?.phoneNumber ?? ''}
+                editable={false}
+                keyboardType="phone-pad"
               />
             </InputGroup>
 
-            <SubmitButton activeOpacity={0.8}>
+            <SubmitButton
+              activeOpacity={0.8}
+              disabled={isLoading}
+              onPress={handleSubmit}
+            >
               <SubmitText>확인</SubmitText>
             </SubmitButton>
           </FormContainer>
-
         </ScrollContainer>
       </KeyboardContainer>
     </Container>

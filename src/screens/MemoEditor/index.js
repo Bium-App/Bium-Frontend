@@ -1,58 +1,59 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, StatusBar, Platform, Animated } from 'react-native';
+import { Modal, StatusBar, Platform, Animated, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
+import { useMemoEditor } from '../../hooks/useMemoEditor'; // 뷰모델 훅 임포트
 
 import {
-  Container,
-  KeyboardContainer,
-  HeaderTextButton,
-  HeaderLeftText,
+  Container, 
+  KeyboardContainer, 
+  HeaderTextButton, 
+  HeaderLeftText, 
   HeaderRightText,
-  ContentContainer,
-  EditorBox,
-  TitleRow,
-  TitleInput,
-  LengthText,
+  ContentContainer, 
+  EditorBox, 
+  TitleRow, 
+  TitleInput, 
+  LengthText, 
   Divider,
-  ContentInput,
-  ContentLengthText,
-  ToolbarBox,
-  ToolbarRow,
+  ContentInput, 
+  ContentLengthText, 
+  ToolbarBox, 
+  ToolbarRow, 
   ToolbarRowDivider,
-  ToolGroup,
-  FormatGroup,
-  ToolButton,
-  ToolText,
-  FontSizeBox,
+  ToolGroup, 
+  FormatGroup, 
+  ToolButton, 
+  ToolText, 
+  FontSizeBox, 
   FontSizeText,
-  ColorPickerWrapper,
-  ColorCircle,
-  SectionHeader,
-  SectionTitle,
+  ColorPickerWrapper, 
+  ColorCircle, 
+  SectionHeader, 
+  SectionTitle, 
   SectionSubTitle,
-  ImageUploadBox,
-  UploadTitle,
-  UploadSub,
-  TimerBox,
+  ImageUploadBox, 
+  UploadTitle, 
+  UploadSub, 
+  TimerBox, 
   TimerHeaderRow,
   TimerDesc,
-  TimerButtonRow,
-  TimerButtonWrapper,
-  AnimatedTimerBox,
+  TimerButtonRow, 
+  TimerButtonWrapper, 
+  AnimatedTimerBox, 
   TimerButtonSub,
-  ModalOverlay,
-  ModalContainer,
-  ModalHeader,
-  ModalFireIcon,
+  ModalOverlay, 
+  ModalContainer, 
+  ModalHeader, 
+  ModalFireIcon, 
   ModalTitleWrapper,
-  ModalText,
-  ModalHighlight,
-  ModalSubText,
-  ModalBlueHighlight,
+  ModalText, 
+  ModalHighlight, 
+  ModalSubText, 
+  ModalBlueHighlight, 
   ModalFooter,
-  Checkbox,
+  Checkbox, 
   CheckboxLabel
 } from './MemoEditor.styles';
 
@@ -94,13 +95,21 @@ const AnimatedTimerButton = ({ active, onPress, title, subTitle }) => {
   );
 };
 
-export default function MemoEditor({ navigation }) {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+// route 프로퍼티를 추가하여, 리스트에서 클릭해 들어왔을 때 데이터를 받을 수 있도록 처리
+export default function MemoEditor({ navigation, route }) {
+  // 이전 화면(홈/타임라인)에서 메모를 눌러 들어왔다면 route.params에 데이터가 들어있음
+  const initialData = route?.params?.memoData; 
+  const memoId = initialData?.id; 
+
+  // 서버 통신 및 폼 데이터를 뷰모델 훅에서 관리
+  const { 
+    title, setTitle, content, setContent, timer, setTimer, isLoading, handleSave 
+  } = useMemoEditor(initialData);
+
+  // 화면 내부 동작 전용 상태 (툴바 UI 및 모달) - 기존 로직 완벽 유지
   const [fontSize, setFontSize] = useState(14);
   const [align, setAlign] = useState('left');
   const [format, setFormat] = useState({ bold: false, italic: false, underline: false });
-  const [timer, setTimer] = useState('24h');
   const [isModalVisible, setModalVisible] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
 
@@ -113,10 +122,17 @@ export default function MemoEditor({ navigation }) {
             <HeaderLeftText>취소</HeaderLeftText>
           </HeaderTextButton>
         }
-        title="새 메모"
+        title={memoId ? "메모 수정" : "새 메모"}
         right={
-          <HeaderTextButton onPress={() => console.log('저장')}>
-            <HeaderRightText>저장</HeaderRightText>
+          // 로딩 중일 때는 터치를 막고, handleSave에 네비게이션 콜백 전달
+          <HeaderTextButton 
+            onPress={() => !isLoading && handleSave(memoId, () => navigation.goBack())}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FF8933" size="small" />
+            ) : (
+              <HeaderRightText>저장</HeaderRightText>
+            )}
           </HeaderTextButton>
         }
       />
@@ -131,6 +147,7 @@ export default function MemoEditor({ navigation }) {
                 maxLength={50}
                 value={title}
                 onChangeText={setTitle}
+                editable={!isLoading} // 저장 중 입력 방지
               />
               <LengthText>{title.length}/50</LengthText>
             </TitleRow>
@@ -144,6 +161,7 @@ export default function MemoEditor({ navigation }) {
               textAlignVertical="top"
               value={content}
               onChangeText={setContent}
+              editable={!isLoading} // 저장 중 입력 방지
               customFontSize={fontSize}
               bold={format.bold}
               italic={format.italic}
@@ -168,16 +186,10 @@ export default function MemoEditor({ navigation }) {
                     <Icon name="add-outline" size={16} color="#000000" />
                   </TouchableOpacity>
                 </FontSizeBox>
-                <ToolButton 
-                  active={align === 'left'} 
-                  onPress={() => setAlign('left')}
-                >
+                <ToolButton active={align === 'left'} onPress={() => setAlign('left')}>
                   <Icon name="menu-outline" size={20} color={align === 'left' ? "#FF8933" : "#000000"} />
                 </ToolButton>
-                <ToolButton 
-                  active={align === 'justify'} 
-                  onPress={() => setAlign('justify')}
-                >
+                <ToolButton active={align === 'justify'} onPress={() => setAlign('justify')}>
                   <Icon name="list-outline" size={20} color={align === 'justify' ? "#FF8933" : "#000000"} />
                 </ToolButton>
               </ToolGroup>
@@ -185,22 +197,13 @@ export default function MemoEditor({ navigation }) {
             <ToolbarRowDivider />
             <ToolbarRow justifyContent="flex-start">
               <FormatGroup>
-                <ToolButton 
-                  active={format.bold} 
-                  onPress={() => setFormat({...format, bold: !format.bold})}
-                >
+                <ToolButton active={format.bold} onPress={() => setFormat({...format, bold: !format.bold})}>
                   <ToolText color="#000000" bold>B</ToolText>
                 </ToolButton>
-                <ToolButton 
-                  active={format.italic} 
-                  onPress={() => setFormat({...format, italic: !format.italic})}
-                >
+                <ToolButton active={format.italic} onPress={() => setFormat({...format, italic: !format.italic})}>
                   <ToolText color="#000000" italic>I</ToolText>
                 </ToolButton>
-                <ToolButton 
-                  active={format.underline} 
-                  onPress={() => setFormat({...format, underline: !format.underline})}
-                >
+                <ToolButton active={format.underline} onPress={() => setFormat({...format, underline: !format.underline})}>
                   <ToolText color="#000000" underline>U</ToolText>
                 </ToolButton>
               </FormatGroup>
@@ -234,19 +237,19 @@ export default function MemoEditor({ navigation }) {
             <TimerButtonRow>
               <AnimatedTimerButton 
                 active={timer === '6h'} 
-                onPress={() => setTimer('6h')} 
+                onPress={() => !isLoading && setTimer('6h')} 
                 title="6h" 
                 subTitle="6시간후 소멸" 
               />
               <AnimatedTimerButton 
                 active={timer === '12h'} 
-                onPress={() => setTimer('12h')} 
+                onPress={() => !isLoading && setTimer('12h')} 
                 title="12h" 
                 subTitle="12시간후 소멸" 
               />
               <AnimatedTimerButton 
                 active={timer === '24h'} 
-                onPress={() => setTimer('24h')} 
+                onPress={() => !isLoading && setTimer('24h')} 
                 title="24h" 
                 subTitle="24시간후 소멸" 
               />

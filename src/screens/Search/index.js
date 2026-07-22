@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import React from 'react';
+import {
+  TouchableOpacity,
+  FlatList,
+  View,
+  Text,
+  Alert,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useSearch } from '../../hooks/useSearch';
+import AsyncState from '../../components/AsyncState';
+
 import {
   Container,
   SearchHeaderContainer,
@@ -22,85 +31,189 @@ import {
   RecommendIcon,
   RecommendChipText,
   RecommendSectionContainer,
-  RecommendSectionHeader
+  RecommendSectionHeader,
 } from './Search.styles';
 
 export default function Search({ navigation }) {
   const insets = useSafeAreaInsets();
-  const [keyword, setKeyword] = useState('');
-  
-  const [recentSearches, setRecentSearches] = useState([
-    { id: '1', text: '할일' }
-  ]);
-  
-  const [recommendedSearches] = useState([
-    '발표', '회의', '독서', '아이디어', 
-    '계획', '운동', '여행', '인사이트'
-  ]); 
 
-  const handleDeleteRecent = (id) => {
-    setRecentSearches(recentSearches.filter(item => item.id !== id));
+  const {
+    keyword,
+    setKeyword,
+    recentSearches,
+    recommendedSearches,
+    searchResults,
+    isSearching,
+    hasSearched,
+    errorMessage,
+    deleteRecentSearch,
+    deleteAllRecentSearches,
+    handleSearchSubmit,
+    clearSearch,
+  } = useSearch();
+
+  const onChangeKeyword = text => {
+    setKeyword(text);
+    if (text.length === 0) {
+      clearSearch();
+    }
   };
 
-  const handleDeleteAll = () => {
-    setRecentSearches([]);
+  const handleResultPress = item => {
+    if (item.resultType === 'MEMO') {
+      navigation.navigate('MainTabs', {
+        screen: 'MemoEditor',
+        params: {
+          memoData: {
+            id: String(item.targetId),
+            title: item.title,
+            content: item.desc,
+            status: item.status,
+          },
+        },
+      });
+      return;
+    }
+
+    Alert.alert(
+      '상세 이동 준비 중',
+      '공지·할일·일정 검색 응답에는 소속 teamSpaceId가 있어야 해당 팀 화면으로 이동할 수 있습니다.',
+    );
   };
+
+  const renderSearchResultItem = ({ item }) => (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => handleResultPress(item)}
+      style={{
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+        backgroundColor: '#FFFFFF',
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 16,
+          fontWeight: 'bold',
+          color: '#333',
+          marginBottom: 4,
+        }}
+      >
+        {item.title}
+      </Text>
+      <Text style={{ fontSize: 12, color: '#FF8933', marginBottom: 4 }}>
+        {item.category}
+      </Text>
+      <Text style={{ fontSize: 14, color: '#888' }} numberOfLines={2}>
+        {item.desc}
+      </Text>
+    </TouchableOpacity>
+  );
 
   return (
     <Container>
       <SearchHeaderContainer paddingTop={insets.top}>
-        <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <Icon name="chevron-back-outline" size={24} color="#AAAAAA" /> 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
+        >
+          <Icon name="chevron-back-outline" size={24} color="#AAAAAA" />
         </TouchableOpacity>
         <SearchInputContainer>
-          <Icon name="search-outline" size={28} color="#FF8933" /> 
+          <Icon name="search-outline" size={28} color="#FF8933" />
           <SearchLabel>검색</SearchLabel>
           <VerticalDivider />
           <SearchInput
             placeholder=""
             value={keyword}
-            onChangeText={setKeyword}
+            onChangeText={onChangeKeyword}
             autoFocus
+            onSubmitEditing={() => handleSearchSubmit()}
+            returnKeyType="search"
           />
         </SearchInputContainer>
       </SearchHeaderContainer>
-      
+
       <HeaderDivider />
 
-      <SectionContainer>
-        <SectionHeader>
-          <SectionTitle>최근검색</SectionTitle>
-          <TouchableOpacity onPress={handleDeleteAll} activeOpacity={0.7}>
-            <DeleteAllText>전체삭제</DeleteAllText>
-          </TouchableOpacity>
-        </SectionHeader>
-        <ChipContainer>
-          {recentSearches.map((item) => (
-            <RecentChip key={item.id}>
-              <RecentChipText>{item.text}</RecentChipText>
-              <ChipDeleteButton onPress={() => handleDeleteRecent(item.id)} activeOpacity={0.7}>
-                <Icon name="close" size={16} color="#FF8933" /> 
-              </ChipDeleteButton>
-            </RecentChip>
-          ))}
-        </ChipContainer>
-      </SectionContainer>
+      {/* 검색 여부에 따른 화면 분기 처리 */}
+      {hasSearched ? (
+        <View style={{ flex: 1 }}>
+          {isSearching || errorMessage ? (
+            <AsyncState
+              isLoading={isSearching}
+              errorMessage={errorMessage}
+              onRetry={() => handleSearchSubmit(keyword)}
+            />
+          ) : searchResults.length === 0 ? (
+            <Text
+              style={{ textAlign: 'center', marginTop: 50, color: '#AAAAAA' }}
+            >
+              검색 결과가 없습니다.
+            </Text>
+          ) : (
+            <FlatList
+              data={searchResults}
+              keyExtractor={item => item.id}
+              renderItem={renderSearchResultItem}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
+        </View>
+      ) : (
+        <>
+          <SectionContainer>
+            <SectionHeader>
+              <SectionTitle>최근검색</SectionTitle>
+              <TouchableOpacity
+                onPress={deleteAllRecentSearches}
+                activeOpacity={0.7}
+              >
+                <DeleteAllText>전체삭제</DeleteAllText>
+              </TouchableOpacity>
+            </SectionHeader>
+            <ChipContainer>
+              {recentSearches.map(item => (
+                <RecentChip key={item.id}>
+                  <TouchableOpacity
+                    onPress={() => handleSearchSubmit(item.text)}
+                    activeOpacity={0.7}
+                  >
+                    <RecentChipText>{item.text}</RecentChipText>
+                  </TouchableOpacity>
+                  <ChipDeleteButton
+                    onPress={() => deleteRecentSearch(item.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Icon name="close" size={16} color="#FF8933" />
+                  </ChipDeleteButton>
+                </RecentChip>
+              ))}
+            </ChipContainer>
+          </SectionContainer>
 
-      <RecommendSectionContainer>
-        <RecommendSectionHeader>
-          <SectionTitle>추천 검색어</SectionTitle>
-        </RecommendSectionHeader>
-        <ChipContainer>
-          {recommendedSearches.map((text, index) => (
-            <RecommendChip key={index}>
-              <RecommendIcon>
-                <Icon name="search-outline" size={16} color="#FF8933" /> 
-              </RecommendIcon>
-              <RecommendChipText>{text}</RecommendChipText>
-            </RecommendChip>
-          ))}
-        </ChipContainer>
-      </RecommendSectionContainer>
+          <RecommendSectionContainer>
+            <RecommendSectionHeader>
+              <SectionTitle>추천 검색어</SectionTitle>
+            </RecommendSectionHeader>
+            <ChipContainer>
+              {recommendedSearches.map((text, index) => (
+                <RecommendChip
+                  key={index}
+                  onPress={() => handleSearchSubmit(text)}
+                  activeOpacity={0.7}
+                >
+                  <RecommendIcon>
+                    <Icon name="search-outline" size={16} color="#FF8933" />
+                  </RecommendIcon>
+                  <RecommendChipText>{text}</RecommendChipText>
+                </RecommendChip>
+              ))}
+            </ChipContainer>
+          </RecommendSectionContainer>
+        </>
+      )}
     </Container>
   );
 }

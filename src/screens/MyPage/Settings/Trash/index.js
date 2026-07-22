@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, Text, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { TouchableOpacity, Text, Alert, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header'; // 💡 항상 공통 컴포넌트로 분리해서 사용하는 헤더
 import IcFire from '../../../../assets/icons/ic_fire.svg';
+import { useTrash } from '../../../../hooks/useTrash';
 
 import {
   Container,
@@ -28,13 +29,20 @@ import {
 } from './Trash.styles';
 
 export default function Trash({ navigation }) {
+  // 뷰모델에서 서버 데이터와 통신 함수 가져오기
+  const { 
+    trashItems, isLoading, fetchTrashMemos, 
+    handleRestoreMemos, handlePermanentDeleteMemos 
+  } = useTrash();
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [trashItems, setTrashItems] = useState([
-    { id: 'trash_1', title: '오늘 해야 할 일', desc: '발표 자료 준비하기', remain: '10일' },
-    { id: 'trash_2', title: '오늘 해야 할 일', desc: '발표 자료 준비하기', remain: '10일' },
-    { id: 'trash_3', title: '오늘 해야 할 일', desc: '발표 자료 준비하기', remain: '10일' },
-  ]);
+
+  // 화면이 켜질 때 휴지통 데이터를 불러옴
+  useEffect(() => {
+    fetchTrashMemos();
+  }, [fetchTrashMemos]);
+
   const handleItemPress = (id) => {
     if (!isEditMode) return;
     if (selectedIds.includes(id)) {
@@ -61,11 +69,20 @@ export default function Trash({ navigation }) {
       { 
         text: "확인", 
         onPress: () => {
-          setTrashItems(trashItems.filter(item => !selectedIds.includes(item.id)));
-          setSelectedIds([]);     
-          setIsEditMode(false);   
+          // 확인 버튼 누르면 뷰모델의 API 호출 함수 실행 후 목록 새로고침
+          const onSuccess = () => {
+            setSelectedIds([]);     
+            setIsEditMode(false);
+            fetchTrashMemos(); // 처리 후 서버에서 바뀐 데이터 다시 불러오기
+          };
+
+          if (type === 'restore') {
+            handleRestoreMemos(selectedIds, onSuccess);
+          } else {
+            handlePermanentDeleteMemos(selectedIds, onSuccess);
+          }
+        }
       }
-     }
     ]);
   };
 
@@ -99,9 +116,9 @@ export default function Trash({ navigation }) {
           <SelectAllButton onPress={handleSelectAll} activeOpacity={0.7}>
             <Icon 
               // 전체 개수와 선택된 개수가 같으면 꽉 찬 주황색 동그라미, 아니면 빈 회색 동그라미
-              name={selectedIds.length === trashItems.length ? "checkmark-circle" : "ellipse-outline"} 
+              name={selectedIds.length === trashItems.length && trashItems.length > 0 ? "checkmark-circle" : "ellipse-outline"} 
               size={20}    /* 24 -> 20 */
-              color={selectedIds.length === trashItems.length ? "#FF8933" : "#9B9B9B"}  /* C7C7CC - >9B9B9B */
+              color={selectedIds.length === trashItems.length && trashItems.length > 0 ? "#FF8933" : "#9B9B9B"}  /* C7C7CC - >9B9B9B */
             />
             <SelectText>전체</SelectText>
           </SelectAllButton>
@@ -111,7 +128,12 @@ export default function Trash({ navigation }) {
         </SelectAllBar>
       )}
       
-      <ScrollContainer showsVerticalScrollIndicator={false}>
+      <ScrollContainer 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={fetchTrashMemos} tintColor="#FF8933" />
+        }
+      >
         {trashItems.map((item) => {
           const isSelected = selectedIds.includes(item.id);
           return (
@@ -159,7 +181,7 @@ export default function Trash({ navigation }) {
         <BottomBar>
           <RestoreButton 
             onPress={() => handleAction('restore')} 
-            disabled={selectedIds.length === 0} 
+            disabled={selectedIds.length === 0 || isLoading} 
             style={{ opacity: selectedIds.length === 0 ? 0.3 : 1 }} // 0개일 때는 흐리게(0.3) 처리하여 시각적으로도 막아둠
           >
             <RestoreText>복구({selectedIds.length})</RestoreText>
@@ -167,7 +189,7 @@ export default function Trash({ navigation }) {
           
           <DeleteButton 
             onPress={() => handleAction('delete')} 
-            disabled={selectedIds.length === 0}
+            disabled={selectedIds.length === 0 || isLoading}
             style={{ opacity: selectedIds.length === 0 ? 0.3 : 1 }}
           >
             <DeleteText>삭제({selectedIds.length})</DeleteText>

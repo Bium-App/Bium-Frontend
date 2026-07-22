@@ -1,6 +1,6 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Alert } from 'react-native';
+import dayjs from 'dayjs';
 
 import Header from '../../../../../../components/Header';
 
@@ -8,6 +8,7 @@ import ImgSuccessBadge from '../../../../../../assets/icons/img_success_badge.sv
 import IcShieldCheck from '../../../../../../assets/icons/ic_shield_check.svg';
 import IcDevicePhone from '../../../../../../assets/icons/ic_device_phone.svg';
 import IcCalendarLine from '../../../../../../assets/icons/ic_calendar_line.svg';
+import { useUserSettings } from '../../../../../../hooks/useUserSettings';
 
 import {
   Container,
@@ -22,19 +23,29 @@ import {
   SummaryHeader,
   SummaryRow,
   LabelWrapper,
-  IconContainer, 
+  IconContainer,
   LabelText,
   ValueText,
   SubmitButton,
-  SubmitButtonText
+  SubmitButtonText,
 } from './Success.styles';
 
-export default function Success({ navigation }) {
-  
-  const handleConfirm = () => {
-    navigation.navigate('MainTabs', {
-      screen: 'MyPage',
-    });
+export default function Success({ route, navigation }) {
+  const { saveSettings } = useUserSettings();
+  const phoneNumber = route.params?.phoneNumber ?? '';
+
+  const handleConfirm = async () => {
+    try {
+      await saveSettings({ use2fa: true });
+      navigation.navigate('MainTabs', {
+        screen: 'MyPage',
+      });
+    } catch (error) {
+      Alert.alert(
+        '오류',
+        error.response?.data?.message ?? '2단계 인증 설정 저장에 실패했습니다.',
+      );
+    }
   };
 
   return (
@@ -43,15 +54,12 @@ export default function Success({ navigation }) {
 
       <MainContainer>
         <ContentWrapper>
-          
           <TopContentWrapper>
             <IconWrapper>
               <ImgSuccessBadge width={103} height={121} />
             </IconWrapper>
 
-            <TitleText>
-              2단계 인증 설정이{'\n'}완료되었습니다!
-            </TitleText>
+            <TitleText>2단계 인증 설정이{'\n'}완료되었습니다!</TitleText>
             <DescText>
               이제 로그인 시 추가 인증을 통해{'\n'}계정이 안전하게 보호됩니다.
             </DescText>
@@ -60,7 +68,7 @@ export default function Success({ navigation }) {
           <BottomArea>
             <SummaryBox>
               <SummaryHeader>설정 요약</SummaryHeader>
-              
+
               <SummaryRow>
                 <LabelWrapper>
                   <IconContainer>
@@ -78,9 +86,8 @@ export default function Success({ navigation }) {
                   </IconContainer>
                   <LabelText>등록된번호</LabelText>
                 </LabelWrapper>
-                <ValueText>010-1234-1234</ValueText>
+                <ValueText>{phoneNumber || '등록 완료'}</ValueText>
               </SummaryRow>
-
 
               <SummaryRow>
                 <LabelWrapper>
@@ -89,7 +96,7 @@ export default function Success({ navigation }) {
                   </IconContainer>
                   <LabelText>설정일</LabelText>
                 </LabelWrapper>
-                <ValueText>26.07.09</ValueText>
+                <ValueText>{dayjs().format('YY.MM.DD')}</ValueText>
               </SummaryRow>
             </SummaryBox>
 
@@ -97,7 +104,6 @@ export default function Success({ navigation }) {
               <SubmitButtonText>확인</SubmitButtonText>
             </SubmitButton>
           </BottomArea>
-
         </ContentWrapper>
       </MainContainer>
     </Container>

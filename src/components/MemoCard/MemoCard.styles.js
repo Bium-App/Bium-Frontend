@@ -1,8 +1,8 @@
 import styled from 'styled-components/native';
 
-export const CardContainer = styled.View`
+export const CardContainer = styled.TouchableOpacity`
   flex-direction: row;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 12px;
   padding-horizontal: 16px;
   height: 88px;
@@ -12,7 +12,7 @@ export const CardContainer = styled.View`
   border-color: ${({ isPinned }) => (isPinned ? '#7CC4FF' : '#F0F0F0')};
   align-items: center;
   elevation: 1;
-  shadow-color: #6B6EA1;
+  shadow-color: #6b6ea1;
   shadow-offset: 0px 1px;
   shadow-opacity: 0.25;
   shadow-radius: 3px;
@@ -22,7 +22,8 @@ export const IconWrapper = styled.View`
   width: 48px;
   height: 48px;
   border-radius: 24px;
-  background-color: ${({ status }) => (status === 'ICE' ? '#EAF3FF' : '#FFE8D6')};
+  background-color: ${({ status }) =>
+    status === 'ICE' ? '#EAF3FF' : '#FFE8D6'};
   justify-content: center;
   align-items: center;
   margin-right: 12px;
@@ -54,7 +55,7 @@ export const TimeText = styled.Text`
 
 export const ExpireText = styled.Text`
   font-size: 12px;
-  color: #FF8933;
+  color: #ff8933;
 `;
 
 export const RightWrapper = styled.View`
@@ -64,13 +65,18 @@ export const RightWrapper = styled.View`
   height: 100%;
 `;
 
-export const ActionBackground = styled.View`
+export const ActionBackground = styled.TouchableOpacity`
   width: 80px;
-  height: 88px; 
+  height: 88px;
   background-color: ${({ color }) => color};
   border-radius: 12px;
   justify-content: center;
   align-items: center;
   margin-left: ${({ align }) => (align === 'flex-start' ? '16px' : '0px')};
   margin-right: ${({ align }) => (align === 'flex-end' ? '16px' : '0px')};
+`;
+
+export const MoreButton = styled.TouchableOpacity`
+  padding: 4px;
+  margin-right: -4px;
 `;

@@ -1,9 +1,17 @@
-import React from 'react';
-import { StatusBar, ScrollView } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  StatusBar,
+  ScrollView,
+  Text,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from '../../../components/Header'; 
+import dayjs from 'dayjs';
+import Header from '../../../components/Header';
 import CalendarIcon from '../../../assets/icons/ic_calendar.svg';
 import PlusIcon from '../../../assets/icons/ic_plus.svg';
+import { useTeamSchedules } from '../../../hooks/useTeamSchedules';
 
 import {
   Container,
@@ -25,50 +33,60 @@ import {
   TextColumn,
   ListItemTitle,
   ListItemTime,
-  HeaderBackButton
+  HeaderBackButton,
 } from './Schedule.styles';
 
-export default function Schedule({ navigation }) {
-  const todaySchedules = [
-    { id: 1, title: '일정1', time: '09:00 - 10:00' },
-    { id: 2, title: '일정1', time: '09:00 - 10:00' },
-    { id: 3, title: '일정1', time: '09:00 - 10:00' },
-  ];
-  const futureSchedules1 = [
-    { id: 4, title: '일정1', time: '09:00 - 10:00' },
-    { id: 5, title: '일정1', time: '09:00 - 10:00' },
-    { id: 6, title: '일정1', time: '09:00 - 10:00' },
-  ];
-  const futureSchedules2 = [
-    { id: 7, title: '일정1', time: '09:00 - 10:00' },
-    { id: 8, title: '일정1', time: '09:00 - 10:00' },
-    { id: 9, title: '일정1', time: '09:00 - 10:00' },
-  ];
+export default function Schedule({ route, navigation }) {
+  const { projectId } = route.params || {};
+  const { schedules, isLoading } = useTeamSchedules(projectId);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const groupedSchedules = useMemo(() => {
+    const keyword = searchQuery.trim().toLowerCase();
+    const groups = schedules
+      .filter(schedule => schedule.title?.toLowerCase().includes(keyword))
+      .reduce((result, schedule) => {
+        const dateKey = dayjs(schedule.scheduleDate).format('YYYY-MM-DD');
+        result[dateKey] = [...(result[dateKey] ?? []), schedule];
+        return result;
+      }, {});
+    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
+  }, [schedules, searchQuery]);
+
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
       <Icon name="chevron-back" size={26} color="#FF8933" />
     </HeaderBackButton>
   );
-  const ellipsisButton = (
-    <HeaderBackButton onPress={() => {}} activeOpacity={0.8}>
-      <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
-    </HeaderBackButton>
-  );
+
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Header title="프로젝트1" left={backButton} right={ellipsisButton} />
+      <Header title={`프로젝트 #${projectId ?? '-'}`} left={backButton} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
-          <SearchInput placeholder="검색" placeholderTextColor="#000000" />
-        </SearchContainer>        
+          <SearchInput
+            placeholder="검색"
+            placeholderTextColor="#000000"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </SearchContainer>
         <TabContainer>
-          <TabItem isActive={false} onPress={() => navigation.replace('ProjectDetail')} activeOpacity={0.7}>
+          <TabItem
+            isActive={false}
+            onPress={() => navigation.replace('ProjectDetail', { projectId })}
+            activeOpacity={0.7}
+          >
             <TabText isActive={false}>홈</TabText>
           </TabItem>
           <TabSeparator />
-          <TabItem isActive={false} onPress={() => navigation.replace('ProjectTodo')} activeOpacity={0.7}>
+          <TabItem
+            isActive={false}
+            onPress={() => navigation.replace('ProjectTodo', { projectId })}
+            activeOpacity={0.7}
+          >
             <TabText isActive={false}>할일</TabText>
           </TabItem>
           <TabSeparator />
@@ -76,82 +94,68 @@ export default function Schedule({ navigation }) {
             <TabText isActive={true}>일정</TabText>
           </TabItem>
           <TabSeparator />
-          <TabItem isActive={false} onPress={() => navigation.replace('Files')} activeOpacity={0.7}>
+          <TabItem
+            isActive={false}
+            onPress={() => navigation.replace('Files', { projectId })}
+            activeOpacity={0.7}
+          >
             <TabText isActive={false}>파일</TabText>
           </TabItem>
         </TabContainer>
+
         <SectionContainer>
           <SectionHeader>
-            <SectionTitle>오늘 일정</SectionTitle>
-            <SmallAddButton activeOpacity={0.7} onPress={() => navigation.navigate('AddSchedule')}>
+            <SectionTitle>이번 달 일정</SectionTitle>
+            <SmallAddButton
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('AddSchedule', { projectId })}
+            >
               <PlusIcon width={16} height={16} color="#FF8933" />
             </SmallAddButton>
           </SectionHeader>
-          <ListCard>
-            {todaySchedules.map((item, index) => (
-              <TouchableListItem 
-                key={item.id} 
-                isLast={index === todaySchedules.length - 1}
-                activeOpacity={0.7}
-                onPress={() => navigation.navigate('EditSchedule')} 
-              >
-                <ListItemLeft>
-                  <IconCircle>
-                    <CalendarIcon width={24} height={24} color="#FF8933" />
-                  </IconCircle>
-                  <TextColumn>
-                    <ListItemTitle>{item.title}</ListItemTitle>
-                    <ListItemTime>{item.time}</ListItemTime>
-                  </TextColumn>
-                </ListItemLeft>
-                <Icon name="chevron-forward" size={18} color="#AAAAAA" />
-              </TouchableListItem>
-            ))}
-          </ListCard>
-          <DateHeader>4월 25일 (목)</DateHeader>
-          <ListCard>
-            {futureSchedules1.map((item, index) => (
-              <TouchableListItem 
-                key={item.id} 
-                isLast={index === futureSchedules1.length - 1}
-                activeOpacity={0.7}
-                onPress={() => navigation.navigate('EditSchedule')} 
-              >
-                <ListItemLeft>
-                  <IconCircle>
-                    <CalendarIcon width={16} height={16} color="#FF8933" />
-                  </IconCircle>
-                  <TextColumn>
-                    <ListItemTitle>{item.title}</ListItemTitle>
-                    <ListItemTime>{item.time}</ListItemTime>
-                  </TextColumn>
-                </ListItemLeft>
-                <Icon name="chevron-forward" size={18} color="#BBBBBB" />
-              </TouchableListItem>
-            ))}
-          </ListCard>
-          <DateHeader>4월 26일 (금)</DateHeader>
-          <ListCard>
-            {futureSchedules2.map((item, index) => (
-              <TouchableListItem 
-                key={item.id} 
-                isLast={index === futureSchedules2.length - 1}
-                activeOpacity={0.7}
-                onPress={() => navigation.navigate('EditSchedule')} 
-              >
-                <ListItemLeft>
-                  <IconCircle>
-                    <CalendarIcon width={16} height={16} color="#FF8933" />
-                  </IconCircle>
-                  <TextColumn>
-                    <ListItemTitle>{item.title}</ListItemTitle>
-                    <ListItemTime>{item.time}</ListItemTime>
-                  </TextColumn>
-                </ListItemLeft>
-                <Icon name="chevron-forward" size={18} color="#BBBBBB" />
-              </TouchableListItem>
-            ))}
-          </ListCard>
+
+          {isLoading ? <ActivityIndicator color="#FF8933" /> : null}
+          {!isLoading && !groupedSchedules.length ? (
+            <Text
+              style={{ textAlign: 'center', color: '#AAAAAA', padding: 20 }}
+            >
+              등록된 일정이 없습니다.
+            </Text>
+          ) : null}
+
+          {groupedSchedules.map(([dateKey, items]) => (
+            <React.Fragment key={dateKey}>
+              <DateHeader>{dayjs(dateKey).format('M월 D일')}</DateHeader>
+              <ListCard>
+                {items.map((item, index) => (
+                  <TouchableListItem
+                    key={String(item.scheduleId)}
+                    isLast={index === items.length - 1}
+                    activeOpacity={0.7}
+                    onPress={() =>
+                      Alert.alert(
+                        '일정 수정 연동 대기',
+                        '월별 목록 응답에 content가 없어 안전한 수정을 위해 일정 상세 조회 API가 필요합니다.',
+                      )
+                    }
+                  >
+                    <ListItemLeft>
+                      <IconCircle>
+                        <CalendarIcon width={18} height={18} color="#FF8933" />
+                      </IconCircle>
+                      <TextColumn>
+                        <ListItemTitle>{item.title}</ListItemTitle>
+                        <ListItemTime>
+                          {dayjs(item.scheduleDate).format('HH:mm')}
+                        </ListItemTime>
+                      </TextColumn>
+                    </ListItemLeft>
+                    <Icon name="chevron-forward" size={18} color="#AAAAAA" />
+                  </TouchableListItem>
+                ))}
+              </ListCard>
+            </React.Fragment>
+          ))}
         </SectionContainer>
       </ScrollView>
     </Container>

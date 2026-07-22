@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TouchableOpacity, Alert, View, Modal } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; 
-import Header from '../../../../components/Header'; 
+import Icon from 'react-native-vector-icons/Ionicons';
+import Header from '../../../../components/Header';
 import IcMegaphone from '../../../../assets/icons/ic_megaphone-outline.svg';
 import IcPersonCircle from '../../../../assets/icons/ic_person-circle-outline.svg';
 import IcDocumentText from '../../../../assets/icons/ic_document-text-outline.svg';
 import IcBug from '../../../../assets/icons/ic_bug-outline.svg';
 import IcChatbubble from '../../../../assets/icons/ic_chatbubble-ellipses-outline.svg';
-import IcFolder from '../../../../assets/icons/ic_folder.svg'; 
-import PhoneIcon from '../../../../assets/icons/ic_phone.svg'; 
-import FileImageIcon from '../../../../assets/icons/ic_image.svg'; 
-import AudioIcon from '../../../../assets/icons/ic_audio.svg'; 
-import CloudIcon from '../../../../assets/icons/ic_cloud.svg'; 
+import IcFolder from '../../../../assets/icons/ic_folder.svg';
+import PhoneIcon from '../../../../assets/icons/ic_phone.svg';
+import FileImageIcon from '../../../../assets/icons/ic_image.svg';
+import AudioIcon from '../../../../assets/icons/ic_audio.svg';
+import CloudIcon from '../../../../assets/icons/ic_cloud.svg';
 import FileDocIcon from '../../../../assets/icons/ic_file.svg';
+import { useInquiryForm } from '../../../../hooks/useInquiryForm';
 
 import {
   Container,
@@ -21,8 +22,8 @@ import {
   SectionTitle,
   DropdownWrapper,
   DropdownHeader,
-  DropdownHeaderLeft,          
-  DropdownSelectedIconWrapper, 
+  DropdownHeaderLeft,
+  DropdownSelectedIconWrapper,
   DropdownText,
   DropdownList,
   DropdownItem,
@@ -64,23 +65,53 @@ import {
   TextColumn,
   ListItemTitle,
   ListItemRight,
-  ActionIconBtn
+  ActionIconBtn,
 } from './Inquiry.styles';
 
 const INQUIRY_TYPES = [
-  { id: 'service', title: '서비스 이용', desc: '서비스 이용 방법, 기능 관련 문의', Icon: IcMegaphone },
-  { id: 'account', title: '계정 및 보안', desc: '로그인, 정보 수정, 보안 설정 관련 문의', Icon: IcPersonCircle },
-  { id: 'file', title: '첨부파일 관련', desc: '파일 업로드, 다운로드, 오류 관련 문의', Icon: IcDocumentText },
-  { id: 'bug', title: '오류 및 장애', desc: '서비스 오류, 접속 문제, 장애 신고', Icon: IcBug },
-  { id: 'etc', title: '기타 문의', desc: '기타 문의 사항', Icon: IcChatbubble }
+  {
+    id: 'service',
+    title: '서비스 이용',
+    desc: '서비스 이용 방법, 기능 관련 문의',
+    Icon: IcMegaphone,
+  },
+  {
+    id: 'account',
+    title: '계정 및 보안',
+    desc: '로그인, 정보 수정, 보안 설정 관련 문의',
+    Icon: IcPersonCircle,
+  },
+  {
+    id: 'file',
+    title: '첨부파일 관련',
+    desc: '파일 업로드, 다운로드, 오류 관련 문의',
+    Icon: IcDocumentText,
+  },
+  {
+    id: 'bug',
+    title: '오류 및 장애',
+    desc: '서비스 오류, 접속 문제, 장애 신고',
+    Icon: IcBug,
+  },
+  { id: 'etc', title: '기타 문의', desc: '기타 문의 사항', Icon: IcChatbubble },
 ];
 
 export default function Inquiry({ navigation }) {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isAddFileModalVisible, setAddFileModalVisible] = useState(false); 
-  const [selectedType, setSelectedType] = useState(null);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const {
+    isDropdownOpen,
+    setIsDropdownOpen,
+    isAddFileModalVisible,
+    setAddFileModalVisible,
+    selectedType,
+    title,
+    setTitle,
+    content,
+    setContent,
+    isLoading,
+    isSubmitEnabled,
+    handleSelectType,
+    handleSubmit,
+  } = useInquiryForm(navigation);
 
   const recentFileList = [
     { id: 101, type: 'file', title: '아카이브.zip', info: '28.4 KB' },
@@ -89,42 +120,34 @@ export default function Inquiry({ navigation }) {
     { id: 104, type: 'image', title: '로고.png', info: '450 KB' },
   ];
 
-  const isSubmitEnabled = selectedType && title.trim().length > 0 && content.trim().length > 0;
-
-  const handleSelectType = (type) => {
-    setSelectedType(type);     
-    setIsDropdownOpen(false);
-  };
-
   const SelectedIcon = selectedType ? selectedType.Icon : null;
-
-  const handleSubmit = () => {
-    if (!isSubmitEnabled) return;
-    Alert.alert("문의 접수", "문의가 성공적으로 접수되었습니다.", [
-      { text: "확인", onPress: () => navigation.goBack() }
-    ]);
-  };
 
   return (
     <Container>
       {/* 최상단 공통 헤더 */}
       <Header
         left={
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="1:1 문의" 
+        title="1:1 문의"
       />
 
-      <ScrollContainer scrollEnabled={!isDropdownOpen} showsVerticalScrollIndicator={false}>
+      <ScrollContainer
+        scrollEnabled={!isDropdownOpen}
+        showsVerticalScrollIndicator={false}
+      >
         <TopText>문의하실 내용을 입력해주세요.</TopText>
 
         <SectionTitle>문의 유형</SectionTitle>
-        
+
         <DropdownWrapper>
-          <DropdownHeader 
-            activeOpacity={0.8} 
+          <DropdownHeader
+            activeOpacity={0.8}
             onPress={() => setIsDropdownOpen(!isDropdownOpen)}
             isOpen={isDropdownOpen}
           >
@@ -136,43 +159,46 @@ export default function Inquiry({ navigation }) {
                   <SelectedIcon width={24} height={24} color="#FF8933" />
                 </DropdownSelectedIconWrapper>
               )}
-              
+
               <DropdownText hasValue={!!selectedType}>
-                {selectedType ? selectedType.title : '문의 유형을 선택해주세요.'}
+                {selectedType
+                  ? selectedType.title
+                  : '문의 유형을 선택해주세요.'}
               </DropdownText>
             </DropdownHeaderLeft>
 
             {/* 우측 열고 닫는 화살표 아이콘 */}
-            <Icon 
-              name={isDropdownOpen ? "chevron-up" : "chevron-down"} 
-              width={10} height={22}
-              color={isDropdownOpen ? "#FF8933" : "#C7C7CC"} 
+            <Icon
+              name={isDropdownOpen ? 'chevron-up' : 'chevron-down'}
+              width={10}
+              height={22}
+              color={isDropdownOpen ? '#FF8933' : '#C7C7CC'}
             />
           </DropdownHeader>
 
           {/* isDropdownOpen 상태가 true일 때만 목록이 열림 */}
           {isDropdownOpen && (
             <DropdownList>
-              {INQUIRY_TYPES.map((type) => {
+              {INQUIRY_TYPES.map(type => {
                 const isSelected = selectedType?.id === type.id;
                 const SvgIcon = type.Icon;
 
                 return (
-                  <DropdownItem 
-                    key={type.id} 
+                  <DropdownItem
+                    key={type.id}
                     activeOpacity={0.7}
                     isSelected={isSelected}
                     onPress={() => handleSelectType(type)}
                   >
                     <DropdownItemIconWrapper>
                       {/* 목록 내부 아이콘: 선택되면 주황색, 아니면 회색 */}
-                      <SvgIcon 
-                        width={24} 
-                        height={24} 
-                        color={isSelected ? "#FF8933" : "#8E8E93"} 
+                      <SvgIcon
+                        width={24}
+                        height={24}
+                        color={isSelected ? '#FF8933' : '#8E8E93'}
                       />
                     </DropdownItemIconWrapper>
-                    
+
                     <DropdownItemTextContainer>
                       <DropdownItemTitle isSelected={isSelected}>
                         {type.title}
@@ -214,7 +240,15 @@ export default function Inquiry({ navigation }) {
           </InputWrapper>
 
           <AttachLabel>첨부파일 (선택)</AttachLabel>
-          <AttachButton activeOpacity={0.8} onPress={() => setAddFileModalVisible(true)}>
+          <AttachButton
+            activeOpacity={0.8}
+            onPress={() =>
+              Alert.alert(
+                '안내',
+                'S3 업로드 API는 연결됐습니다. 파일 선택기 연결 후 첨부를 사용할 수 있습니다.',
+              )
+            }
+          >
             <IcFolder width={22} height={20} color="#000000" />
             <AttachText>파일 첨부하기</AttachText>
           </AttachButton>
@@ -222,9 +256,9 @@ export default function Inquiry({ navigation }) {
       </ScrollContainer>
 
       <SubmitButtonContainer>
-        <SubmitButton 
-          activeOpacity={0.8} 
-          disabled={!isSubmitEnabled}
+        <SubmitButton
+          activeOpacity={0.8}
+          disabled={!isSubmitEnabled || isLoading}
           onPress={handleSubmit}
         >
           <SubmitText>문의하기</SubmitText>
@@ -234,15 +268,20 @@ export default function Inquiry({ navigation }) {
       <Modal
         visible={isAddFileModalVisible}
         transparent={true}
-        animationType="fade" 
-        onRequestClose={() => setAddFileModalVisible(false)} 
+        animationType="fade"
+        onRequestClose={() => setAddFileModalVisible(false)}
       >
-        <AddFileModalOverlay activeOpacity={1} onPress={() => setAddFileModalVisible(false)}>
+        <AddFileModalOverlay
+          activeOpacity={1}
+          onPress={() => setAddFileModalVisible(false)}
+        >
           {/* onStartShouldSetResponder: 배경을 눌렀을 때 모달이 닫히도록 하되, 팝업 내부 터치는 막음 */}
           <AddFileModalContainer onStartShouldSetResponder={() => true}>
             <AddFileModalHeader>
               <AddFileModalTitle>파일 추가</AddFileModalTitle>
-              <AddFileModalCloseBtn onPress={() => setAddFileModalVisible(false)}>
+              <AddFileModalCloseBtn
+                onPress={() => setAddFileModalVisible(false)}
+              >
                 <Icon name="close" size={24} color="#6E6E6E" />
               </AddFileModalCloseBtn>
             </AddFileModalHeader>
@@ -250,9 +289,14 @@ export default function Inquiry({ navigation }) {
               <AddFileSectionLabel isFirst={true}>파일</AddFileSectionLabel>
               <AddFileSearchContainer>
                 <Icon name="search-outline" size={18} color="#000000" />
-                <AddFileSearchInput placeholder="검색" placeholderTextColor="#000000" />
+                <AddFileSearchInput
+                  placeholder="검색"
+                  placeholderTextColor="#000000"
+                />
               </AddFileSearchContainer>
-              <AddFileSectionLabel isFirst={false}>추가방식</AddFileSectionLabel>
+              <AddFileSectionLabel isFirst={false}>
+                추가방식
+              </AddFileSectionLabel>
               <AddFileMethodRow>
                 <AddFileMethodBox activeOpacity={0.7}>
                   <PhoneIcon width={24} height={24} color="#FF8933" />
@@ -272,28 +316,44 @@ export default function Inquiry({ navigation }) {
                 </AddFileMethodBox>
               </AddFileMethodRow>
               <AddFileRecentHeaderRow>
-                <AddFileSectionLabel isFirst={true} noMarginBottom={true}>최근파일</AddFileSectionLabel>
+                <AddFileSectionLabel isFirst={true} noMarginBottom={true}>
+                  최근파일
+                </AddFileSectionLabel>
               </AddFileRecentHeaderRow>
               <AddFileRecentListCard>
-                <AddFileRecentScroll 
-                  showsVerticalScrollIndicator={true} 
-                  nestedScrollEnabled={true} 
+                <AddFileRecentScroll
+                  showsVerticalScrollIndicator={true}
+                  nestedScrollEnabled={true}
                 >
                   <AddFileRecentContent>
                     {recentFileList.map((file, index) => (
-                      <AddFileRecentListItem 
-                        key={file.id} 
+                      <AddFileRecentListItem
+                        key={file.id}
                         isLast={index === recentFileList.length - 1}
                         activeOpacity={0.7}
                       >
                         <ListItemLeft>
                           <IconWrapper>
-                            {file.type === 'file' && <FileDocIcon width={24} height={24} color="#FF8933" />}
-                            {file.type === 'image' && <FileImageIcon width={24} height={24} color="#FF8933" />}
+                            {file.type === 'file' && (
+                              <FileDocIcon
+                                width={24}
+                                height={24}
+                                color="#FF8933"
+                              />
+                            )}
+                            {file.type === 'image' && (
+                              <FileImageIcon
+                                width={24}
+                                height={24}
+                                color="#FF8933"
+                              />
+                            )}
                           </IconWrapper>
                           <TextColumn>
                             <ListItemTitle>{file.title}</ListItemTitle>
-                            <AddFileRecentSubtitle>{file.info}</AddFileRecentSubtitle>
+                            <AddFileRecentSubtitle>
+                              {file.info}
+                            </AddFileRecentSubtitle>
                           </TextColumn>
                         </ListItemLeft>
                         <ListItemRight>
@@ -310,7 +370,6 @@ export default function Inquiry({ navigation }) {
           </AddFileModalContainer>
         </AddFileModalOverlay>
       </Modal>
-
     </Container>
   );
 }

@@ -2,7 +2,7 @@ import styled from 'styled-components/native';
 
 export const Container = styled.View`
   flex: 1;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const HeaderBackButton = styled.TouchableOpacity`
@@ -10,9 +10,9 @@ export const HeaderBackButton = styled.TouchableOpacity`
 `;
 
 export const ScrollContent = styled.ScrollView.attrs({
-  contentContainerStyle: { flexGrow: 1 } 
+  contentContainerStyle: { flexGrow: 1 },
 })`
-  flex: 1; 
+  flex: 1;
 `;
 
 export const ContentInner = styled.View`
@@ -28,7 +28,7 @@ export const SectionLabel = styled.Text`
 `;
 
 export const InputBox = styled.View`
-  background-color: #DEDEDE;
+  background-color: #dedede;
   border-radius: 8px;
   padding: 12px 14px;
 `;
@@ -57,21 +57,64 @@ export const CharCountText = styled.Text`
 `;
 
 export const EmptyCard = styled.View`
-  height: 58px;       
+  height: 58px;
   border-width: 1px;
-  border-color: #DEDEDE;
+  border-color: #dedede;
   border-radius: 8px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   margin-bottom: 5px;
 `;
 
+export const MemberCard = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  border-width: 1px;
+  border-color: ${({ selected }) => (selected ? '#FF8933' : '#E8E8E8')};
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: ${({ selected }) => (selected ? '#FFF4EC' : '#FFFFFF')};
+`;
+
+export const MemberAvatar = styled.View`
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffe8d6;
+  margin-right: 12px;
+`;
+
+export const MemberAvatarText = styled.Text`
+  color: #ff8933;
+  font-size: 15px;
+  font-weight: 600;
+`;
+
+export const MemberInfo = styled.View`
+  flex: 1;
+`;
+
+export const MemberName = styled.Text`
+  font-size: 15px;
+  font-weight: 500;
+  color: #000000;
+`;
+
+export const MemberDescription = styled.Text`
+  font-size: 11px;
+  color: #999999;
+  margin-top: 3px;
+`;
+
 export const BottomFixedArea = styled.View`
-  background-color: #FFFFFF;
-  padding: 10px 20px 24px;   
+  background-color: #ffffff;
+  padding: 10px 20px 24px;
 `;
 
 export const SubmitBtn = styled.TouchableOpacity`
-  background-color: #FF8933;
+  background-color: #ff8933;
   border-radius: 8px;
   padding: 15px;
   align-items: center;
@@ -81,5 +124,5 @@ export const SubmitBtn = styled.TouchableOpacity`
 export const SubmitBtnText = styled.Text`
   font-size: 18px;
   font-weight: 500;
-  color: #FFFFFF;
+  color: #ffffff;
 `;

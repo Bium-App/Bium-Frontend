@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from '../../../../components/Header'; 
+import Header from '../../../../components/Header';
 import IcHeadset from '../../../../assets/icons/ic_headset.svg';
 import IcChat from '../../../../assets/icons/ic_chat.svg';
 import IcCall from '../../../../assets/icons/ic_call.svg';
@@ -17,7 +17,7 @@ import {
   IconCircle,
   TextContainer,
   CardTitle,
-  CardDesc
+  CardDesc,
 } from './CustomerCenter.styles';
 
 export default function CustomerCenter({ navigation }) {
@@ -26,33 +26,42 @@ export default function CustomerCenter({ navigation }) {
       title: '1:1문의',
       desc: '문의사항을 남겨주시면\n빠르게 답변드리겠습니다.',
       SvgIcon: IcChat,
-      route: 'Inquiry'
+      route: 'Inquiry',
     },
     {
       title: '전화 문의',
       desc: '상담원과 직접 통화하여\n도움을 받으세요.',
       SvgIcon: IcCall,
-      route: 'PhoneInquiry'
+      route: 'PhoneInquiry',
+    },
+    {
+      title: '문의 내역',
+      desc: '등록한 문의와\n답변을 확인해보세요.',
+      SvgIcon: IcChat,
+      route: 'InquiryHistory',
     },
     {
       title: '자주 묻는 질문',
       desc: '많은 분들이 궁금해하시는\n질문을 확인해보세요.',
       SvgIcon: IcMegaphone,
-      route: 'FAQ'
-    }
+      route: 'FAQ',
+    },
   ];
 
   return (
     <Container>
       <Header
         left={
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.7}
+          >
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
         title="고객센터"
       />
-      
+
       <ScrollContainer showsVerticalScrollIndicator={false}>
         <TopSection>
           <TopTextContainer>
@@ -63,8 +72,8 @@ export default function CustomerCenter({ navigation }) {
         </TopSection>
 
         {menuItems.map((item, index) => (
-          <Card 
-            key={index} 
+          <Card
+            key={index}
             activeOpacity={0.7}
             onPress={() => navigation.navigate(item.route)}
           >

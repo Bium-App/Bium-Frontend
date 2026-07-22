@@ -1,7 +1,9 @@
-import React from 'react';
-import { StatusBar } from 'react-native';
+import React, { useEffect } from 'react';
+import { StatusBar, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header'; 
+import AsyncState from '../../../components/AsyncState';
+import { useTeamSpaceHome } from '../../../hooks/useTeamSpaceHome'; // 추가된 뷰모델
 
 import FolderIcon from '../../../assets/icons/ic_folder_outline.svg';
 import PeopleAddIcon from '../../../assets/icons/ic_people1.svg';
@@ -29,19 +31,19 @@ import {
   MemberText
 } from './TeamSpaceHome.styles';
 
-const DUMMY_PROJECTS = [
-  { id: '1', title: '프로젝트1', desc: 'UI 디자인 진행 중', members: 3 },
-  { id: '2', title: '프로젝트2', desc: '마케팅 캠페인 기획', members: 3 },
-  { id: '3', title: '프로젝트3', desc: '앱 기능 개발', members: 3 },
-  { id: '4', title: '프로젝트4', desc: '브랜드 리뉴얼', members: 3 },
-  { id: '5', title: '프로젝트5', desc: '신규 서비스 아이디어', members: 3 },
-  { id: '6', title: '프로젝트6', desc: 'UI 디자인 팀플', members: 3 },
-];
-
 export default function TeamSpaceHome({ navigation }) {
   
-  const handleGoToProjectDetail = () => {
-    navigation.navigate('ProjectDetail');
+  // 뷰모델에서 서버 데이터(teams)와 로딩 상태, 그리고 호출 함수를 가져옴
+  const { teams, isLoading, errorMessage, fetchTeams } = useTeamSpaceHome();
+
+  // 화면이 맨 처음 렌더링될 때 딱 한 번 서버에 데이터를 요청(fetchTeams)
+  useEffect(() => {
+    fetchTeams();
+  }, [fetchTeams]);
+
+  const handleGoToProjectDetail = (projectId) => {
+    // 팀방에 들어갈 때, 어떤 프로젝트인지 식별하기 위해 projectId를 함께 넘겨줌
+    navigation.navigate('ProjectDetail', { projectId });
   };
 
   const handleTeamCreate = () => navigation.navigate('TeamCreate');
@@ -60,7 +62,8 @@ export default function TeamSpaceHome({ navigation }) {
 
       <ActionRow>
         <FilterTab activeOpacity={0.8}>
-          <FilterTabText>전체 (6)</FilterTabText>
+          {/* 전체 개수를 서버에서 받아온 팀 배열의 길이(teams.length)로 동적 반영 */}
+          <FilterTabText>전체 ({teams.length})</FilterTabText>
         </FilterTab>
 
         <ActionButtonGroup>
@@ -75,12 +78,27 @@ export default function TeamSpaceHome({ navigation }) {
         </ActionButtonGroup>
       </ActionRow>
 
-      <ListContainer showsVerticalScrollIndicator={false}>
-        {DUMMY_PROJECTS.map((project) => (
+      <ListContainer 
+        showsVerticalScrollIndicator={false}
+        // 사용자가 화면을 위로 잡아당겼을 때(Pull-to-Refresh) 서버에서 데이터를 최신화하는 기능
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={fetchTeams} tintColor="#FF8933" />
+        }
+      >
+        {teams.length === 0 ? (
+          <AsyncState
+            isLoading={isLoading}
+            errorMessage={errorMessage}
+            emptyMessage="참여 중인 팀이 없습니다."
+            onRetry={fetchTeams}
+          />
+        ) : null}
+        {/* 더미 데이터 대신 서버에서 받아온 teams 배열을 map으로 순회하며 화면에 나타냄 */}
+        {teams.map((project) => (
           <ProjectCard 
             key={project.id} 
             activeOpacity={0.8}
-            onPress={handleGoToProjectDetail}
+            onPress={() => handleGoToProjectDetail(project.id)}
           >
             <FolderCircle>
               <FolderIcon width={24} height={24} />

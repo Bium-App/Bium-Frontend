@@ -15,34 +15,56 @@ import {
   TimeText,
   ExpireText,
   RightWrapper,
-  ActionBackground
+  ActionBackground,
+  MoreButton,
 } from './MemoCard.styles';
 
-export default function MemoCard({ item }) {
+export default function MemoCard({
+  item,
+  onPress,
+  onMore,
+  onPin,
+  onStatusChange,
+}) {
   const renderLeftActions = () => (
-    <ActionBackground color="#EAF3FF" align="flex-start"> 
-      <PinIcon width={22} height={22} color="#7CC4FF" /> 
+    <ActionBackground
+      color="#EAF3FF"
+      align="flex-start"
+      activeOpacity={0.8}
+      onPress={() => onPin?.(item)}
+    >
+      <PinIcon width={22} height={22} color="#7CC4FF" />
     </ActionBackground>
   );
 
   const renderRightActions = () => (
-    <ActionBackground color="#FFE8D6" align="flex-end"> 
-      {/* 아이콘 크기 20 -> 28로 확대 */}
-      <IceIcon width={28} height={28} color="#FF8933" /> 
+    <ActionBackground
+      color="#FFE8D6"
+      align="flex-end"
+      activeOpacity={0.8}
+      onPress={() => onStatusChange?.(item, 'ICE')}
+    >
+      <IceIcon width={28} height={28} color="#FF8933" />
     </ActionBackground>
   );
 
   return (
     <Swipeable
       renderLeftActions={item.Status === 'ICE' ? renderLeftActions : null}
-      renderRightActions={item.isPinned || item.Status === 'ICE' ? null : renderRightActions}
+      renderRightActions={
+        item.isPinned || item.Status === 'ICE' ? null : renderRightActions
+      }
     >
-      <CardContainer isPinned={item.isPinned}>
+      <CardContainer
+        isPinned={item.isPinned}
+        activeOpacity={0.8}
+        onPress={() => onPress?.(item)}
+      >
         <IconWrapper status={item.Status}>
           {item.Status === 'ICE' ? (
-            <IceIcon width={28} height={28} color="#7CC4FF" /> 
+            <IceIcon width={28} height={28} color="#7CC4FF" />
           ) : (
-            <FireIcon width={28} height={28} color="#FF8933" /> 
+            <FireIcon width={28} height={28} color="#FF8933" />
           )}
         </IconWrapper>
         <ContentWrapper>
@@ -54,7 +76,9 @@ export default function MemoCard({ item }) {
         </ContentWrapper>
         <RightWrapper>
           <TimeText>{item.time}</TimeText>
-          <Icon name="ellipsis-vertical" size={20} color="#000000" /> 
+          <MoreButton onPress={() => onMore?.(item)} activeOpacity={0.7}>
+            <Icon name="ellipsis-vertical" size={20} color="#000000" />
+          </MoreButton>
         </RightWrapper>
       </CardContainer>
     </Swipeable>

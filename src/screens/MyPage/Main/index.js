@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScrollView, Alert } from 'react-native';
+import { ActivityIndicator, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import {
   SafeArea,
   ProfileSection,
@@ -12,21 +13,33 @@ import {
   CardTitle,
   MenuRow,
   MenuText,
-  BottomPadding
+  BottomPadding,
 } from './MyPageMain.styles';
 
 export default function MyPageMain({ navigation }) {
+  const { user, isLoading } = useCurrentUser();
 
   return (
     <SafeArea>
       <ScrollView showsVerticalScrollIndicator={false}>
         <ProfileSection>
           <ProfileImageWrapper>
-            <Icon name="person" size={57} color="#AEAEB2"/>
+            {user?.profileImageUrl ? (
+              <Image
+                source={{ uri: user.profileImageUrl }}
+                style={{ width: '100%', height: '100%' }}
+              />
+            ) : (
+              <Icon name="person" size={57} color="#AEAEB2" />
+            )}
           </ProfileImageWrapper>
-          <UserName>사용자</UserName>
-          <EditProfileButton 
-            activeOpacity={0.7} 
+          {isLoading && !user ? (
+            <ActivityIndicator color="#FF8933" />
+          ) : (
+            <UserName>{user?.nickname || user?.name || '사용자'}</UserName>
+          )}
+          <EditProfileButton
+            activeOpacity={0.7}
             onPress={() => navigation.navigate('EditProfile')}
           >
             <EditProfileText>내 정보 수정</EditProfileText>
@@ -35,15 +48,15 @@ export default function MyPageMain({ navigation }) {
 
         <Card>
           <CardTitle>설정</CardTitle>
-          <MenuRow 
-            activeOpacity={0.7} 
+          <MenuRow
+            activeOpacity={0.7}
             onPress={() => navigation.navigate('Language')}
           >
             <MenuText>언어 및 지역</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
-          <MenuRow 
+          <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('SettingNotification')}
           >
@@ -51,7 +64,7 @@ export default function MyPageMain({ navigation }) {
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
-          <MenuRow 
+          <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Privacy')}
           >
@@ -59,7 +72,7 @@ export default function MyPageMain({ navigation }) {
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
-          <MenuRow 
+          <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Trash')}
           >
@@ -70,7 +83,7 @@ export default function MyPageMain({ navigation }) {
 
         <Card>
           <CardTitle>서비스</CardTitle>
-          <MenuRow 
+          <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Notice')}
           >
@@ -78,7 +91,7 @@ export default function MyPageMain({ navigation }) {
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
-          <MenuRow 
+          <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('CustomerCenter')}
           >
@@ -89,7 +102,7 @@ export default function MyPageMain({ navigation }) {
 
         <Card>
           <CardTitle>계정</CardTitle>
-          <MenuRow 
+          <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Logout')}
           >
@@ -97,7 +110,7 @@ export default function MyPageMain({ navigation }) {
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
-          <MenuRow 
+          <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Withdrawal')}
           >
@@ -105,7 +118,7 @@ export default function MyPageMain({ navigation }) {
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
         </Card>
-        
+
         <BottomPadding />
       </ScrollView>
     </SafeArea>
