@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header';
+import FilePickerField from '../../../../components/FilePickerField';
 import IcMegaphone from '../../../../assets/icons/ic_megaphone-outline.svg';
 import IcPersonCircle from '../../../../assets/icons/ic_person-circle-outline.svg';
 import IcDocumentText from '../../../../assets/icons/ic_document-text-outline.svg';
@@ -73,6 +74,10 @@ export default function Inquiry({ navigation }) {
     content,
     setContent,
     isLoading,
+    attachmentFile,
+    isPickingAttachment,
+    selectAttachment,
+    removeAttachment,
     isSubmitEnabled,
     handleSelectType,
     handleSubmit,
@@ -197,6 +202,16 @@ export default function Inquiry({ navigation }) {
             </ContentInputWrapper>
           </InputWrapper>
 
+          <FilePickerField
+            label="첨부파일"
+            helperText="최대 20MB · 문의 첨부 저장 prefix는 백엔드 확정 대기 중입니다."
+            file={attachmentFile}
+            kind={attachmentFile?.kind ?? 'document'}
+            isPicking={isPickingAttachment}
+            disabled={isLoading}
+            onSelect={selectAttachment}
+            onRemove={removeAttachment}
+          />
         </View>
       </ScrollContainer>
 

@@ -12,7 +12,7 @@
 - 7/21 API PDF 11페이지와 ERD PDF 9페이지를 기준으로 Method, URI, Body, 주요 응답 필드를 대조했다.
 - 화면 이벤트에서 API까지 연결된 기능이 많지만, 아직 실제 서버 성공 응답을 확인한 것은 아니다.
 - 서버 계약이 부족한 일정 상세, 검색의 팀 식별자, 일부 알림 딥링크는 백엔드 보완이 필요하다.
-- 이미지와 문서 업로드는 API 함수는 준비됐지만 네이티브 파일 선택 UI가 남아 있다.
+- 이미지와 문서 선택 UI 및 메모·프로필·팀 파일 업로드 코드는 준비됐고 실서버 검증이 남아 있다.
 
 ## 2. 프론트 구조
 
@@ -68,7 +68,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 | --- | --- | --- |
 | Home | 코드 연결 완료 | 목록, 수정 진입, FIRE/ICE, 고정, 휴지통, 새로고침 |
 | Timeline | 코드 연결 완료 | 목록·수정 진입, 로딩·오류·빈 상태·새로고침 |
-| MemoEditor | 일부 | 생성·수정 완료, 이미지 선택기 도입 후 업로드 UI 재노출 |
+| MemoEditor | 일부 | 생성·수정, 이미지 선택·MEMOS 업로드·메타 저장 코드 완료 |
 | Search | 일부 | 4개 도메인 표시, 메모 이동 완료, 팀 결과 `teamSpaceId` 필요 |
 | Notification | 일부 | 목록·읽음·삭제, MEMO 이동 완료, FRIEND/TEAM 규칙 필요 |
 
@@ -83,7 +83,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 | ProjectTodo, AddTodo | 코드 연결 완료 | 목록·검색·생성·수정·삭제·완료 토글 |
 | Schedule, AddSchedule | 일부 | 월별 목록·검색·그룹, 일정 생성 완료 |
 | EditSchedule | 미노출 | 상세 API 또는 목록의 `content` 확정 전 라우트 제거 |
-| Files | 일부 | 목록·검색·다운로드·이름 변경·삭제, 조회 상태·새로고침 |
+| Files | 일부 | 목록·검색·다운로드·이름 변경·삭제, TEAMS 파일 업로드 코드 완료 |
 | FriendAdd | 코드 연결 완료 | 검색·추천·요청, 받은 요청 수, 조회 상태·새로고침 |
 | FriendRequestList | 코드 연결 완료 | 받은/보낸 요청 처리, 검색·조회 상태·새로고침 |
 
@@ -92,7 +92,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 | 화면 | 상태 | 구현 내용 / 남은 내용 |
 | --- | --- | --- |
 | MyPage/Main | 코드 연결 완료 | 사용자 정보와 프로필 표시 |
-| EditProfile | 일부 | 닉네임 수정 완료, 프로필 이미지 업로드 남음 |
+| EditProfile | 일부 | 닉네임 수정, 이미지 선택·PROFILES 업로드 코드 완료 |
 | Language | 코드 연결 완료 | language, timezone, dateFormat 조회·저장 |
 | SettingNotification | 코드 연결 완료 | allowPush, allowEvent 조회·저장 |
 | 2FA 흐름 | 일부 | 비밀번호 확인, setup, verify, 토큰 교체, 3분 타이머 연결 |
@@ -106,7 +106,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 
 | 화면 | 상태 | 구현 내용 / 남은 내용 |
 | --- | --- | --- |
-| Inquiry | 일부 | ONE_ON_ONE 등록만 노출, attachmentUrl 업로드 남음 |
+| Inquiry | 일부 | ONE_ON_ONE 등록과 파일 선택 UI 완료, 문의 업로드 prefix 필요 |
 | InquiryHistory | 코드 연결 완료 | 목록, WAITING/ANSWERED, response, 시간 표시 |
 | ServiceSuggestion | 코드 연결 완료 | SUGGESTION 등록 |
 | FAQ | 정적 화면 | 현재 API 불필요 |
@@ -136,8 +136,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 - 공지 상세 조회
 - 팀원 역할 변경과 제거
 - 일정 수정과 삭제
-- Presigned URL 업로드 전체 순서
-- 메모 이미지와 팀 파일 메타 저장
+- Presigned URL 업로드 전체 순서와 메모·팀 파일 메타 저장은 화면에서도 사용
 
 ## 7. 백엔드 확인 또는 보완이 필요한 항목
 
@@ -146,8 +145,9 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 3. FRIEND/TEAM/MEMO별 알림 `targetId` 대상 규칙 제공
 4. 2FA setup의 SMS 발송 여부와 재발송 방식
 5. Presigned PUT의 Content-Type, 필수 Header, 확장자·MIME·크기 제한과 CORS
-6. `403`, `404`, `409`, `500` 오류 상태와 Root 에러 형식
-7. 서비스 공지와 FAQ를 서버 관리형으로 만들 경우 별도 API 추가
+6. 문의 첨부파일 Presigned URL 발급에 사용할 prefix
+7. `403`, `404`, `409`, `500` 오류 상태와 Root 에러 형식
+8. 서비스 공지와 FAQ를 서버 관리형으로 만들 경우 별도 API 추가
 
 현재 기기 로그아웃 API는 7/21 명세에 이미 있으므로 추가 요청 대상이 아니다.
 
@@ -155,8 +155,6 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 
 ### 서버 없이 가능한 작업
 
-- 이미지·문서 선택기 설치와 URI -> Blob 변환
-- 메모·프로필·문의·팀 파일 업로드 UI
 - 나머지 화면의 로딩·빈 상태·오류·중복 클릭 UX 추가 점검
 
 ### 서버 또는 계약이 있어야 가능한 작업
@@ -167,6 +165,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 - 검색의 팀 상세 이동
 - FRIEND/TEAM 알림 딥링크
 - S3 실제 업로드와 다운로드 검증
+- 문의 첨부 prefix 확정 후 attachmentUrl 연결
 
 ## 9. 서버 준비 후 검증 순서
 

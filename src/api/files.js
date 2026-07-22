@@ -1,4 +1,5 @@
 import apiClient from './client';
+import { readSelectedFile } from '../utils/filePicker';
 
 export const getPresignedUrlApi = async ({ prefix, fileName }) => {
   const response = await apiClient.get('/api/files/presigned-url', {
@@ -38,6 +39,20 @@ export const uploadFileApi = async ({
     contentType ?? 'application/octet-stream',
   );
   return fileUrl;
+};
+
+export const uploadSelectedFileApi = async ({ prefix, file }) => {
+  const fileBody = await readSelectedFile(file);
+  try {
+    return await uploadFileApi({
+      prefix,
+      fileName: file.name,
+      fileBody,
+      contentType: file.type,
+    });
+  } finally {
+    fileBody.close?.();
+  }
 };
 
 export const createTeamFileApi = async file => {

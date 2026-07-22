@@ -175,6 +175,9 @@ GET /api/files/presigned-url?prefix=...&fileName=...
 
 Prefix는 `PROFILES`, `MEMOS`, `TEAMS` 중 하나를 사용한다.
 
+문의 등록에는 `attachmentUrl`이 있지만 문의 첨부파일에 사용할 prefix가 없다.
+프론트 파일 선택 UI는 완료했으며 `INQUIRIES` 등 별도 prefix 확정이 필요하다.
+
 메모 이미지는 JSON이다.
 
 ```http
@@ -198,6 +201,7 @@ Content-Type: application/json
 - [ ] 업로드 실패/중단 파일 정리 정책
 - [ ] S3 CORS의 iOS/Android 요청 허용
 - [ ] `fileUrl` 공개 접근인지 GET Presigned URL이 필요한지
+- [ ] 문의 첨부파일 Presigned URL prefix
 
 ## 6. 친구 API 확인
 
@@ -281,7 +285,6 @@ Content-Type: application/json
 ## 10. 현재 프론트에서 남은 작업
 
 - 실제 개발 Base URL 연결
-- 네이티브 파일/이미지 선택기 설치와 Blob 변환
 - 일정 상세 계약 확정 후 수정 화면 연결
 - FRIEND/TEAM 알림 딥링크 매핑
 - 실서버 E2E 및 iOS/Android 실제 기기 검증

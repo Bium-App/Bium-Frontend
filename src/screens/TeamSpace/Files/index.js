@@ -10,7 +10,10 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
 import AsyncState from '../../../components/AsyncState';
+import FilePickerField from '../../../components/FilePickerField';
 import { useTeamFiles } from '../../../hooks/useTeamFiles';
+import { useFileSelection } from '../../../hooks/useFileSelection';
+import { getApiErrorMessage } from '../../../utils/apiError';
 
 import FolderOutlineIcon from '../../../assets/icons/ic_folder_outline.svg';
 import FileDocIcon from '../../../assets/icons/ic_file.svg';
@@ -58,8 +61,22 @@ import {
 
 export default function Files({ route, navigation }) {
   const { projectId } = route.params || {};
-  const { files, isLoading, errorMessage, fetchFiles, renameFile, deleteFile } =
-    useTeamFiles(projectId);
+  const {
+    files,
+    isLoading,
+    isUploading,
+    errorMessage,
+    fetchFiles,
+    renameFile,
+    deleteFile,
+    uploadTeamFile,
+  } = useTeamFiles(projectId);
+  const {
+    selectedFile: uploadFile,
+    isPicking,
+    selectFile,
+    clearFile,
+  } = useFileSelection({ kind: 'document' });
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
   const [renameInput, setRenameInput] = useState('');
@@ -111,6 +128,20 @@ export default function Files({ route, navigation }) {
       Alert.alert(
         '오류',
         error.response?.data?.message ?? '파일을 삭제하지 못했습니다.',
+      );
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!uploadFile) return;
+    try {
+      await uploadTeamFile(uploadFile);
+      clearFile();
+      Alert.alert('완료', '팀 파일이 업로드되었습니다.');
+    } catch (error) {
+      Alert.alert(
+        '업로드 실패',
+        getApiErrorMessage(error, '팀 파일을 업로드하지 못했습니다.'),
       );
     }
   };
@@ -170,6 +201,18 @@ export default function Files({ route, navigation }) {
           </TabItem>
         </TabContainer>
         <SectionContainer>
+          <FilePickerField
+            label="팀 파일 업로드"
+            helperText="이미지는 최대 10MB, 문서는 최대 20MB까지 업로드할 수 있습니다."
+            file={uploadFile}
+            kind={uploadFile?.kind ?? 'document'}
+            isPicking={isPicking}
+            isUploading={isUploading}
+            disabled={isLoading}
+            onSelect={selectFile}
+            onRemove={clearFile}
+            onUpload={handleUpload}
+          />
           <ListCard>
             {fileList.length === 0 ? (
               <AsyncState

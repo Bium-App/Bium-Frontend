@@ -24,7 +24,7 @@
 | 세션         | ✅   | refresh는 Keychain/Keystore, 나머지는 AsyncStorage | 실제 기기 검증          |
 | Root 응답    | ✅   | 배열/객체 직접 파싱                             | 백엔드 wrapper 미사용 확인 |
 | KST DateTime | ✅   | `YYYY-MM-DDTHH:mm:ss`                           | 실제 서버 왕복 확인        |
-| S3 업로드    | 🟡   | URL 발급·PUT·메타 API 준비                      | 네이티브 파일 선택기       |
+| S3 업로드    | 🟡   | 이미지/문서 선택, URI→Blob, URL 발급·PUT·메타 저장 | 실서버 Header·CORS 검증 |
 
 ## 시작·인증
 
@@ -43,7 +43,7 @@
 | -------------- | ---- | -------------------------------------------------- | -------------------------- |
 | `Home`         | ✅   | 목록, 수정 진입, 상태 변경, 고정, 휴지통, N+1 제거 | 실서버 제스처 검증         |
 | `Timeline`     | ✅   | 목록·수정 진입, 로딩·오류·빈 상태·새로고침         | 만료 타이머 실서버 확인    |
-| `MemoEditor`   | 🟡   | 생성/수정, KST DateTime; 미지원 이미지 버튼 미노출 | 이미지 선택기 도입 후 재노출 |
+| `MemoEditor`   | 🟡   | 생성/수정, 이미지 선택·MEMOS 업로드·메타 저장      | 실서버 업로드 검증         |
 | `Search`       | 🟡   | 4개 도메인 표시, 메모 수정 화면 이동               | 팀 결과의 teamSpaceId 필요 |
 | `Notification` | 🟡   | 목록·읽음·삭제, MEMO targetId 이동                 | FRIEND/TEAM 이동 매핑      |
 
@@ -59,7 +59,7 @@
 | `AddTodo`           | ✅   | title/content/dueDate/sendPush 등록    | 실서버 null 확인                     |
 | `Schedule`          | 🟡   | 월별 목록, 검색, 날짜 그룹             | 상세 계약 후 수정·삭제               |
 | `AddSchedule`       | ✅   | 일정 생성                              | DateTime 왕복 확인                   |
-| `Files`             | 🟡   | 목록·검색·다운로드·이름 변경·삭제, 조회 상태 | 업로드·이동·공유 확정 후 UI 재노출 |
+| `Files`             | 🟡   | 목록·검색·다운로드·이름 변경·삭제, TEAMS 파일 업로드 | 이동·공유 계약 및 실서버 검증 |
 | `FriendAdd`         | ✅   | 검색·추천·요청, 로딩·오류·빈 상태·새로고침 | 중복 요청 UX                      |
 | `FriendRequestList` | ✅   | 받은/보낸 요청 처리, 조회 상태·새로고침 | 두 계정 E2E                          |
 
@@ -68,7 +68,7 @@
 | 페이지                | 상태 | 연결된 내용                                       | 다음 작업                             |
 | --------------------- | ---- | ------------------------------------------------- | ------------------------------------- |
 | `MyPage/Main`         | ✅   | 사용자 정보·프로필 표시                           | 실서버 확인                           |
-| `EditProfile`         | 🟡   | 닉네임 수정; 미지원 이미지 버튼 미노출            | 이미지 선택 → PROFILES 업로드         |
+| `EditProfile`         | 🟡   | 닉네임 수정, 이미지 선택·PROFILES 업로드           | 실서버 이미지 반영 확인                |
 | `Language`            | ✅   | 서버 설정 조회/저장, language/timezone/dateFormat | 다른 기기 동기화 확인                 |
 | `SettingNotification` | ✅   | allowPush/allowEvent                              | 푸시 권한 연동                        |
 | `PrivacySecurity`     | ⚪   | 하위 화면 이동                                    | 없음                                  |
@@ -90,7 +90,7 @@
 | 페이지              | 상태 | 연결된 내용                   | 다음 작업                          |
 | ------------------- | ---- | ----------------------------- | ---------------------------------- |
 | `CustomerCenter`    | ⚪   | 하위 화면 이동                | 없음                               |
-| `Inquiry`           | 🟡   | ONE_ON_ONE 등록; 가짜 첨부 UI 제거 | 파일 선택 → 업로드 → attachmentUrl |
+| `Inquiry`           | 🟡   | ONE_ON_ONE 등록, 실제 파일 선택·검증 UI | 문의 첨부 Presigned prefix 확정 후 업로드 |
 | `InquiryHistory`    | ✅   | 목록·상태·답변·접수/수정 시각 | 실서버 확인                        |
 | `ServiceSuggestion` | ✅   | SUGGESTION 등록               | 글자 수 서버 검증                  |
 | `FAQ`               | ⚪   | 정적 FAQ                      | 서버 관리형이면 API 필요           |
@@ -103,7 +103,7 @@
 - 공지 상세 `GET /api/team-notices/{noticeId}`
 - 팀원 추가, 역할 변경, 제거
 - 일정 수정, 삭제
-- Presigned URL 전체 업로드 순서와 메모/팀 파일 메타 저장
+- Presigned URL 전체 업로드 순서와 메모/팀 파일 메타 저장은 화면에서 사용 중
 
 일정 수정 더미 화면과 `EditSchedule` 라우트는 상세 계약 확정 전까지 제거했다.
 
@@ -111,14 +111,14 @@
 
 1. 백엔드 개발 Base URL과 테스트 계정으로 인증 E2E
 2. 메모·팀·친구·설정 주요 플로우 E2E
-3. 네이티브 파일/이미지 선택기 연결과 S3 업로드
+3. Presigned URL Header·CORS·제한을 실서버에서 검증
 4. 일정 상세 응답 계약 확정 후 EditSchedule 연결
 5. 팀 검색 결과와 FRIEND/TEAM 알림 딥링크
 
 ## 검증 결과
 
 - ESLint: 오류 0, 경고 0
-- Jest: 렌더·API 설정·에러·보안 세션 테스트 17개 통과
+- Jest: 렌더·API 설정·에러·보안 세션·파일 선택 테스트 23개 통과
 - iOS Metro production bundle: 성공
 - 실제 서버 E2E: 대기
 - iOS/Android 실제 기기: 대기

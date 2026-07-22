@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { createInquiryApi } from '../api/common';
 import { getUserId } from '../utils/authStorage';
+import { useFileSelection } from './useFileSelection';
 
 export const useInquiryForm = navigation => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -9,6 +10,12 @@ export const useInquiryForm = navigation => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const {
+    selectedFile: attachmentFile,
+    isPicking: isPickingAttachment,
+    selectFile: selectAttachment,
+    clearFile: removeAttachment,
+  } = useFileSelection({ kind: 'document' });
 
   const isSubmitEnabled =
     Boolean(selectedType) &&
@@ -22,6 +29,13 @@ export const useInquiryForm = navigation => {
 
   const handleSubmit = async () => {
     if (!isSubmitEnabled || isLoading) return;
+    if (attachmentFile) {
+      Alert.alert(
+        '첨부 업로드 계약 확인 필요',
+        '최신 API 명세에는 문의 첨부파일의 Presigned URL prefix가 없습니다. 파일 선택 UI는 준비됐으며, 백엔드가 저장 prefix를 확정하면 업로드를 연결할 수 있습니다.',
+      );
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -55,6 +69,10 @@ export const useInquiryForm = navigation => {
     content,
     setContent,
     isLoading,
+    attachmentFile,
+    isPickingAttachment,
+    selectAttachment,
+    removeAttachment,
     isSubmitEnabled,
     handleSelectType,
     handleSubmit,
