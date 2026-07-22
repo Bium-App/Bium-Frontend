@@ -1,8 +1,14 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { API_BASE_URL, API_TIMEOUT_MS } from '../config/api';
 import { resetToLogin } from '../navigation/navigationRef';
+import {
+  clearSession,
+  getAccessToken,
+  getRefreshToken,
+  updateAccessToken,
+  updateRefreshToken,
+} from '../utils/authStorage';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -27,7 +33,7 @@ const isPublicAuthRequest = url =>
   ].some(path => url?.startsWith(path));
 
 const refreshAccessToken = async () => {
-  const refreshToken = await AsyncStorage.getItem('refreshToken');
+  const refreshToken = await getRefreshToken();
   if (!refreshToken) throw new Error('저장된 리프레시 토큰이 없습니다.');
 
   const response = await axios.post(
@@ -39,8 +45,9 @@ const refreshAccessToken = async () => {
     },
   );
 
-  const { accessToken } = response.data;
-  await AsyncStorage.setItem('accessToken', accessToken);
+  const { accessToken, refreshToken: rotatedRefreshToken } = response.data;
+  await updateAccessToken(accessToken);
+  if (rotatedRefreshToken) await updateRefreshToken(rotatedRefreshToken);
   return accessToken;
 };
 
@@ -54,7 +61,7 @@ const getRefreshedAccessToken = () => {
 };
 
 apiClient.interceptors.request.use(async config => {
-  const accessToken = await AsyncStorage.getItem('accessToken');
+  const accessToken = await getAccessToken();
   if (accessToken) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -87,12 +94,7 @@ apiClient.interceptors.response.use(
       didShowSessionExpiredAlert = false;
       return apiClient(originalRequest);
     } catch (refreshError) {
-      await AsyncStorage.removeMany([
-        'accessToken',
-        'refreshToken',
-        'userId',
-        'deviceId',
-      ]);
+      await clearSession().catch(() => undefined);
       resetToLogin();
       if (!didShowSessionExpiredAlert) {
         didShowSessionExpiredAlert = true;

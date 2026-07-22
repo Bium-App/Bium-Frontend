@@ -21,7 +21,7 @@
 | Base URL     | ✅   | local/AWS/production 빌드 환경 분리             | 실제 AWS·운영 주소 주입    |
 | Bearer       | ✅   | 보호 요청 자동 첨부                             | 실서버 확인                |
 | 401 refresh  | ✅   | 중복 방지, 원 요청 재시도, 실패 시 Login 초기화 | 실서버 만료 검증           |
-| 세션         | ✅   | access/refresh/userId/deviceId                  | 보안 저장소 이전           |
+| 세션         | ✅   | refresh는 Keychain/Keystore, 나머지는 AsyncStorage | 실제 기기 검증          |
 | Root 응답    | ✅   | 배열/객체 직접 파싱                             | 백엔드 wrapper 미사용 확인 |
 | KST DateTime | ✅   | `YYYY-MM-DDTHH:mm:ss`                           | 실제 서버 왕복 확인        |
 | S3 업로드    | 🟡   | URL 발급·PUT·메타 API 준비                      | 네이티브 파일 선택기       |
@@ -114,12 +114,11 @@
 3. 네이티브 파일/이미지 선택기 연결과 S3 업로드
 4. 일정 상세 응답 계약 확정 후 EditSchedule 연결
 5. 팀 검색 결과와 FRIEND/TEAM 알림 딥링크
-6. Keychain/Keystore 보안 저장소 이전
 
 ## 검증 결과
 
 - ESLint: 오류 0, 경고 0
-- Jest: 기본 렌더 테스트 1개 통과
+- Jest: 렌더·API 설정·에러·보안 세션 테스트 17개 통과
 - iOS Metro production bundle: 성공
 - 실제 서버 E2E: 대기
 - iOS/Android 실제 기기: 대기

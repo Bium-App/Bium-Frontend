@@ -284,5 +284,4 @@ Content-Type: application/json
 - 네이티브 파일/이미지 선택기 설치와 Blob 변환
 - 일정 상세 계약 확정 후 수정 화면 연결
 - FRIEND/TEAM 알림 딥링크 매핑
-- Keychain/Keystore 보안 저장소 이전
 - 실서버 E2E 및 iOS/Android 실제 기기 검증

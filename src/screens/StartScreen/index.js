@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
-import { getRefreshToken, getUserId } from '../../utils/authStorage';
+import {
+  clearSession,
+  getRefreshToken,
+  getUserId,
+} from '../../utils/authStorage';
 
 import LogoWhite from '../../assets/icons/logo_white.svg';
 
-import {
-  Container,
-  LogoWrapper,
-  SubTitleText
-} from './StartScreen.styles';
+import { Container, LogoWrapper, SubTitleText } from './StartScreen.styles';
 
 export default function StartScreen({ navigation }) {
   useEffect(() => {
@@ -22,6 +22,9 @@ export default function StartScreen({ navigation }) {
           getUserId(),
         ]);
         hasRestorableSession = Boolean(refreshToken && userId);
+        if (!hasRestorableSession && (refreshToken || userId)) {
+          await clearSession();
+        }
       } catch {
         hasRestorableSession = false;
       }
@@ -38,7 +41,7 @@ export default function StartScreen({ navigation }) {
 
   return (
     <Container>
-      <StatusBar barStyle="light-content" backgroundColor="#FF8933" /> 
+      <StatusBar barStyle="light-content" backgroundColor="#FF8933" />
       <LogoWrapper>
         <LogoWhite width={120} height={120} />
       </LogoWrapper>

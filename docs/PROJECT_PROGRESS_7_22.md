@@ -41,7 +41,7 @@ src/screens/.../index.js
 | Authorization | 보호 요청에 Bearer 자동 첨부 | 실제 Header 확인 |
 | 401 refresh | 동시 요청 중복 방지, 토큰 갱신 후 1회 재시도 | 30분 만료 시나리오 |
 | refresh 실패 | 세션 삭제 후 Login 초기화 | 만료·위조 토큰 확인 |
-| 세션 | accessToken, refreshToken, userId, deviceId 저장 | Keychain/Keystore 이전 |
+| 세션 | Refresh Token은 Keychain/Keystore, 나머지는 AsyncStorage | 실제 기기 검증 |
 | 응답 | wrapper 없이 Root 배열·객체 직접 파싱 | 실제 응답 확인 |
 | DateTime | `YYYY-MM-DDTHH:mm:ss`, KST 기준 생성 | 자정·월말 왕복 확인 |
 | S3 | Presigned URL -> S3 PUT -> 메타 저장 함수 | Header·CORS·제한 확인 |
@@ -157,7 +157,6 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 
 - 이미지·문서 선택기 설치와 URI -> Blob 변환
 - 메모·프로필·문의·팀 파일 업로드 UI
-- Refresh Token을 Keychain/Keystore로 이전
 - 나머지 화면의 로딩·빈 상태·오류·중복 클릭 UX 추가 점검
 
 ### 서버 또는 계약이 있어야 가능한 작업

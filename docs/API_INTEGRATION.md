@@ -19,7 +19,7 @@
 | 서버 시간대       | `Asia/Seoul`                                           | 날짜 생성 시 KST 기준 사용                  |
 | DateTime          | ISO 8601 `YYYY-MM-DDTHH:mm:ss`                         | `formatApiDateTime()` 사용                  |
 | Access Token      | 30분                                                   | 401 발생 시 refresh 후 원 요청 1회 재시도   |
-| Refresh Token     | 14일                                                   | 로그인 응답 body에서 저장                   |
+| Refresh Token     | 14일                                                   | iOS Keychain/Android Keystore에 저장         |
 | 성공 응답         | wrapper 없이 `[...]` 또는 `{...}`를 Root에서 직접 반환 | 모든 API 함수가 `response.data`를 직접 반환 |
 | 확정 오류         | `400` 유효성 실패, `401` 인증 없음/만료                | 서버 `message`를 우선 표시                  |
 
@@ -91,6 +91,8 @@ src/screens/.../index.js
 - 동시 401에서 refresh 중복 호출 방지
 - refresh 성공 후 실패한 요청 1회 재시도
 - refresh 실패 시 access/refresh/userId/deviceId 제거
+- Refresh Token은 iOS Keychain/Android Keystore에 저장
+- 기존 AsyncStorage Refresh Token은 최초 조회 시 보안 저장소로 1회 이전 후 삭제
 - 로그인 시 현재 `deviceId` 저장
 - Root 배열/객체 직접 파싱
 - API body의 DateTime을 `YYYY-MM-DDTHH:mm:ss`로 생성
@@ -135,7 +137,6 @@ LAN 주소를 넣는다.
 
 ## 6. 아직 남은 프론트 작업
 
-- refresh token을 AsyncStorage에서 Keychain/Keystore로 이전
 - 이미지/문서 선택기 패키지 연결과 URI → Blob 변환
 - 메모 이미지, 프로필 이미지, 문의 첨부, 팀 파일 업로드 UI 완성
 - 공지·할 일·일정 검색 결과에 `teamSpaceId`가 제공되면 팀 상세 이동 연결
