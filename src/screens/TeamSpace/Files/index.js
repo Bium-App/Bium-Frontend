@@ -5,24 +5,17 @@ import {
   StatusBar,
   ScrollView,
   Modal,
-  Switch,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
 import { useTeamFiles } from '../../../hooks/useTeamFiles';
 
-import PlusIcon from '../../../assets/icons/ic_plus.svg';
 import FolderOutlineIcon from '../../../assets/icons/ic_folder_outline.svg';
 import FileDocIcon from '../../../assets/icons/ic_file.svg';
 import FileImageIcon from '../../../assets/icons/ic_image.svg';
 import DownloadIcon from '../../../assets/icons/ic_download.svg';
 import EditIcon from '../../../assets/icons/ic_edit.svg';
-import FolderMoveIcon from '../../../assets/icons/ic_folder_move.svg';
-import ShareIcon from '../../../assets/icons/ic_share.svg';
 import DeleteIcon from '../../../assets/icons/ic_delete.svg';
-import PhoneIcon from '../../../assets/icons/ic_phone.svg';
-import AudioIcon from '../../../assets/icons/ic_audio.svg';
-import CloudIcon from '../../../assets/icons/ic_cloud.svg';
 
 import {
   Container,
@@ -33,8 +26,6 @@ import {
   TabSeparator,
   TabText,
   SectionContainer,
-  SectionHeader,
-  SmallAddButton,
   ListCard,
   TouchableListItem,
   ListItemLeft,
@@ -60,29 +51,7 @@ import {
   ActionModalBody,
   ActionModalLabel,
   ActionModalInput,
-  ActionModalInputDisabled,
-  ActionModalInputDisabledText,
-  ActionModalRow,
-  ActionModalRowText,
   ActionModalDesc,
-  AddFileModalOverlay,
-  AddFileModalContainer,
-  AddFileModalHeader,
-  AddFileModalTitle,
-  AddFileModalCloseBtn,
-  AddFileModalBody,
-  AddFileSectionLabel,
-  AddFileSearchContainer,
-  AddFileSearchInput,
-  AddFileMethodRow,
-  AddFileMethodBox,
-  AddFileMethodText,
-  AddFileRecentHeaderRow,
-  AddFileRecentListCard,
-  AddFileRecentScroll,
-  AddFileRecentContent,
-  AddFileRecentListItem,
-  AddFileRecentSubtitle,
 } from './Files.styles';
 
 export default function Files({ route, navigation }) {
@@ -90,25 +59,15 @@ export default function Files({ route, navigation }) {
   const { files, renameFile, deleteFile } = useTeamFiles(projectId);
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [activeModal, setActiveModal] = useState(null);
-  const [isAddFileModalVisible, setAddFileModalVisible] = useState(false);
   const [renameInput, setRenameInput] = useState('');
-  const [moveInput, setMoveInput] = useState('');
-  const [shareInput, setShareInput] = useState('');
-  const [isShareToggleOn, setIsShareToggleOn] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const fileList = files.filter(file =>
     file.title.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
-  const recentFileList = files.slice(0, 4);
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
       <Icon name="chevron-back" size={26} color="#FF8933" />
-    </HeaderBackButton>
-  );
-  const ellipsisButton = (
-    <HeaderBackButton onPress={() => {}} activeOpacity={0.8}>
-      <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
   const handleOpenPopup = item => {
@@ -121,13 +80,6 @@ export default function Files({ route, navigation }) {
   };
   const handleOptionClick = type => {
     setPopupVisible(false);
-    if (type === 'move' || type === 'share') {
-      Alert.alert(
-        '안내',
-        '이 기능은 7월 21일 API 명세에 정의되어 있지 않습니다.',
-      );
-      return;
-    }
     setActiveModal(type);
   };
   const handleCloseActionModal = () => {
@@ -160,12 +112,6 @@ export default function Files({ route, navigation }) {
     }
   };
 
-  const showPickerPending = () =>
-    Alert.alert(
-      '파일 선택기 필요',
-      'Presigned URL 업로드 API는 연결됐습니다. 기기 파일을 고르는 네이티브 선택기 패키지 연결이 남았습니다.',
-    );
-
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -173,7 +119,6 @@ export default function Files({ route, navigation }) {
       <Header
         title={`프로젝트 #${projectId ?? '-'}`}
         left={backButton}
-        right={ellipsisButton}
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -216,14 +161,6 @@ export default function Files({ route, navigation }) {
           </TabItem>
         </TabContainer>
         <SectionContainer>
-          <SectionHeader>
-            <SmallAddButton
-              activeOpacity={0.7}
-              onPress={() => setAddFileModalVisible(true)}
-            >
-              <PlusIcon width={15} height={15} color="#FF8933" />
-            </SmallAddButton>
-          </SectionHeader>
           <ListCard>
             {fileList.map((file, index) => (
               <TouchableListItem
@@ -278,122 +215,6 @@ export default function Files({ route, navigation }) {
         </SectionContainer>
       </ScrollView>
       <Modal
-        visible={isAddFileModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setAddFileModalVisible(false)}
-      >
-        <AddFileModalOverlay
-          activeOpacity={1}
-          onPress={() => setAddFileModalVisible(false)}
-        >
-          <AddFileModalContainer onStartShouldSetResponder={() => true}>
-            <AddFileModalHeader>
-              <AddFileModalTitle>파일 추가</AddFileModalTitle>
-              <AddFileModalCloseBtn
-                onPress={() => setAddFileModalVisible(false)}
-              >
-                <Icon name="close" size={24} color="#6E6E6E" />
-              </AddFileModalCloseBtn>
-            </AddFileModalHeader>
-            <AddFileModalBody>
-              <AddFileSectionLabel isFirst={true}>파일</AddFileSectionLabel>
-              <AddFileSearchContainer>
-                <Icon name="search-outline" size={18} color="#000000" />
-                <AddFileSearchInput
-                  placeholder="검색"
-                  placeholderTextColor="#000000"
-                />
-              </AddFileSearchContainer>
-              <AddFileSectionLabel isFirst={false}>
-                추가방식
-              </AddFileSectionLabel>
-              <AddFileMethodRow>
-                <AddFileMethodBox
-                  activeOpacity={0.7}
-                  onPress={showPickerPending}
-                >
-                  <PhoneIcon width={24} height={24} color="#FF8933" />
-                  <AddFileMethodText>기기</AddFileMethodText>
-                </AddFileMethodBox>
-                <AddFileMethodBox
-                  activeOpacity={0.7}
-                  onPress={showPickerPending}
-                >
-                  <FileImageIcon width={24} height={24} color="#FF8933" />
-                  <AddFileMethodText>앨범</AddFileMethodText>
-                </AddFileMethodBox>
-                <AddFileMethodBox
-                  activeOpacity={0.7}
-                  onPress={showPickerPending}
-                >
-                  <AudioIcon width={24} height={24} color="#FF8933" />
-                  <AddFileMethodText>오디오</AddFileMethodText>
-                </AddFileMethodBox>
-                <AddFileMethodBox
-                  activeOpacity={0.7}
-                  onPress={showPickerPending}
-                >
-                  <CloudIcon width={28} height={28} color="#FF8933" />
-                  <AddFileMethodText>클라우드</AddFileMethodText>
-                </AddFileMethodBox>
-              </AddFileMethodRow>
-              <AddFileRecentHeaderRow>
-                <AddFileSectionLabel isFirst={true} noMarginBottom={true}>
-                  최근파일
-                </AddFileSectionLabel>
-              </AddFileRecentHeaderRow>
-              <AddFileRecentListCard>
-                <AddFileRecentScroll
-                  showsVerticalScrollIndicator={true}
-                  nestedScrollEnabled={true}
-                >
-                  <AddFileRecentContent>
-                    {recentFileList.map((file, index) => (
-                      <AddFileRecentListItem
-                        key={file.id}
-                        isLast={index === recentFileList.length - 1}
-                        activeOpacity={0.7}
-                      >
-                        <ListItemLeft>
-                          <IconWrapper>
-                            {file.type === 'file' && (
-                              <FileDocIcon
-                                width={24}
-                                height={24}
-                                color="#FF8933"
-                              />
-                            )}
-                            {file.type === 'image' && (
-                              <FileImageIcon
-                                width={24}
-                                height={24}
-                                color="#FF8933"
-                              />
-                            )}
-                          </IconWrapper>
-                          <TextColumn>
-                            <ListItemTitle>{file.title}</ListItemTitle>
-                            <AddFileRecentSubtitle>
-                              {file.info}
-                            </AddFileRecentSubtitle>
-                          </TextColumn>
-                        </ListItemLeft>
-                        <ListItemRight>
-                          <ActionIconBtn activeOpacity={0.7}>
-                            <Icon name="add" size={20} color="#FF8933" />
-                          </ActionIconBtn>
-                        </ListItemRight>
-                      </AddFileRecentListItem>
-                    ))}
-                  </AddFileRecentContent>
-                </AddFileRecentScroll>
-              </AddFileRecentListCard>
-            </AddFileModalBody>
-          </AddFileModalContainer>
-        </AddFileModalOverlay>
-      </Modal>
-      <Modal
         visible={isPopupVisible}
         transparent={true}
         animationType="fade"
@@ -407,20 +228,6 @@ export default function Files({ route, navigation }) {
             >
               <EditIcon width={18} height={18} color="#000000" />
               <PopupOptionText>이름 변경</PopupOptionText>
-            </PopupOptionBtn>
-            <PopupOptionBtn
-              activeOpacity={0.7}
-              onPress={() => handleOptionClick('move')}
-            >
-              <FolderMoveIcon width={18} height={18} color="#000000" />
-              <PopupOptionText>이동</PopupOptionText>
-            </PopupOptionBtn>
-            <PopupOptionBtn
-              activeOpacity={0.7}
-              onPress={() => handleOptionClick('share')}
-            >
-              <ShareIcon width={18} height={18} color="#000000" />
-              <PopupOptionText>공유</PopupOptionText>
             </PopupOptionBtn>
             <PopupOptionBtn
               activeOpacity={0.7}
@@ -459,79 +266,6 @@ export default function Files({ route, navigation }) {
                 placeholder="파일 이름을 입력하세요."
                 placeholderTextColor="#AAAAAA"
               />
-            </ActionModalBody>
-          </ActionModalContainer>
-        </ActionModalOverlay>
-      </Modal>
-      <Modal
-        visible={activeModal === 'move'}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleCloseActionModal}
-      >
-        <ActionModalOverlay activeOpacity={1} onPress={handleCloseActionModal}>
-          <ActionModalContainer onStartShouldSetResponder={() => true}>
-            <ActionModalHeader>
-              <ActionModalCancelBtn onPress={handleCloseActionModal}>
-                <ActionModalCancelText>취소</ActionModalCancelText>
-              </ActionModalCancelBtn>
-              <ActionModalTitle>파일 이동</ActionModalTitle>
-              <ActionModalSaveBtn onPress={handleCloseActionModal}>
-                <ActionModalSaveText>저장</ActionModalSaveText>
-              </ActionModalSaveBtn>
-            </ActionModalHeader>
-            <ActionModalBody>
-              <ActionModalLabel isFirst={true}>현재 위치</ActionModalLabel>
-              <ActionModalInputDisabled>
-                <ActionModalInputDisabledText>
-                  프로젝트1 / 파일
-                </ActionModalInputDisabledText>
-              </ActionModalInputDisabled>
-              <ActionModalLabel isFirst={false}>이동할 위치</ActionModalLabel>
-              <ActionModalInput
-                value={moveInput}
-                onChangeText={setMoveInput}
-                placeholder="폴더명을 입력하세요."
-                placeholderTextColor="#AAAAAA"
-              />
-            </ActionModalBody>
-          </ActionModalContainer>
-        </ActionModalOverlay>
-      </Modal>
-      <Modal
-        visible={activeModal === 'share'}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleCloseActionModal}
-      >
-        <ActionModalOverlay activeOpacity={1} onPress={handleCloseActionModal}>
-          <ActionModalContainer onStartShouldSetResponder={() => true}>
-            <ActionModalHeader>
-              <ActionModalCancelBtn onPress={handleCloseActionModal}>
-                <ActionModalCancelText>취소</ActionModalCancelText>
-              </ActionModalCancelBtn>
-              <ActionModalTitle>파일 공유</ActionModalTitle>
-              <ActionModalSaveBtn onPress={handleCloseActionModal}>
-                <ActionModalSaveText>공유</ActionModalSaveText>
-              </ActionModalSaveBtn>
-            </ActionModalHeader>
-            <ActionModalBody>
-              <ActionModalLabel isFirst={true}>공유할 멤버</ActionModalLabel>
-              <ActionModalInput
-                value={shareInput}
-                onChangeText={setShareInput}
-                placeholder="이름 또는 이메일을 입력하세요."
-                placeholderTextColor="#AAAAAA"
-              />
-              <ActionModalRow>
-                <ActionModalRowText>알림 발송</ActionModalRowText>
-                <Switch
-                  trackColor={{ false: '#E5E5E5', true: '#FF8933' }}
-                  thumbColor="#FFFFFF"
-                  onValueChange={setIsShareToggleOn}
-                  value={isShareToggleOn}
-                />
-              </ActionModalRow>
             </ActionModalBody>
           </ActionModalContainer>
         </ActionModalOverlay>

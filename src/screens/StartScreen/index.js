@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
+import { getRefreshToken, getUserId } from '../../utils/authStorage';
 
 import LogoWhite from '../../assets/icons/logo_white.svg';
 
@@ -11,11 +12,28 @@ import {
 
 export default function StartScreen({ navigation }) {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.replace('Splash');
+    let isMounted = true;
+
+    const timer = setTimeout(async () => {
+      let hasRestorableSession = false;
+      try {
+        const [refreshToken, userId] = await Promise.all([
+          getRefreshToken(),
+          getUserId(),
+        ]);
+        hasRestorableSession = Boolean(refreshToken && userId);
+      } catch {
+        hasRestorableSession = false;
+      }
+
+      if (!isMounted) return;
+      navigation.replace(hasRestorableSession ? 'MainTabs' : 'Splash');
     }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [navigation]);
 
   return (

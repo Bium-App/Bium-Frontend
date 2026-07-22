@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Image, Platform, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
-import PlusIcon from '../../../assets/icons/ic_plus.svg';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 
 import {
@@ -11,7 +10,6 @@ import {
   ScrollContainer,
   ProfileContainer,
   ProfileImageWrapper,
-  BadgeWrapper,
   FormContainer,
   InputGroup,
   Label,
@@ -79,17 +77,6 @@ export default function EditProfile({ navigation }) {
                 <Icon name="person" size={88} color="#AEAEB2" />
               )}
             </ProfileImageWrapper>
-            <BadgeWrapper
-              activeOpacity={0.7}
-              onPress={() =>
-                Alert.alert(
-                  '안내',
-                  'S3 업로드 API는 연결됐습니다. 이미지 선택기 연결 후 업로드를 사용할 수 있습니다.',
-                )
-              }
-            >
-              <PlusIcon width={14} height={14} color="#FFFFFF" />
-            </BadgeWrapper>
           </ProfileContainer>
 
           <FormContainer>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../../../components/Header';
@@ -21,14 +21,36 @@ import {
   SubmitButtonText,
 } from './VerifyCode.styles';
 
+const CODE_EXPIRES_IN_SECONDS = 180;
+
 export default function VerifyCode({ route, navigation }) {
   const [code, setCode] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(
+    CODE_EXPIRES_IN_SECONDS,
+  );
   const { phoneNumber } = route.params ?? {};
   const { setupPhone, verifyCode } = useTwoFactorAuth();
 
+  useEffect(() => {
+    if (!remainingSeconds) return undefined;
+    const timerId = setInterval(() => {
+      setRemainingSeconds(current => Math.max(current - 1, 0));
+    }, 1000);
+    return () => clearInterval(timerId);
+  }, [remainingSeconds]);
+
+  const timerText = `${String(Math.floor(remainingSeconds / 60)).padStart(
+    2,
+    '0',
+  )}:${String(remainingSeconds % 60).padStart(2, '0')}`;
+
   const handleNext = async () => {
+    if (!remainingSeconds) {
+      Alert.alert('알림', '인증번호가 만료되었습니다. 다시 받아주세요.');
+      return;
+    }
     if (code.trim().length !== 6) {
       Alert.alert('알림', '인증번호 6자리를 입력해주세요.');
       return;
@@ -48,15 +70,19 @@ export default function VerifyCode({ route, navigation }) {
   };
 
   const handleResend = async () => {
-    if (!phoneNumber) return;
+    if (!phoneNumber || isLoading) return;
+    setIsLoading(true);
     try {
       await setupPhone(phoneNumber);
+      setRemainingSeconds(CODE_EXPIRES_IN_SECONDS);
       Alert.alert('완료', '인증번호를 다시 전송했습니다.');
     } catch (error) {
       Alert.alert(
         '오류',
         error.response?.data?.message ?? '인증번호를 다시 보내지 못했습니다.',
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,9 +119,13 @@ export default function VerifyCode({ route, navigation }) {
                 />
               </InputContainer>
 
-              <TimerText>02:31</TimerText>
+              <TimerText>{timerText}</TimerText>
 
-              <ResendButton onPress={handleResend} activeOpacity={0.7}>
+              <ResendButton
+                disabled={isLoading}
+                onPress={handleResend}
+                activeOpacity={0.7}
+              >
                 <ResendButtonText>재전송</ResendButtonText>
               </ResendButton>
             </VerificationRow>

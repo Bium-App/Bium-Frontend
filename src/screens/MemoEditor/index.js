@@ -30,12 +30,7 @@ import {
   FontSizeText,
   ColorPickerWrapper, 
   ColorCircle, 
-  SectionHeader, 
   SectionTitle, 
-  SectionSubTitle,
-  ImageUploadBox, 
-  UploadTitle, 
-  UploadSub, 
   TimerBox, 
   TimerHeaderRow,
   TimerDesc,
@@ -212,18 +207,6 @@ export default function MemoEditor({ navigation, route }) {
               </ColorPickerWrapper>
             </ToolbarRow>
           </ToolbarBox>
-
-          <SectionHeader>
-            <Icon name="camera-outline" size={18} color="#FF8933" />
-            <SectionTitle>이미지 추가</SectionTitle>
-            <SectionSubTitle>(선택)</SectionSubTitle>
-          </SectionHeader>
-          
-          <ImageUploadBox activeOpacity={0.7}>
-            <Icon name="add-outline" size={24} color="#FF8933" />
-            <UploadTitle>사진 / 동영상 선택</UploadTitle>
-            <UploadSub>최대 5장, 장당 10MB 이하</UploadSub>
-          </ImageUploadBox>
 
           <TimerBox>
             <TimerHeaderRow>

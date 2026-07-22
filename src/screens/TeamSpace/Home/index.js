@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { StatusBar, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header'; 
 import AsyncState from '../../../components/AsyncState';
@@ -32,14 +33,24 @@ import {
 } from './TeamSpaceHome.styles';
 
 export default function TeamSpaceHome({ navigation }) {
-  
-  // 뷰모델에서 서버 데이터(teams)와 로딩 상태, 그리고 호출 함수를 가져옴
   const { teams, isLoading, errorMessage, fetchTeams } = useTeamSpaceHome();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // 화면이 맨 처음 렌더링될 때 딱 한 번 서버에 데이터를 요청(fetchTeams)
-  useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchTeams();
+    }, [fetchTeams]),
+  );
+
+  const filteredTeams = useMemo(() => {
+    const keyword = searchQuery.trim().toLowerCase();
+    if (!keyword) return teams;
+    return teams.filter(team =>
+      [team.title, team.desc].some(value =>
+        value?.toLowerCase().includes(keyword),
+      ),
+    );
+  }, [searchQuery, teams]);
 
   const handleGoToProjectDetail = (projectId) => {
     // 팀방에 들어갈 때, 어떤 프로젝트인지 식별하기 위해 projectId를 함께 넘겨줌
@@ -57,7 +68,12 @@ export default function TeamSpaceHome({ navigation }) {
 
       <SearchContainer>
         <Icon name="search-outline" size={20} color="#000000" />
-        <SearchInput placeholder="검색" placeholderTextColor="#000000" />
+        <SearchInput
+          placeholder="검색"
+          placeholderTextColor="#000000"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
       </SearchContainer>
 
       <ActionRow>
@@ -85,16 +101,19 @@ export default function TeamSpaceHome({ navigation }) {
           <RefreshControl refreshing={isLoading} onRefresh={fetchTeams} tintColor="#FF8933" />
         }
       >
-        {teams.length === 0 ? (
+        {filteredTeams.length === 0 ? (
           <AsyncState
             isLoading={isLoading}
             errorMessage={errorMessage}
-            emptyMessage="참여 중인 팀이 없습니다."
+            emptyMessage={
+              searchQuery.trim()
+                ? '검색 결과가 없습니다.'
+                : '참여 중인 팀이 없습니다.'
+            }
             onRetry={fetchTeams}
           />
         ) : null}
-        {/* 더미 데이터 대신 서버에서 받아온 teams 배열을 map으로 순회하며 화면에 나타냄 */}
-        {teams.map((project) => (
+        {filteredTeams.map((project) => (
           <ProjectCard 
             key={project.id} 
             activeOpacity={0.8}

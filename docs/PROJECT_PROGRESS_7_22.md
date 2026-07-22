@@ -68,7 +68,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 | --- | --- | --- |
 | Home | 코드 연결 완료 | 목록, 수정 진입, FIRE/ICE, 고정, 휴지통, 새로고침 |
 | Timeline | 코드 연결 완료 | 목록 표시, 메모 수정 진입, 검색·알림 이동 |
-| MemoEditor | 일부 | 생성·수정 완료, 이미지 선택·업로드 UI 남음 |
+| MemoEditor | 일부 | 생성·수정 완료, 이미지 선택기 도입 후 업로드 UI 재노출 |
 | Search | 일부 | 4개 도메인 표시, 메모 이동 완료, 팀 결과 `teamSpaceId` 필요 |
 | Notification | 일부 | 목록·읽음·삭제, MEMO 이동 완료, FRIEND/TEAM 규칙 필요 |
 
@@ -76,14 +76,14 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 
 | 화면 | 상태 | 구현 내용 / 남은 내용 |
 | --- | --- | --- |
-| TeamSpace/Home | 코드 연결 완료 | 내 팀 목록, memberCount, 새로고침 |
+| TeamSpace/Home | 코드 연결 완료 | 내 팀 목록·검색, memberCount, 재진입 새로고침 |
 | TeamCreate | 코드 연결 완료 | 팀 생성, 친구 검색·추천·선택, 팀원 추가 |
-| ProjectDetail | 일부 | 공지 CRUD, 할 일 CRUD·체크, 월별 일정 표시 |
+| ProjectDetail | 일부 | 공지·할 일 CRUD 및 검색, 월별 일정 검색·표시 |
 | AddNotice | 코드 연결 완료 | 제목·내용·isPinned 공지 생성 |
 | ProjectTodo, AddTodo | 코드 연결 완료 | 목록·검색·생성·수정·삭제·완료 토글 |
 | Schedule, AddSchedule | 일부 | 월별 목록·검색·그룹, 일정 생성 완료 |
-| EditSchedule | 대기 | 상세 API 또는 목록의 `content` 필요 |
-| Files | 일부 | 목록·검색·다운로드·이름 변경·삭제, 선택·업로드 UI 남음 |
+| EditSchedule | 미노출 | 상세 API 또는 목록의 `content` 확정 전 라우트 제거 |
+| Files | 일부 | 목록·검색·다운로드·이름 변경·삭제만 노출 |
 | FriendAdd | 코드 연결 완료 | 검색·추천·요청, 받은 요청 수 |
 | FriendRequestList | 코드 연결 완료 | 받은/보낸 요청, 수락·거절·취소 |
 
@@ -95,7 +95,7 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 | EditProfile | 일부 | 닉네임 수정 완료, 프로필 이미지 업로드 남음 |
 | Language | 코드 연결 완료 | language, timezone, dateFormat 조회·저장 |
 | SettingNotification | 코드 연결 완료 | allowPush, allowEvent 조회·저장 |
-| 2FA 흐름 | 일부 | 비밀번호 확인, setup, verify, 토큰 교체 연결; 재발송 정책 확인 필요 |
+| 2FA 흐름 | 일부 | 비밀번호 확인, setup, verify, 토큰 교체, 3분 타이머 연결 |
 | DeviceManagement | 코드 연결 완료 | 기기 목록, 원격·전체 로그아웃 |
 | Trash | 코드 연결 완료 | 목록, 복구, 선택 영구 삭제 |
 | MarketingConsent | 코드 연결 완료 | allowEvent 저장 |
@@ -106,11 +106,11 @@ AsyncStorage는 3.x API인 `setMany`, `getMany`, `removeMany`를 사용하며 iO
 
 | 화면 | 상태 | 구현 내용 / 남은 내용 |
 | --- | --- | --- |
-| Inquiry | 일부 | ONE_ON_ONE 등록, attachmentUrl 업로드 남음 |
+| Inquiry | 일부 | ONE_ON_ONE 등록만 노출, attachmentUrl 업로드 남음 |
 | InquiryHistory | 코드 연결 완료 | 목록, WAITING/ANSWERED, response, 시간 표시 |
 | ServiceSuggestion | 코드 연결 완료 | SUGGESTION 등록 |
 | FAQ | 정적 화면 | 현재 API 불필요 |
-| Service Notice | 대기 | 명세에 별도 서비스 공지 API 없음 |
+| Service Notice | 대기 | 더미 제거, 명세에 별도 서비스 공지 API 없음 |
 | PhoneInquiry | 로컬 기능 | `tel:` 연결 |
 
 ## 5. 7/21 명세 반영 핵심

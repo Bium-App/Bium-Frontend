@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Alert, View, Modal } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header';
 import IcMegaphone from '../../../../assets/icons/ic_megaphone-outline.svg';
@@ -7,12 +7,6 @@ import IcPersonCircle from '../../../../assets/icons/ic_person-circle-outline.sv
 import IcDocumentText from '../../../../assets/icons/ic_document-text-outline.svg';
 import IcBug from '../../../../assets/icons/ic_bug-outline.svg';
 import IcChatbubble from '../../../../assets/icons/ic_chatbubble-ellipses-outline.svg';
-import IcFolder from '../../../../assets/icons/ic_folder.svg';
-import PhoneIcon from '../../../../assets/icons/ic_phone.svg';
-import FileImageIcon from '../../../../assets/icons/ic_image.svg';
-import AudioIcon from '../../../../assets/icons/ic_audio.svg';
-import CloudIcon from '../../../../assets/icons/ic_cloud.svg';
-import FileDocIcon from '../../../../assets/icons/ic_file.svg';
 import { useInquiryForm } from '../../../../hooks/useInquiryForm';
 
 import {
@@ -36,36 +30,9 @@ import {
   ContentInputWrapper,
   ContentInput,
   CharCount,
-  AttachLabel,
-  AttachButton,
-  AttachText,
   SubmitButtonContainer,
   SubmitButton,
   SubmitText,
-  AddFileModalOverlay,
-  AddFileModalContainer,
-  AddFileModalHeader,
-  AddFileModalTitle,
-  AddFileModalCloseBtn,
-  AddFileModalBody,
-  AddFileSectionLabel,
-  AddFileSearchContainer,
-  AddFileSearchInput,
-  AddFileMethodRow,
-  AddFileMethodBox,
-  AddFileMethodText,
-  AddFileRecentHeaderRow,
-  AddFileRecentListCard,
-  AddFileRecentScroll,
-  AddFileRecentContent,
-  AddFileRecentListItem,
-  AddFileRecentSubtitle,
-  ListItemLeft,
-  IconWrapper,
-  TextColumn,
-  ListItemTitle,
-  ListItemRight,
-  ActionIconBtn,
 } from './Inquiry.styles';
 
 const INQUIRY_TYPES = [
@@ -100,8 +67,6 @@ export default function Inquiry({ navigation }) {
   const {
     isDropdownOpen,
     setIsDropdownOpen,
-    isAddFileModalVisible,
-    setAddFileModalVisible,
     selectedType,
     title,
     setTitle,
@@ -112,13 +77,6 @@ export default function Inquiry({ navigation }) {
     handleSelectType,
     handleSubmit,
   } = useInquiryForm(navigation);
-
-  const recentFileList = [
-    { id: 101, type: 'file', title: '아카이브.zip', info: '28.4 KB' },
-    { id: 102, type: 'image', title: '아카이브.zip', info: '28.4 KB' },
-    { id: 103, type: 'file', title: '기획서.pdf', info: '1.2 MB' },
-    { id: 104, type: 'image', title: '로고.png', info: '450 KB' },
-  ];
 
   const SelectedIcon = selectedType ? selectedType.Icon : null;
 
@@ -239,19 +197,6 @@ export default function Inquiry({ navigation }) {
             </ContentInputWrapper>
           </InputWrapper>
 
-          <AttachLabel>첨부파일 (선택)</AttachLabel>
-          <AttachButton
-            activeOpacity={0.8}
-            onPress={() =>
-              Alert.alert(
-                '안내',
-                'S3 업로드 API는 연결됐습니다. 파일 선택기 연결 후 첨부를 사용할 수 있습니다.',
-              )
-            }
-          >
-            <IcFolder width={22} height={20} color="#000000" />
-            <AttachText>파일 첨부하기</AttachText>
-          </AttachButton>
         </View>
       </ScrollContainer>
 
@@ -264,112 +209,6 @@ export default function Inquiry({ navigation }) {
           <SubmitText>문의하기</SubmitText>
         </SubmitButton>
       </SubmitButtonContainer>
-
-      <Modal
-        visible={isAddFileModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setAddFileModalVisible(false)}
-      >
-        <AddFileModalOverlay
-          activeOpacity={1}
-          onPress={() => setAddFileModalVisible(false)}
-        >
-          {/* onStartShouldSetResponder: 배경을 눌렀을 때 모달이 닫히도록 하되, 팝업 내부 터치는 막음 */}
-          <AddFileModalContainer onStartShouldSetResponder={() => true}>
-            <AddFileModalHeader>
-              <AddFileModalTitle>파일 추가</AddFileModalTitle>
-              <AddFileModalCloseBtn
-                onPress={() => setAddFileModalVisible(false)}
-              >
-                <Icon name="close" size={24} color="#6E6E6E" />
-              </AddFileModalCloseBtn>
-            </AddFileModalHeader>
-            <AddFileModalBody>
-              <AddFileSectionLabel isFirst={true}>파일</AddFileSectionLabel>
-              <AddFileSearchContainer>
-                <Icon name="search-outline" size={18} color="#000000" />
-                <AddFileSearchInput
-                  placeholder="검색"
-                  placeholderTextColor="#000000"
-                />
-              </AddFileSearchContainer>
-              <AddFileSectionLabel isFirst={false}>
-                추가방식
-              </AddFileSectionLabel>
-              <AddFileMethodRow>
-                <AddFileMethodBox activeOpacity={0.7}>
-                  <PhoneIcon width={24} height={24} color="#FF8933" />
-                  <AddFileMethodText>기기</AddFileMethodText>
-                </AddFileMethodBox>
-                <AddFileMethodBox activeOpacity={0.7}>
-                  <FileImageIcon width={24} height={24} color="#FF8933" />
-                  <AddFileMethodText>앨범</AddFileMethodText>
-                </AddFileMethodBox>
-                <AddFileMethodBox activeOpacity={0.7}>
-                  <AudioIcon width={24} height={24} color="#FF8933" />
-                  <AddFileMethodText>오디오</AddFileMethodText>
-                </AddFileMethodBox>
-                <AddFileMethodBox activeOpacity={0.7}>
-                  <CloudIcon width={28} height={28} color="#FF8933" />
-                  <AddFileMethodText>클라우드</AddFileMethodText>
-                </AddFileMethodBox>
-              </AddFileMethodRow>
-              <AddFileRecentHeaderRow>
-                <AddFileSectionLabel isFirst={true} noMarginBottom={true}>
-                  최근파일
-                </AddFileSectionLabel>
-              </AddFileRecentHeaderRow>
-              <AddFileRecentListCard>
-                <AddFileRecentScroll
-                  showsVerticalScrollIndicator={true}
-                  nestedScrollEnabled={true}
-                >
-                  <AddFileRecentContent>
-                    {recentFileList.map((file, index) => (
-                      <AddFileRecentListItem
-                        key={file.id}
-                        isLast={index === recentFileList.length - 1}
-                        activeOpacity={0.7}
-                      >
-                        <ListItemLeft>
-                          <IconWrapper>
-                            {file.type === 'file' && (
-                              <FileDocIcon
-                                width={24}
-                                height={24}
-                                color="#FF8933"
-                              />
-                            )}
-                            {file.type === 'image' && (
-                              <FileImageIcon
-                                width={24}
-                                height={24}
-                                color="#FF8933"
-                              />
-                            )}
-                          </IconWrapper>
-                          <TextColumn>
-                            <ListItemTitle>{file.title}</ListItemTitle>
-                            <AddFileRecentSubtitle>
-                              {file.info}
-                            </AddFileRecentSubtitle>
-                          </TextColumn>
-                        </ListItemLeft>
-                        <ListItemRight>
-                          <ActionIconBtn activeOpacity={0.7}>
-                            <Icon name="add" size={20} color="#FF8933" />
-                          </ActionIconBtn>
-                        </ListItemRight>
-                      </AddFileRecentListItem>
-                    ))}
-                  </AddFileRecentContent>
-                </AddFileRecentScroll>
-              </AddFileRecentListCard>
-            </AddFileModalBody>
-          </AddFileModalContainer>
-        </AddFileModalOverlay>
-      </Modal>
     </Container>
   );
 }

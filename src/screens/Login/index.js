@@ -4,12 +4,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
 import { useLogin } from '../../hooks/useLogin';
 
-import KakaoIcon from '../../assets/icons/ic_kakao.svg';
-import NaverIcon from '../../assets/icons/ic_naver.svg';
-import GoogleIcon from '../../assets/icons/ic_google.svg';
-import FacebookIcon from '../../assets/icons/ic_facebook.svg';
-import AppleIcon from '../../assets/icons/ic_apple.svg';
-
 import {
   Container,
   HeaderDivider,
@@ -23,11 +17,6 @@ import {
   LinksRow,
   LinkText,
   LinkDivider,
-  DividerRow,
-  DividerLine,
-  DividerText,
-  SnsRow,
-  SnsButton,
 } from './Login.styles';
 
 export default function Login({ navigation }) {
@@ -120,18 +109,6 @@ export default function Login({ navigation }) {
             <LinkText>회원가입</LinkText>
           </TouchableOpacity>
         </LinksRow>
-        <DividerRow>
-          <DividerLine />
-          <DividerText>SNS 계정으로 로그인</DividerText>
-          <DividerLine />
-        </DividerRow>
-        <SnsRow>
-          <SnsButton><KakaoIcon width={36} height={36} /></SnsButton>
-          <SnsButton><NaverIcon width={36} height={36} /></SnsButton>
-          <SnsButton><GoogleIcon width={36} height={36} /></SnsButton>
-          <SnsButton><FacebookIcon width={36} height={36} /></SnsButton>
-          <SnsButton><AppleIcon width={36} height={36} /></SnsButton>
-        </SnsRow>
       </ScrollContent>
     </Container>
   );

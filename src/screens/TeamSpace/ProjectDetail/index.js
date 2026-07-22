@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Alert, StatusBar, ScrollView, Modal, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
@@ -109,6 +109,34 @@ export default function ProjectDetail({ route, navigation }) {
     deleteTodo,
     toggleTodo,
   } = useProjectDetail(projectId);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const filteredNotices = useMemo(
+    () =>
+      notices.filter(notice =>
+        [notice.title, notice.content].some(value =>
+          value?.toLowerCase().includes(normalizedSearchQuery),
+        ),
+      ),
+    [normalizedSearchQuery, notices],
+  );
+  const filteredTodos = useMemo(
+    () =>
+      todos.filter(todo =>
+        [todo.title, todo.content].some(value =>
+          value?.toLowerCase().includes(normalizedSearchQuery),
+        ),
+      ),
+    [normalizedSearchQuery, todos],
+  );
+  const filteredSchedules = useMemo(
+    () =>
+      schedules.filter(schedule =>
+        schedule.title?.toLowerCase().includes(normalizedSearchQuery),
+      ),
+    [normalizedSearchQuery, schedules],
+  );
 
   const confirmDeleteNotice = () => {
     Alert.alert('공지 삭제', '이 공지를 삭제하시겠습니까?', [
@@ -139,7 +167,12 @@ export default function ProjectDetail({ route, navigation }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
-          <SearchInput placeholder="검색" placeholderTextColor="#000000" />
+          <SearchInput
+            placeholder="검색"
+            placeholderTextColor="#000000"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
         </SearchContainer>
 
         <TabContainer>
@@ -182,14 +215,14 @@ export default function ProjectDetail({ route, navigation }) {
               <PlusIcon width={16} height={16} color="#FF8933" />
             </NoticeAddButton>
           </SectionHeader>
-          {notices.length === 0 ? (
+          {filteredNotices.length === 0 ? (
             <Text
               style={{ textAlign: 'center', marginTop: 20, color: '#AAAAAA' }}
             >
               등록된 공지가 없습니다.
             </Text>
           ) : (
-            notices.map(notice => (
+            filteredNotices.map(notice => (
               <NoticeCard
                 key={notice.id}
                 activeOpacity={0.8}
@@ -214,7 +247,7 @@ export default function ProjectDetail({ route, navigation }) {
             <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
           </SectionHeader>
           <ListCard>
-            {todos.length === 0 ? (
+            {filteredTodos.length === 0 ? (
               <Text
                 style={{
                   textAlign: 'center',
@@ -225,10 +258,10 @@ export default function ProjectDetail({ route, navigation }) {
                 할 일이 없습니다.
               </Text>
             ) : (
-              todos.map((todo, index) => (
+              filteredTodos.map((todo, index) => (
                 <TouchableListItem
                   key={todo.id}
-                  isLast={index === todos.length - 1}
+                  isLast={index === filteredTodos.length - 1}
                   activeOpacity={0.7}
                   onPress={() => toggleTodo(todo.id)}
                   onLongPress={() => openTodoModal(todo)}
@@ -246,7 +279,10 @@ export default function ProjectDetail({ route, navigation }) {
             )}
           </ListCard>
 
-          <AddTodoButton activeOpacity={0.8} onPress={openTodoModal}>
+          <AddTodoButton
+            activeOpacity={0.8}
+            onPress={() => openTodoModal()}
+          >
             <Icon name="add" size={15} color="#FFFFFF" />
             <AddTodoText>새로운 할 일 추가</AddTodoText>
           </AddTodoButton>
@@ -258,7 +294,7 @@ export default function ProjectDetail({ route, navigation }) {
             <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
           </SectionHeader>
           <ListCard>
-            {schedules.length === 0 ? (
+            {filteredSchedules.length === 0 ? (
               <Text
                 style={{
                   textAlign: 'center',
@@ -269,10 +305,10 @@ export default function ProjectDetail({ route, navigation }) {
                 등록된 일정이 없습니다.
               </Text>
             ) : (
-              schedules.map((schedule, index) => (
+              filteredSchedules.map((schedule, index) => (
                 <ListItem
                   key={schedule.id}
-                  isLast={index === schedules.length - 1}
+                  isLast={index === filteredSchedules.length - 1}
                 >
                   <ListIconWrapper>
                     <CalendarIcon width={24} height={24} color="#FF8933" />

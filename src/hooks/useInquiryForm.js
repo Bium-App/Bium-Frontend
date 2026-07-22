@@ -5,7 +5,6 @@ import { getUserId } from '../utils/authStorage';
 
 export const useInquiryForm = navigation => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isAddFileModalVisible, setAddFileModalVisible] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -50,8 +49,6 @@ export const useInquiryForm = navigation => {
   return {
     isDropdownOpen,
     setIsDropdownOpen,
-    isAddFileModalVisible,
-    setAddFileModalVisible,
     selectedType,
     title,
     setTitle,

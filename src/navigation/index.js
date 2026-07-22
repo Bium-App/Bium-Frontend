@@ -26,7 +26,6 @@ import ProjectTodo from '../screens/TeamSpace/ProjectTodo';
 import AddTodo from '../screens/TeamSpace/AddTodo';
 import Schedule from '../screens/TeamSpace/Schedule';
 import AddSchedule from '../screens/TeamSpace/AddSchedule';
-import EditSchedule from '../screens/TeamSpace/EditSchedule';
 import Files from '../screens/TeamSpace/Files';
 import FriendAdd from '../screens/TeamSpace/FriendAdd';
 import TeamCreate from '../screens/TeamSpace/TeamCreate';
@@ -125,7 +124,6 @@ export default function Navigation() {
         <Stack.Screen name="AddNotice" component={AddNotice} />
         <Stack.Screen name="AddTodo" component={AddTodo} />
         <Stack.Screen name="AddSchedule" component={AddSchedule} />
-        <Stack.Screen name="EditSchedule" component={EditSchedule} />
         <Stack.Screen name="FriendAdd" component={FriendAdd} />
         <Stack.Screen name="FriendRequestList" component={FriendRequestList} />
         <Stack.Screen name="TeamCreate" component={TeamCreate} />
