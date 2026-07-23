@@ -8,6 +8,7 @@ import IcDocumentText from '../../../../assets/icons/ic_document-text-outline.sv
 import IcBug from '../../../../assets/icons/ic_bug-outline.svg';
 import IcChatbubble from '../../../../assets/icons/ic_chatbubble-ellipses-outline.svg';
 import { useInquiryForm } from '../../../../hooks/useInquiryForm';
+import FilePickerField from '../../../../components/FilePickerField';
 
 import {
   Container,
@@ -72,9 +73,13 @@ export default function Inquiry({ navigation }) {
     setTitle,
     content,
     setContent,
+    attachmentFile,
+    isPickingAttachment,
     isLoading,
     isSubmitEnabled,
     handleSelectType,
+    selectAttachment,
+    removeAttachment,
     handleSubmit,
   } = useInquiryForm(navigation);
 
@@ -196,6 +201,17 @@ export default function Inquiry({ navigation }) {
               <CharCount>{content.length}/1,000</CharCount>
             </ContentInputWrapper>
           </InputWrapper>
+
+          <FilePickerField
+            label="첨부 이미지 (선택)"
+            helperText="이미지 1개, 최대 10MB까지 첨부할 수 있습니다."
+            file={attachmentFile}
+            kind="image"
+            isPicking={isPickingAttachment}
+            disabled={isLoading}
+            onSelect={selectAttachment}
+            onRemove={removeAttachment}
+          />
         </View>
       </ScrollContainer>
 

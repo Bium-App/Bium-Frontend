@@ -1,6 +1,6 @@
 # BlazeMemo 화면별 API 연동 현황
 
-> 기준: API 명세 7/23, ERD 7/23
+> 기준: API 명세 7/23 V2(V9), ERD 7/23 V2(V7)
 >
 > 배포 대상: iOS
 >
@@ -12,9 +12,9 @@
 | --------------- | ---- | ------------------------------------ | -------------- |
 | Base URL/Bearer | 연결 | 환경 분리, 보호 요청 자동 인증       | 개발 서버      |
 | 401 refresh     | 연결 | 동시 갱신 방지, 원 요청 1회 재시도   | 토큰 만료 E2E  |
-| 오류 처리       | 연결 | code/message/fieldErrors와 상태 코드 | 7/23 유지 여부 |
+| 오류 처리       | 연결 | code/message/fieldErrors와 상태 코드 | 실서버 오류    |
 | Refresh Token   | 연결 | iOS Keychain 저장                    | 실제 기기      |
-| S3              | 연결 | domain/fileType, 동일 MIME PUT       | CORS·서버 제한 |
+| S3              | 연결 | 4개 domain/fileType, 동일 MIME PUT   | CORS·서버 제한 |
 
 ## 시작·인증
 
@@ -68,19 +68,19 @@
 
 ## 서비스
 
-| 페이지            | 상태 | 7/23 연결                     | 남은 확인          |
-| ----------------- | ---- | ----------------------------- | ------------------ |
-| Inquiry           | 부분 | 등록 DTO에 attachmentUrl 반영 | 문의 업로드 domain |
-| InquiryHistory    | 연결 | 전체 응답 필드 표시           | 실서버             |
-| ServiceSuggestion | 연결 | SUGGESTION 등록               | 500자 검증         |
-| Notice            | 연결 | title/content/createdAt 표시  | 실서버             |
-| FAQ               | 로컬 | 정적 FAQ                      | 없음               |
-| PhoneInquiry      | 로컬 | tel 링크                      | 운영 번호          |
+| 페이지            | 상태 | 7/23 V2 연결                                  | 남은 확인  |
+| ----------------- | ---- | --------------------------------------------- | ---------- |
+| Inquiry           | 연결 | 이미지 선택·INQUIRY 업로드·attachmentUrl 전송 | S3 E2E     |
+| InquiryHistory    | 연결 | 전체 응답 필드 표시                           | 실서버     |
+| ServiceSuggestion | 연결 | SUGGESTION 등록                               | 500자 검증 |
+| Notice            | 연결 | title/content/createdAt 표시                  | 실서버     |
+| FAQ               | 로컬 | 정적 FAQ                                      | 없음       |
+| PhoneInquiry      | 로컬 | tel 링크                                      | 운영 번호  |
 
 ## 검증
 
-- ESLint: 통과 예정
-- Jest: 7/23 계약 테스트 갱신
-- iOS 프로덕션 번들: 최종 코드에서 재검증 예정
+- ESLint: 통과
+- Jest: 6 suites, 30 tests 통과
+- iOS 프로덕션 번들: 통과
 - 실제 서버 E2E: 서버 준비 후 진행
 - Android: 배포 범위 제외

@@ -11,6 +11,7 @@ export const FILE_DOMAINS = Object.freeze({
   PROFILE: 'PROFILE',
   MEMO: 'MEMO',
   TEAM: 'TEAM',
+  INQUIRY: 'INQUIRY',
 });
 
 export const FILE_LIMITS = Object.freeze({

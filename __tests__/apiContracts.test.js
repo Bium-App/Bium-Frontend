@@ -309,6 +309,11 @@ test('Presigned URL과 메타데이터 API는 domain·fileType 계약을 사용�
     fileName: 'photo.jpg',
     fileType: 'image/jpeg',
   });
+  await getPresignedUrlApi({
+    domain: 'INQUIRY',
+    fileName: 'inquiry.jpg',
+    fileType: 'image/jpeg',
+  });
   await addMemoImageApi(1, 'https://image');
   await createTeamFileApi(2, {
     fileName: 'file.pdf',
@@ -322,6 +327,13 @@ test('Presigned URL과 메타데이터 API는 domain·fileType 계약을 사용�
       fileName: 'photo.jpg',
       fileType: 'image/jpeg',
       domain: 'MEMO',
+    },
+  });
+  expect(apiClient.get).toHaveBeenCalledWith('/api/files/presigned-url', {
+    params: {
+      fileName: 'inquiry.jpg',
+      fileType: 'image/jpeg',
+      domain: 'INQUIRY',
     },
   });
   expect(apiClient.post).toHaveBeenCalledWith('/api/memos/1/images', {
