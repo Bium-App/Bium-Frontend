@@ -57,17 +57,10 @@ export default function Schedule({ route, navigation }) {
   const openSchedule = async scheduleId => {
     try {
       const schedule = await getScheduleDetail(scheduleId);
-      Alert.alert(
-        schedule.title,
-        [
-          schedule.content,
-          `${dayjs(schedule.startAt).format('YYYY.MM.DD HH:mm')} ~ ${dayjs(
-            schedule.endAt,
-          ).format('YYYY.MM.DD HH:mm')}`,
-        ]
-          .filter(Boolean)
-          .join('\n\n'),
-      );
+      navigation.navigate('AddSchedule', {
+        projectId,
+        scheduleData: schedule,
+      });
     } catch (error) {
       Alert.alert(
         '오류',

@@ -31,7 +31,29 @@ import {
   FontSizeText,
   ColorPickerWrapper,
   ColorCircle,
+  SectionTitle,
+  TimerBox,
+  TimerHeaderRow,
+  TimerDesc,
+  TimerButtonRow,
+  TimerButtonWrapper,
+  AnimatedTimerBox,
+  TimerButtonSub,
+  TimerButtonText,
 } from './MemoEditor.styles';
+
+const TimerButton = ({ active, onPress, title, subTitle, disabled }) => (
+  <TimerButtonWrapper>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={disabled}>
+      <AnimatedTimerBox
+        style={{ backgroundColor: active ? '#FF8933' : '#FFFFFF' }}
+      >
+        <TimerButtonText active={active}>{title}</TimerButtonText>
+      </AnimatedTimerBox>
+    </TouchableOpacity>
+    <TimerButtonSub>{subTitle}</TimerButtonSub>
+  </TimerButtonWrapper>
+);
 
 // route 프로퍼티를 추가하여, 리스트에서 클릭해 들어왔을 때 데이터를 받을 수 있도록 처리
 export default function MemoEditor({ navigation, route }) {
@@ -45,6 +67,8 @@ export default function MemoEditor({ navigation, route }) {
     setTitle,
     content,
     setContent,
+    timer,
+    setTimer,
     imageFile,
     isPickingImage,
     selectImage,
@@ -214,6 +238,48 @@ export default function MemoEditor({ navigation, route }) {
               </ColorPickerWrapper>
             </ToolbarRow>
           </ToolbarBox>
+
+          {!memoId ? (
+            <TimerBox>
+              <TimerHeaderRow>
+                <Icon
+                  name="information-circle-outline"
+                  size={18}
+                  color="#FF8933"
+                />
+                <SectionTitle>소멸 시간 설정</SectionTitle>
+              </TimerHeaderRow>
+              <TimerDesc>
+                설정한 시간이 지나면 FIRE 메모가 자동으로 소멸합니다.
+              </TimerDesc>
+              <TimerButtonRow>
+                {[
+                  ['6h', '6시간 후'],
+                  ['12h', '12시간 후'],
+                  ['24h', '24시간 후'],
+                ].map(([value, label]) => (
+                  <TimerButton
+                    key={value}
+                    active={timer === value}
+                    disabled={isLoading}
+                    onPress={() => setTimer(value)}
+                    title={value}
+                    subTitle={label}
+                  />
+                ))}
+              </TimerButtonRow>
+            </TimerBox>
+          ) : initialData?.expiredAt ? (
+            <TimerBox>
+              <TimerHeaderRow>
+                <Icon name="timer-outline" size={18} color="#FF8933" />
+                <SectionTitle>소멸 시간이 설정된 메모입니다.</SectionTitle>
+              </TimerHeaderRow>
+              <TimerDesc>
+                현재 명세에서는 메모 수정 시 소멸 시간을 변경할 수 없습니다.
+              </TimerDesc>
+            </TimerBox>
+          ) : null}
         </ContentContainer>
       </KeyboardContainer>
     </Container>

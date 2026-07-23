@@ -59,7 +59,14 @@ export const useProjectTodo = projectId => {
     );
     try {
       const todo = todos.find(item => item.id === String(todoId));
-      await toggleTeamTodoApi(todoId, todo?.title, !todo?.isDone);
+      if (!todo) throw new Error('할 일 정보를 찾을 수 없습니다.');
+      await toggleTeamTodoApi(todoId, {
+        title: todo.title,
+        content: todo.content,
+        dueDate: todo.dueDate,
+        sendPush: todo.sendPush,
+        isChecked: !todo.isDone,
+      });
     } catch (error) {
       Alert.alert(
         '오류',

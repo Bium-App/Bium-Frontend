@@ -20,6 +20,7 @@ export const useServiceSuggestion = navigation => {
         type: 'SUGGESTION',
         title: '서비스 개선 제안',
         content: suggestion.trim(),
+        attachmentUrl: null,
       });
       Alert.alert('감사합니다', '소중한 의견이 제출되었습니다.', [
         { text: '확인', onPress: () => navigation.goBack() },

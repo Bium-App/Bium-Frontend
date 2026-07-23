@@ -52,6 +52,8 @@ export default function Home({ navigation }) {
           title: memo.title,
           content: memo.content,
           status: memo.status,
+          expiredAt: memo.expiredAt,
+          createdAt: memo.createdAt,
         },
       });
     } catch (error) {

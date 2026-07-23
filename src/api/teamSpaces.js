@@ -106,10 +106,13 @@ export const updateTeamTodoApi = async (todoId, todo) => {
   return response.data;
 };
 
-export const toggleTeamTodoApi = async (todoId, title, isChecked) => {
+export const toggleTeamTodoApi = async (todoId, todo) => {
   const response = await apiClient.patch(`/api/todos/${todoId}`, {
-    title,
-    isChecked,
+    title: todo.title,
+    content: todo.content,
+    dueDate: todo.dueDate,
+    isChecked: todo.isChecked,
+    sendPush: todo.sendPush,
   });
   return response.data;
 };

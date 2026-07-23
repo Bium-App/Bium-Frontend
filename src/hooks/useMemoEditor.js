@@ -1,13 +1,23 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
+import dayjs from 'dayjs';
 import { createMemoApi, updateMemoApi } from '../api/memos';
 import { addMemoImageApi, uploadSelectedFileApi } from '../api/files';
 import { useFileSelection } from './useFileSelection';
 import { FILE_DOMAINS } from '../utils/filePicker';
+import { formatApiDateTime } from '../utils/dateTime';
+
+const getExpiration = timer => {
+  const hours = Number.parseInt(timer, 10);
+  return Number.isFinite(hours)
+    ? formatApiDateTime(dayjs().add(hours, 'hour'))
+    : null;
+};
 
 export const useMemoEditor = initialData => {
   const [title, setTitle] = useState(initialData?.title ?? '');
   const [content, setContent] = useState(initialData?.content ?? '');
+  const [timer, setTimer] = useState('24h');
   const [isLoading, setIsLoading] = useState(false);
   const {
     selectedFile: imageFile,
@@ -35,6 +45,7 @@ export const useMemoEditor = initialData => {
           teamSpaceId: null,
           title: title.trim(),
           content: content.trim(),
+          expiredAt: getExpiration(timer),
           status: 'FIRE',
         });
         savedMemoId = createdMemo.memoId ?? createdMemo.id;
@@ -82,6 +93,8 @@ export const useMemoEditor = initialData => {
     setTitle,
     content,
     setContent,
+    timer,
+    setTimer,
     imageFile,
     isPickingImage,
     selectImage,

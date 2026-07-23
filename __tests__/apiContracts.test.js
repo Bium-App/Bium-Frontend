@@ -22,6 +22,7 @@ import {
   getUserApi,
   getUserSettingsApi,
   updateUserApi,
+  updateUserSettingsApi,
 } from '../src/api/users';
 import {
   createMemoApi,
@@ -47,11 +48,17 @@ import {
   getTeamTodosApi,
   toggleTeamTodoApi,
 } from '../src/api/teamSpaces';
-import { getScheduleApi, getSchedulesApi } from '../src/api/schedules';
+import {
+  createScheduleApi,
+  getScheduleApi,
+  getSchedulesApi,
+  updateScheduleApi,
+} from '../src/api/schedules';
 import {
   createInquiryApi,
   getInquiriesApi,
   getNotificationsApi,
+  getServiceNoticesApi,
   readNotificationApi,
 } from '../src/api/common';
 import {
@@ -68,18 +75,22 @@ beforeEach(() => {
   );
 });
 
-test('7/22 인증 계약을 사용한다', async () => {
+test('7/23 인증 계약을 사용한다', async () => {
   await signUpApi({
     loginId: 'blaze',
     password: 'pw',
+    name: '홍길동',
     nickname: '불꽃',
-    name: '제외',
-    email: 'excluded@example.com',
+    email: 'blaze@example.com',
+    phoneNumber: '01012345678',
   });
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/signup', {
     loginId: 'blaze',
     password: 'pw',
+    name: '홍길동',
     nickname: '불꽃',
+    email: 'blaze@example.com',
+    phoneNumber: '01012345678',
     provider: 'LOCAL',
   });
 
@@ -111,6 +122,14 @@ test('사용자 API는 토큰 기반 me 경로를 사용한다', async () => {
   await getUserApi();
   await getUserSettingsApi();
   await updateUserApi({ nickname: '불꽃', profileImageUrl: 'https://image' });
+  await updateUserSettingsApi({
+    timezone: 'Asia/Seoul',
+    dateFormat: 'YYYY-MM-DD',
+    language: 'ko-KR',
+    use2fa: true,
+    allowPush: true,
+    allowEvent: false,
+  });
   await deleteUserApi();
 
   expect(apiClient.get).toHaveBeenCalledWith('/api/users/me');
@@ -119,11 +138,25 @@ test('사용자 API는 토큰 기반 me 경로를 사용한다', async () => {
     nickname: '불꽃',
     profileImageUrl: 'https://image',
   });
+  expect(apiClient.patch).toHaveBeenCalledWith('/api/users/me/settings', {
+    timezone: 'Asia/Seoul',
+    dateFormat: 'YYYY-MM-DD',
+    language: 'ko-KR',
+    use2fa: true,
+    allowPush: true,
+    allowEvent: false,
+  });
   expect(apiClient.delete).toHaveBeenCalledWith('/api/users/me');
 });
 
-test('메모와 휴지통 API는 7/22 통합 경로를 사용한다', async () => {
-  await createMemoApi({ title: '제목', content: '내용', status: 'FIRE' });
+test('메모와 휴지통 API는 7/23 통합 경로와 만료 필드를 사용한다', async () => {
+  await createMemoApi({
+    teamSpaceId: null,
+    title: '제목',
+    content: '내용',
+    expiredAt: '2026-07-24T10:00:00',
+    status: 'FIRE',
+  });
   await getUserMemosApi();
   await getTeamMemosApi(9);
   await updateMemoStatusApi(1, 'ICE');
@@ -133,8 +166,10 @@ test('메모와 휴지통 API는 7/22 통합 경로를 사용한다', async () =
   await deleteTrashMemosApi([1, 2]);
 
   expect(apiClient.post).toHaveBeenCalledWith('/api/memos', {
+    teamSpaceId: null,
     title: '제목',
     content: '내용',
+    expiredAt: '2026-07-24T10:00:00',
     status: 'FIRE',
   });
   expect(apiClient.get).toHaveBeenCalledWith('/api/memos');
@@ -182,12 +217,18 @@ test('친구 API는 type과 action 쿼리를 사용한다', async () => {
   );
 });
 
-test('팀 공지와 할 일은 7/22 리소스 경로를 사용한다', async () => {
+test('팀 공지와 할 일은 7/23 리소스 경로와 전체 수정 Body를 사용한다', async () => {
   await addTeamMemberApi(2, 8);
   await getTeamNoticesApi(2);
   await createTeamTodoApi(2, { title: '할 일' });
   await getTeamTodosApi(2);
-  await toggleTeamTodoApi(5, '할 일', true);
+  await toggleTeamTodoApi(5, {
+    title: '할 일',
+    content: '내용',
+    dueDate: '2026-07-25',
+    isChecked: true,
+    sendPush: false,
+  });
 
   expect(apiClient.post).toHaveBeenCalledWith('/api/team-spaces/2/members', {
     userId: 8,
@@ -204,32 +245,60 @@ test('팀 공지와 할 일은 7/22 리소스 경로를 사용한다', async () 
   });
   expect(apiClient.patch).toHaveBeenCalledWith('/api/todos/5', {
     title: '할 일',
+    content: '내용',
+    dueDate: '2026-07-25',
     isChecked: true,
+    sendPush: false,
   });
 });
 
-test('일정·문의·알림은 사용자 ID 없는 통합 경로를 사용한다', async () => {
+test('일정·문의·공지·알림은 7/23 통합 계약을 사용한다', async () => {
+  const schedule = {
+    teamSpaceId: 2,
+    title: '회의',
+    content: '주간 회의',
+    startAt: '2026-07-23T10:00:00',
+    endAt: '2026-07-23T11:00:00',
+  };
+  await createScheduleApi(schedule);
   await getSchedulesApi({ year: 2026, month: 7, teamSpaceId: 2 });
   await getScheduleApi(3);
+  await updateScheduleApi(3, {
+    title: schedule.title,
+    content: schedule.content,
+    startAt: schedule.startAt,
+    endAt: schedule.endAt,
+  });
   await createInquiryApi({
     type: 'ONE_ON_ONE',
     title: '문의',
     content: '내용',
+    attachmentUrl: null,
   });
   await getInquiriesApi();
+  await getServiceNoticesApi();
   await getNotificationsApi();
   await readNotificationApi(4);
 
+  expect(apiClient.post).toHaveBeenCalledWith('/api/schedules', schedule);
   expect(apiClient.get).toHaveBeenCalledWith('/api/schedules', {
     params: { year: 2026, month: 7, teamSpaceId: 2 },
   });
   expect(apiClient.get).toHaveBeenCalledWith('/api/schedules/3');
+  expect(apiClient.patch).toHaveBeenCalledWith('/api/schedules/3', {
+    title: schedule.title,
+    content: schedule.content,
+    startAt: schedule.startAt,
+    endAt: schedule.endAt,
+  });
   expect(apiClient.post).toHaveBeenCalledWith('/api/inquiries', {
     type: 'ONE_ON_ONE',
     title: '문의',
     content: '내용',
+    attachmentUrl: null,
   });
   expect(apiClient.get).toHaveBeenCalledWith('/api/inquiries/me');
+  expect(apiClient.get).toHaveBeenCalledWith('/api/service-notices');
   expect(apiClient.get).toHaveBeenCalledWith('/api/notifications');
   expect(apiClient.patch).toHaveBeenCalledWith('/api/notifications/4');
 });

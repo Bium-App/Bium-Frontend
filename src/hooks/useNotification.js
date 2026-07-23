@@ -91,6 +91,8 @@ export const useNotification = () => {
           title: memo.title,
           content: memo.content,
           status: memo.status,
+          expiredAt: memo.expiredAt,
+          createdAt: memo.createdAt,
         });
         return;
       }
@@ -117,7 +119,7 @@ export const useNotification = () => {
       }
       Alert.alert(
         '할 일 이동 준비 중',
-        '7/22 명세에는 todoId 단건 조회 API 또는 teamSpaceId가 없어 팀 할 일 화면으로 이동할 수 없습니다.',
+        '7/23 명세에도 todoId 단건 조회 API 또는 teamSpaceId가 없어 팀 할 일 화면으로 이동할 수 없습니다.',
       );
     } catch (error) {
       Alert.alert(

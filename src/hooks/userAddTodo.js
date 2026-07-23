@@ -26,7 +26,7 @@ export const useAddTodo = (projectId, navigation, initialData) => {
       return;
     }
 
-    if (!initialData?.id && !todoContent.trim()) {
+    if (!todoContent.trim()) {
       Alert.alert('알림', '내용을 입력하세요.');
       return;
     }
@@ -43,7 +43,7 @@ export const useAddTodo = (projectId, navigation, initialData) => {
       };
       if (initialData?.id) {
         await updateTeamTodoApi(initialData.id, {
-          title: todo.title,
+          ...todo,
           isChecked: initialData.isDone ?? initialData.isChecked ?? false,
         });
       } else {

@@ -5,7 +5,11 @@ import DatePicker from 'react-native-date-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
 import CalendarIcon from '../../../assets/icons/ic_calendar.svg';
-import { createScheduleApi } from '../../../api/schedules';
+import {
+  createScheduleApi,
+  deleteScheduleApi,
+  updateScheduleApi,
+} from '../../../api/schedules';
 import { formatApiDateTime } from '../../../utils/dateTime';
 import {
   Container,
@@ -16,29 +20,43 @@ import {
   ContentBody,
   InputLabel,
   TitleInput,
+  ContentInputMultiline,
   DateActionRow,
   DateActionLabel,
   DateActionBox,
   DateActionBoxLeft,
   DateActionText,
+  DeleteButton,
+  DeleteText,
 } from './AddSchedule.styles';
 
 const formatDisplayDateTime = date =>
   dayjs(date).format('YYYY년 M월 D일 HH:mm');
 
 export default function AddSchedule({ route, navigation }) {
-  const { projectId } = route.params || {};
-  const [scheduleTitle, setScheduleTitle] = useState('');
+  const { projectId, scheduleData } = route.params || {};
+  const scheduleId = scheduleData?.scheduleId ?? scheduleData?.id;
+  const [scheduleTitle, setScheduleTitle] = useState(scheduleData?.title ?? '');
+  const [scheduleContent, setScheduleContent] = useState(
+    scheduleData?.content ?? '',
+  );
   const [isTitleFocused, setIsTitleFocused] = useState(false);
-  const [startAt, setStartAt] = useState(new Date());
-  const [endAt, setEndAt] = useState(dayjs().add(1, 'hour').toDate());
+  const [isContentFocused, setIsContentFocused] = useState(false);
+  const [startAt, setStartAt] = useState(
+    scheduleData?.startAt ? new Date(scheduleData.startAt) : new Date(),
+  );
+  const [endAt, setEndAt] = useState(
+    scheduleData?.endAt
+      ? new Date(scheduleData.endAt)
+      : dayjs().add(1, 'hour').toDate(),
+  );
   const [selectedField, setSelectedField] = useState(null);
-  const [hasStartAt, setHasStartAt] = useState(false);
-  const [hasEndAt, setHasEndAt] = useState(false);
+  const [hasStartAt, setHasStartAt] = useState(Boolean(scheduleData?.startAt));
+  const [hasEndAt, setHasEndAt] = useState(Boolean(scheduleData?.endAt));
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
-    if (!projectId) {
+    if (!projectId && !scheduleId) {
       Alert.alert('오류', '팀 정보를 찾을 수 없습니다.');
       return;
     }
@@ -53,12 +71,20 @@ export default function AddSchedule({ route, navigation }) {
 
     setIsLoading(true);
     try {
-      await createScheduleApi({
-        teamSpaceId: Number(projectId),
+      const schedule = {
         title: scheduleTitle.trim(),
+        content: scheduleContent.trim(),
         startAt: formatApiDateTime(startAt),
         endAt: formatApiDateTime(endAt),
-      });
+      };
+      if (scheduleId) {
+        await updateScheduleApi(scheduleId, schedule);
+      } else {
+        await createScheduleApi({
+          teamSpaceId: Number(projectId),
+          ...schedule,
+        });
+      }
       navigation.goBack();
     } catch (error) {
       Alert.alert(
@@ -70,6 +96,31 @@ export default function AddSchedule({ route, navigation }) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDelete = () => {
+    if (!scheduleId || isLoading) return;
+    Alert.alert('일정 삭제', '이 일정을 삭제하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: async () => {
+          setIsLoading(true);
+          try {
+            await deleteScheduleApi(scheduleId);
+            navigation.goBack();
+          } catch (error) {
+            Alert.alert(
+              '오류',
+              error.response?.data?.message ?? '일정을 삭제하지 못했습니다.',
+            );
+          } finally {
+            setIsLoading(false);
+          }
+        },
+      },
+    ]);
   };
 
   const selectDate = selectedDate => {
@@ -98,7 +149,7 @@ export default function AddSchedule({ route, navigation }) {
             <HeaderCancelText>취소</HeaderCancelText>
           </HeaderCancelButton>
         }
-        title="새로운 일정 추가"
+        title={scheduleId ? '일정 수정' : '새로운 일정 추가'}
         right={
           <HeaderSaveButton
             disabled={isLoading}
@@ -119,6 +170,18 @@ export default function AddSchedule({ route, navigation }) {
           isFocused={isTitleFocused}
           onFocus={() => setIsTitleFocused(true)}
           onBlur={() => setIsTitleFocused(false)}
+        />
+        <InputLabel isFirst={false}>일정 내용</InputLabel>
+        <ContentInputMultiline
+          multiline
+          placeholder="일정 내용을 입력해주세요."
+          placeholderTextColor="#999999"
+          value={scheduleContent}
+          onChangeText={setScheduleContent}
+          isFocused={isContentFocused}
+          onFocus={() => setIsContentFocused(true)}
+          onBlur={() => setIsContentFocused(false)}
+          editable={!isLoading}
         />
         <DateActionRow>
           <DateActionLabel>시작</DateActionLabel>
@@ -150,6 +213,15 @@ export default function AddSchedule({ route, navigation }) {
             <Icon name="chevron-forward" size={18} color="#FF8933" />
           </DateActionBox>
         </DateActionRow>
+        {scheduleId ? (
+          <DeleteButton
+            activeOpacity={0.7}
+            disabled={isLoading}
+            onPress={handleDelete}
+          >
+            <DeleteText>일정 삭제</DeleteText>
+          </DeleteButton>
+        ) : null}
       </ContentBody>
       <DatePicker
         modal

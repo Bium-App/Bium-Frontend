@@ -27,8 +27,14 @@ export default function SignUp({ navigation }) {
     setPassword,
     passwordConfirm,
     setPasswordConfirm,
+    name,
+    setName,
     nickname,
     setNickname,
+    email,
+    setEmail,
+    phoneNumber,
+    setPhoneNumber,
     isLoading,
     handleSignUpSubmit,
   } = useSignUp();
@@ -45,6 +51,16 @@ export default function SignUp({ navigation }) {
       <HeaderDivider />
       <ScrollContent>
         <TitleText>회원가입</TitleText>
+
+        <InputWrapper>
+          <InputField
+            placeholder="이름"
+            placeholderTextColor="#AAAAAA"
+            value={name}
+            onChangeText={setName}
+            editable={!isLoading}
+          />
+        </InputWrapper>
 
         <InputWrapper>
           <InputField
@@ -85,6 +101,29 @@ export default function SignUp({ navigation }) {
             value={passwordConfirm}
             onChangeText={setPasswordConfirm}
             secureTextEntry
+            editable={!isLoading}
+          />
+        </InputWrapper>
+
+        <InputWrapper>
+          <InputField
+            placeholder="이메일"
+            placeholderTextColor="#AAAAAA"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={!isLoading}
+          />
+        </InputWrapper>
+
+        <InputWrapper>
+          <InputField
+            placeholder="휴대폰 번호"
+            placeholderTextColor="#AAAAAA"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
             editable={!isLoading}
           />
         </InputWrapper>

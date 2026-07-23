@@ -6,7 +6,10 @@ export const useSignUp = () => {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   /**
@@ -14,7 +17,14 @@ export const useSignUp = () => {
    * @param {Function} onSuccess - 가입 완료 후 로그인 화면으로 넘어가는 콜백
    */
   const handleSignUpSubmit = async onSuccess => {
-    if (!loginId.trim() || !password || !nickname.trim()) {
+    if (
+      !loginId.trim() ||
+      !password ||
+      !name.trim() ||
+      !nickname.trim() ||
+      !email.trim() ||
+      !phoneNumber.trim()
+    ) {
       Alert.alert('알림', '모든 항목을 입력해주세요.');
       return;
     }
@@ -28,7 +38,10 @@ export const useSignUp = () => {
       await signUpApi({
         loginId: loginId.trim(),
         password,
+        name: name.trim(),
         nickname: nickname.trim(),
+        email: email.trim(),
+        phoneNumber: phoneNumber.trim(),
         provider: 'LOCAL',
       });
       Alert.alert('가입 완료', '회원가입이 성공적으로 완료되었습니다.');
@@ -52,8 +65,14 @@ export const useSignUp = () => {
     setPassword,
     passwordConfirm,
     setPasswordConfirm,
+    name,
+    setName,
     nickname,
     setNickname,
+    email,
+    setEmail,
+    phoneNumber,
+    setPhoneNumber,
     isLoading,
     handleSignUpSubmit,
   };

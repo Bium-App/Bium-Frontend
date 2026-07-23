@@ -104,7 +104,7 @@ export default function DeviceManagement({ navigation }) {
                 </DeviceIconWrapper>
                 <DeviceTextCol>
                   <DeviceName>{device.name}</DeviceName>
-                  <DeviceDesc>7/22 명세 기준 현재 기기</DeviceDesc>
+                  <DeviceDesc>현재 로그인 기기</DeviceDesc>
                 </DeviceTextCol>
                 <DeviceRightCol>
                   {device.isCurrent ? (

@@ -145,6 +145,11 @@ export default function EditProfile({ navigation }) {
 
           <FormContainer>
             <InputGroup>
+              <Label>이름</Label>
+              <Input value={user?.name ?? ''} editable={false} />
+            </InputGroup>
+
+            <InputGroup>
               <Label>닉네임</Label>
               <Input
                 placeholder="사용자"
@@ -168,6 +173,15 @@ export default function EditProfile({ navigation }) {
                 value={user?.email ?? ''}
                 editable={false}
                 keyboardType="email-address"
+              />
+            </InputGroup>
+
+            <InputGroup>
+              <Label>휴대폰 번호</Label>
+              <Input
+                value={user?.phoneNumber ?? ''}
+                editable={false}
+                keyboardType="phone-pad"
               />
             </InputGroup>
 

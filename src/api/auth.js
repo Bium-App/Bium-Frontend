@@ -3,13 +3,19 @@ import apiClient from './client';
 export const signUpApi = async ({
   loginId,
   password,
+  name,
   nickname,
+  email,
+  phoneNumber,
   provider = 'LOCAL',
 }) => {
   const response = await apiClient.post('/api/auth/signup', {
     loginId,
     password,
+    name,
     nickname,
+    email,
+    phoneNumber,
     provider,
   });
   return response.data;

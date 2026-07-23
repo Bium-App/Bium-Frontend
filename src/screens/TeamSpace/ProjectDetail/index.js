@@ -492,14 +492,8 @@ export default function ProjectDetail({ route, navigation }) {
                 isFocused={isTodoContentFocused}
                 onFocus={() => setIsTodoContentFocused(true)}
                 onBlur={() => setIsTodoContentFocused(false)}
-                editable={!editingTodoId}
+                editable={!isLoading}
               />
-              {editingTodoId ? (
-                <HelperText>
-                  7/22 API에서는 기존 할 일의 제목과 완료 상태만 수정할 수
-                  있습니다.
-                </HelperText>
-              ) : null}
 
               <Divider isSpaced={true} />
 
@@ -507,7 +501,7 @@ export default function ProjectDetail({ route, navigation }) {
                 <ToggleLabel>날짜</ToggleLabel>
                 <DateRightWrapper
                   activeOpacity={0.7}
-                  disabled={Boolean(editingTodoId)}
+                  disabled={isLoading}
                   onPress={() => setIsDatePickerOpen(true)}
                 >
                   <CalendarIcon width={17} height={17} color="#FF8933" />
@@ -524,7 +518,7 @@ export default function ProjectDetail({ route, navigation }) {
                 <ToggleLabel>알림 발송</ToggleLabel>
                 <CustomToggle
                   activeOpacity={0.8}
-                  disabled={Boolean(editingTodoId)}
+                  disabled={isLoading}
                   isOn={isTodoNotiEnabled}
                   onPress={() => setIsTodoNotiEnabled(!isTodoNotiEnabled)}
                 >

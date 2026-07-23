@@ -66,6 +66,8 @@ export default function Search({ navigation }) {
               title: memo.title,
               content: memo.content,
               status: memo.status,
+              expiredAt: memo.expiredAt,
+              createdAt: memo.createdAt,
             },
           },
         });
@@ -79,7 +81,7 @@ export default function Search({ navigation }) {
       return;
     }
 
-    if (item.resultType === 'NOTICE' && item.teamSpaceId) {
+    if (item.teamSpaceId) {
       navigation.navigate('ProjectDetail', {
         projectId: String(item.teamSpaceId),
       });
@@ -88,7 +90,7 @@ export default function Search({ navigation }) {
 
     Alert.alert(
       '상세 이동 준비 중',
-      '할일·일정 검색 결과에는 소속 teamSpaceId가 없어 해당 팀 화면으로 이동할 수 없습니다.',
+      '검색 결과에서 이동할 팀 정보를 확인할 수 없습니다.',
     );
   };
 

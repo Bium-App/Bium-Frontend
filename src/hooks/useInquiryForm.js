@@ -28,6 +28,7 @@ export const useInquiryForm = navigation => {
         type: 'ONE_ON_ONE',
         title: title.trim(),
         content: `문의 분류: ${selectedType.title}\n\n${content.trim()}`,
+        attachmentUrl: null,
       });
       Alert.alert('문의 접수', '문의가 성공적으로 접수되었습니다.', [
         { text: '확인', onPress: () => navigation.goBack() },

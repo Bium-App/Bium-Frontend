@@ -2,7 +2,7 @@ import styled from 'styled-components/native';
 
 export const Container = styled.View`
   flex: 1;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const HeaderCancelButton = styled.TouchableOpacity`
@@ -11,7 +11,7 @@ export const HeaderCancelButton = styled.TouchableOpacity`
 
 export const HeaderCancelText = styled.Text`
   font-size: 20px;
-  color: #B9B9B9;
+  color: #b9b9b9;
 `;
 
 export const HeaderSaveButton = styled.TouchableOpacity`
@@ -21,7 +21,7 @@ export const HeaderSaveButton = styled.TouchableOpacity`
 export const HeaderSaveText = styled.Text`
   font-size: 20px;
   font-weight: 400;
-  color: #FF8933;
+  color: #ff8933;
 `;
 
 export const ContentBody = styled.ScrollView`
@@ -77,10 +77,10 @@ export const DateActionBox = styled.TouchableOpacity`
   align-items: center;
   justify-content: space-between;
   border-width: 1px;
-  border-color: #FF8933;
+  border-color: #ff8933;
   border-radius: 8px;
   padding: 12px 14px;
-  background-color: #FFE6D6;
+  background-color: #ffe6d6;
 `;
 
 export const DateActionBoxLeft = styled.View`
@@ -90,6 +90,22 @@ export const DateActionBoxLeft = styled.View`
 
 export const DateActionText = styled.Text`
   font-size: 15px;
-  color: #FF8933;
+  color: #ff8933;
   margin-left: 8px;
+`;
+
+export const DeleteButton = styled.TouchableOpacity`
+  margin-top: 28px;
+  margin-bottom: 40px;
+  padding: 14px;
+  border-width: 1px;
+  border-color: #ff3b30;
+  border-radius: 8px;
+  align-items: center;
+`;
+
+export const DeleteText = styled.Text`
+  color: #ff3b30;
+  font-size: 15px;
+  font-weight: 600;
 `;

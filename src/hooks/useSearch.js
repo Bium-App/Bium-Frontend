@@ -111,6 +111,7 @@ export const useSearch = () => {
           title: todo.title,
           desc: todo.content ?? todo.dueDate ?? '',
           targetId: todo.todoId,
+          teamSpaceId: todo.teamSpaceId,
         })),
         ...(data.schedules ?? []).map(schedule => ({
           id: `schedule-${schedule.scheduleId}`,
@@ -119,6 +120,7 @@ export const useSearch = () => {
           title: schedule.title,
           desc: [schedule.startAt, schedule.endAt].filter(Boolean).join(' ~ '),
           targetId: schedule.scheduleId,
+          teamSpaceId: schedule.teamSpaceId,
         })),
       ];
 

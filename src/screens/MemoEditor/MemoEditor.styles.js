@@ -3,7 +3,7 @@ import { Animated } from 'react-native';
 
 export const Container = styled.View`
   flex: 1;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const KeyboardContainer = styled.KeyboardAvoidingView`
@@ -16,13 +16,13 @@ export const HeaderTextButton = styled.TouchableOpacity`
 
 export const HeaderLeftText = styled.Text`
   font-size: 16px;
-  color: #BBBBBB;
+  color: #bbbbbb;
 `;
 
 export const HeaderRightText = styled.Text`
   font-size: 16px;
   font-weight: 700;
-  color: #FF8933;
+  color: #ff8933;
 `;
 
 export const ContentContainer = styled.ScrollView.attrs({
@@ -30,19 +30,19 @@ export const ContentContainer = styled.ScrollView.attrs({
     padding: 12,
     paddingHorizontal: 16,
     paddingBottom: 110,
-  }
+  },
 })`
   flex: 1;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const EditorBox = styled.View`
   border-width: 1px;
-  border-color: #BBBBBB;
+  border-color: #bbbbbb;
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 12px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const TitleRow = styled.View`
@@ -62,12 +62,12 @@ export const TitleInput = styled.TextInput`
 
 export const LengthText = styled.Text`
   font-size: 12px;
-  color: #D0D0D0;
+  color: #d0d0d0;
 `;
 
 export const Divider = styled.View`
   height: 1px;
-  background-color: #DBDBDB;
+  background-color: #dbdbdb;
   margin-vertical: 8px;
 `;
 
@@ -76,7 +76,8 @@ export const ContentInput = styled.TextInput`
   font-size: ${({ customFontSize }) => customFontSize || 14}px;
   font-weight: ${({ bold }) => (bold ? 'bold' : 'normal')};
   font-style: ${({ italic }) => (italic ? 'italic' : 'normal')};
-  text-decoration-line: ${({ underline }) => (underline ? 'underline' : 'none')};
+  text-decoration-line: ${({ underline }) =>
+    underline ? 'underline' : 'none'};
   text-align: ${({ align }) => align || 'left'};
   color: #000000;
   padding: 0;
@@ -84,18 +85,18 @@ export const ContentInput = styled.TextInput`
 
 export const ContentLengthText = styled.Text`
   font-size: 12px;
-  color: #D0D0D0;
+  color: #d0d0d0;
   text-align: right;
   margin-top: 4px;
 `;
 
 export const ToolbarBox = styled.View`
   border-width: 1px;
-  border-color: #BBBBBB;
+  border-color: #bbbbbb;
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 16px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const ToolbarRow = styled.View`
@@ -106,7 +107,7 @@ export const ToolbarRow = styled.View`
 
 export const ToolbarRowDivider = styled.View`
   height: 1px;
-  background-color: #DBDBDB;
+  background-color: #dbdbdb;
   margin-vertical: 8px;
 `;
 
@@ -120,7 +121,7 @@ export const FormatGroup = styled.View`
   flex-direction: row;
   align-items: center;
   border-width: 1px;
-  border-color: #DBDBDB;
+  border-color: #dbdbdb;
   border-radius: 20px;
   padding: 2px 8px;
   gap: 4px;
@@ -129,14 +130,15 @@ export const FormatGroup = styled.View`
 export const ToolText = styled.Text`
   font-size: 16px;
   color: ${({ color }) => color || '#000000'};
-  font-weight: ${({ bold }) => bold ? 'bold' : 'normal'};
-  font-style: ${({ italic }) => italic ? 'italic' : 'normal'};
-  text-decoration-line: ${({ underline }) => underline ? 'underline' : 'none'};
+  font-weight: ${({ bold }) => (bold ? 'bold' : 'normal')};
+  font-style: ${({ italic }) => (italic ? 'italic' : 'normal')};
+  text-decoration-line: ${({ underline }) =>
+    underline ? 'underline' : 'none'};
 `;
 
 export const ToolButton = styled.TouchableOpacity`
   padding: 4px 6px;
-  background-color: ${({ active }) => active ? '#FFE8D6' : 'transparent'};
+  background-color: ${({ active }) => (active ? '#FFE8D6' : 'transparent')};
   border-radius: 4px;
   justify-content: center;
   align-items: center;
@@ -146,12 +148,12 @@ export const FontSizeBox = styled.View`
   flex-direction: row;
   align-items: center;
   border-width: 1px;
-  border-color: #BBBBBB;
+  border-color: #bbbbbb;
   border-radius: 16px;
   padding-horizontal: 10px;
   padding-vertical: 2px;
   gap: 12px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const FontSizeText = styled.Text`
@@ -161,7 +163,7 @@ export const FontSizeText = styled.Text`
 
 export const ColorPickerWrapper = styled.TouchableOpacity`
   border-width: 1px;
-  border-color: #DBDBDB;
+  border-color: #dbdbdb;
   border-radius: 8px;
   padding: 6px;
   margin-left: 12px;
@@ -173,7 +175,7 @@ export const ColorCircle = styled.View`
   width: 20px;
   height: 20px;
   border-radius: 10px;
-  background-color: #FF8800;
+  background-color: #ff8800;
 `;
 
 export const SectionHeader = styled.View`
@@ -197,35 +199,35 @@ export const SectionSubTitle = styled.Text`
 export const ImageUploadBox = styled.TouchableOpacity`
   border-width: 1px;
   border-style: dashed;
-  border-color: #FF8933;
+  border-color: #ff8933;
   border-radius: 8px;
   padding: 16px 36px;
   align-self: flex-start;
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const UploadTitle = styled.Text`
   font-size: 14px;
-  color: #8A8A8A;
+  color: #8a8a8a;
   margin-top: 8px;
   margin-bottom: 2px;
 `;
 
 export const UploadSub = styled.Text`
   font-size: 11px;
-  color: #8A8A8A;
+  color: #8a8a8a;
 `;
 
 export const TimerBox = styled.View`
   border-width: 1px;
-  border-color: #BBBBBB;
+  border-color: #bbbbbb;
   border-radius: 8px;
   padding: 12px 16px;
   margin-bottom: 12px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 `;
 
 export const TimerHeaderRow = styled.View`
@@ -237,7 +239,7 @@ export const TimerHeaderRow = styled.View`
 
 export const TimerDesc = styled.Text`
   font-size: 12px;
-  color: #9B9A9A;
+  color: #9b9a9a;
   margin-bottom: 16px;
 `;
 
@@ -256,7 +258,7 @@ export const AnimatedTimerBox = styled(Animated.View)`
   width: 85px;
   height: 33px;
   border-width: 1px;
-  border-color: #FF8933;
+  border-color: #ff8933;
   border-radius: 4px;
   justify-content: center;
   align-items: center;
@@ -264,9 +266,15 @@ export const AnimatedTimerBox = styled(Animated.View)`
 
 export const TimerButtonSub = styled.Text`
   font-size: 10px;
-  color: #9B9A9A;
+  color: #9b9a9a;
   text-align: center;
   margin-top: 8px;
+`;
+
+export const TimerButtonText = styled.Text`
+  font-size: 15px;
+  font-weight: 500;
+  color: ${({ active }) => (active ? '#FFFFFF' : '#FF8933')};
 `;
 
 export const ModalOverlay = styled.View`
@@ -279,10 +287,10 @@ export const ModalOverlay = styled.View`
 
 export const ModalContainer = styled.View`
   width: 100%;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
   border-radius: 12px;
   border-width: 1px;
-  border-color: #FF8933;
+  border-color: #ff8933;
   padding: 20px;
 `;
 
@@ -297,7 +305,7 @@ export const ModalFireIcon = styled.View`
   width: 40px;
   height: 40px;
   border-radius: 20px;
-  background-color: #FFE8D6;
+  background-color: #ffe8d6;
   justify-content: center;
   align-items: center;
   margin-right: 12px;
@@ -314,7 +322,7 @@ export const ModalText = styled.Text`
 `;
 
 export const ModalHighlight = styled.Text`
-  color: #FF8933;
+  color: #ff8933;
   font-weight: 700;
 `;
 
@@ -326,7 +334,7 @@ export const ModalSubText = styled.Text`
 `;
 
 export const ModalBlueHighlight = styled.Text`
-  color: #7CC4FF;
+  color: #7cc4ff;
   font-weight: 700;
 `;
 
@@ -341,14 +349,14 @@ export const Checkbox = styled.TouchableOpacity`
   width: 16px;
   height: 16px;
   border-width: 1px;
-  border-color: #BBBBBB;
+  border-color: #bbbbbb;
   border-radius: 2px;
   justify-content: center;
   align-items: center;
-  background-color: ${({ checked }) => checked ? '#FF8933' : '#FFFFFF'};
+  background-color: ${({ checked }) => (checked ? '#FF8933' : '#FFFFFF')};
 `;
 
 export const CheckboxLabel = styled.Text`
   font-size: 12px;
-  color: #AAAAAA;
+  color: #aaaaaa;
 `;

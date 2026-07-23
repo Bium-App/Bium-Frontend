@@ -232,7 +232,7 @@ export const useProjectDetail = projectId => {
       };
       if (editingTodoId) {
         await updateTeamTodoApi(editingTodoId, {
-          title: todo.title,
+          ...todo,
           isChecked: todoIsChecked,
         });
       } else {
@@ -271,7 +271,14 @@ export const useProjectDetail = projectId => {
   const toggleTodo = async todoId => {
     try {
       const todo = todos.find(item => item.id === String(todoId));
-      await toggleTeamTodoApi(todoId, todo?.title, !todo?.isDone);
+      if (!todo) throw new Error('할 일 정보를 찾을 수 없습니다.');
+      await toggleTeamTodoApi(todoId, {
+        title: todo.title,
+        content: todo.content,
+        dueDate: todo.dueDate,
+        sendPush: todo.sendPush,
+        isChecked: !todo.isDone,
+      });
       fetchDashboardData();
     } catch (error) {
       Alert.alert(
