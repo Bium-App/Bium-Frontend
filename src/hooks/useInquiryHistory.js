@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { getInquiriesApi } from '../api/common';
-import { getUserId } from '../utils/authStorage';
 
 export const useInquiryHistory = () => {
   const [inquiries, setInquiries] = useState([]);
@@ -11,9 +10,7 @@ export const useInquiryHistory = () => {
   const fetchInquiries = useCallback(async () => {
     setIsLoading(true);
     try {
-      const userId = await getUserId();
-      if (!userId) return;
-      setInquiries(await getInquiriesApi(userId));
+      setInquiries(await getInquiriesApi());
     } catch (error) {
       Alert.alert(
         '오류',

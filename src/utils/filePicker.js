@@ -7,15 +7,15 @@ import {
 } from '@react-native-documents/picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 
-export const FILE_PREFIXES = Object.freeze({
-  PROFILES: 'PROFILES',
-  MEMOS: 'MEMOS',
-  TEAMS: 'TEAMS',
+export const FILE_DOMAINS = Object.freeze({
+  PROFILE: 'PROFILE',
+  MEMO: 'MEMO',
+  TEAM: 'TEAM',
 });
 
 export const FILE_LIMITS = Object.freeze({
   imageBytes: 10 * 1024 * 1024,
-  documentBytes: 20 * 1024 * 1024,
+  documentBytes: 30 * 1024 * 1024,
 });
 
 const fallbackFileName = kind =>

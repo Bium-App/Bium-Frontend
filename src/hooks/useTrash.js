@@ -6,7 +6,6 @@ import {
   getTrashMemosApi,
   restoreMemoApi,
 } from '../api/memos';
-import { getUserId } from '../utils/authStorage';
 
 export const useTrash = () => {
   const [trashItems, setTrashItems] = useState([]);
@@ -15,9 +14,7 @@ export const useTrash = () => {
   const fetchTrashMemos = useCallback(async () => {
     setIsLoading(true);
     try {
-      const userId = await getUserId();
-      if (!userId) return;
-      const memos = await getTrashMemosApi(userId);
+      const memos = await getTrashMemosApi();
       setTrashItems(
         memos.map(memo => {
           const elapsedDays = dayjs().diff(dayjs(memo.deletedAt), 'day');

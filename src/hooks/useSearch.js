@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { searchApi } from '../api/common';
+import { getMemoApi } from '../api/memos';
 import { getApiErrorMessage } from '../utils/apiError';
 
 const RECENT_SEARCH_KEY = '@recent_searches';
@@ -101,6 +102,7 @@ export const useSearch = () => {
           title: notice.title,
           desc: notice.content ?? '',
           targetId: notice.noticeId,
+          teamSpaceId: notice.teamSpaceId,
         })),
         ...(data.todos ?? []).map(todo => ({
           id: `todo-${todo.todoId}`,
@@ -115,7 +117,7 @@ export const useSearch = () => {
           resultType: 'SCHEDULE',
           category: '일정',
           title: schedule.title,
-          desc: schedule.scheduleDate ?? '',
+          desc: [schedule.startAt, schedule.endAt].filter(Boolean).join(' ~ '),
           targetId: schedule.scheduleId,
         })),
       ];
@@ -152,5 +154,6 @@ export const useSearch = () => {
     deleteAllRecentSearches,
     handleSearchSubmit,
     clearSearch,
+    getMemoDetail: getMemoApi,
   };
 };

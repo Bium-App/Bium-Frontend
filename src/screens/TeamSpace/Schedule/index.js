@@ -38,7 +38,8 @@ import {
 
 export default function Schedule({ route, navigation }) {
   const { projectId } = route.params || {};
-  const { schedules, isLoading } = useTeamSchedules(projectId);
+  const { schedules, isLoading, getScheduleDetail } =
+    useTeamSchedules(projectId);
   const [searchQuery, setSearchQuery] = useState('');
 
   const groupedSchedules = useMemo(() => {
@@ -46,12 +47,34 @@ export default function Schedule({ route, navigation }) {
     const groups = schedules
       .filter(schedule => schedule.title?.toLowerCase().includes(keyword))
       .reduce((result, schedule) => {
-        const dateKey = dayjs(schedule.scheduleDate).format('YYYY-MM-DD');
+        const dateKey = dayjs(schedule.startAt).format('YYYY-MM-DD');
         result[dateKey] = [...(result[dateKey] ?? []), schedule];
         return result;
       }, {});
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
   }, [schedules, searchQuery]);
+
+  const openSchedule = async scheduleId => {
+    try {
+      const schedule = await getScheduleDetail(scheduleId);
+      Alert.alert(
+        schedule.title,
+        [
+          schedule.content,
+          `${dayjs(schedule.startAt).format('YYYY.MM.DD HH:mm')} ~ ${dayjs(
+            schedule.endAt,
+          ).format('YYYY.MM.DD HH:mm')}`,
+        ]
+          .filter(Boolean)
+          .join('\n\n'),
+      );
+    } catch (error) {
+      Alert.alert(
+        '오류',
+        error.response?.data?.message ?? '일정 상세를 불러오지 못했습니다.',
+      );
+    }
+  };
 
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
@@ -132,12 +155,7 @@ export default function Schedule({ route, navigation }) {
                     key={String(item.scheduleId)}
                     isLast={index === items.length - 1}
                     activeOpacity={0.7}
-                    onPress={() =>
-                      Alert.alert(
-                        '일정 수정 연동 대기',
-                        '월별 목록 응답에 content가 없어 안전한 수정을 위해 일정 상세 조회 API가 필요합니다.',
-                      )
-                    }
+                    onPress={() => openSchedule(item.scheduleId)}
                   >
                     <ListItemLeft>
                       <IconCircle>
@@ -146,7 +164,8 @@ export default function Schedule({ route, navigation }) {
                       <TextColumn>
                         <ListItemTitle>{item.title}</ListItemTitle>
                         <ListItemTime>
-                          {dayjs(item.scheduleDate).format('HH:mm')}
+                          {dayjs(item.startAt).format('HH:mm')} ~{' '}
+                          {dayjs(item.endAt).format('HH:mm')}
                         </ListItemTime>
                       </TextColumn>
                     </ListItemLeft>

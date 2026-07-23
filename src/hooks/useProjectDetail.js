@@ -7,6 +7,7 @@ import {
   createTeamTodoApi,
   deleteTeamNoticeApi,
   deleteTeamTodoApi,
+  getTeamNoticeApi,
   getTeamNoticesApi,
   getTeamTodosApi,
   toggleTeamTodoApi,
@@ -14,7 +15,6 @@ import {
   updateTeamTodoApi,
 } from '../api/teamSpaces';
 import { getTeamSchedulesApi } from '../api/schedules';
-import { getUserId } from '../utils/authStorage';
 import { getApiErrorMessage } from '../utils/apiError';
 
 const getMonthParams = () => ({
@@ -44,6 +44,7 @@ export const useProjectDetail = projectId => {
   const [isTodoTitleFocused, setIsTodoTitleFocused] = useState(false);
   const [isTodoContentFocused, setIsTodoContentFocused] = useState(false);
   const [isTodoNotiEnabled, setIsTodoNotiEnabled] = useState(false);
+  const [todoIsChecked, setTodoIsChecked] = useState(false);
   const [date, setDate] = useState(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [selectedDateStr, setSelectedDateStr] = useState('');
@@ -84,7 +85,8 @@ export const useProjectDetail = projectId => {
         scheduleData.map(schedule => ({
           id: String(schedule.scheduleId),
           title: schedule.title,
-          scheduleDate: schedule.scheduleDate,
+          startAt: schedule.startAt,
+          endAt: schedule.endAt,
         })),
       );
     } catch (error) {
@@ -112,14 +114,32 @@ export const useProjectDetail = projectId => {
     setIsNoticeContentFocused(false);
   };
 
-  const openNoticeModal = notice => {
-    if (notice) {
-      setEditingNoticeId(notice.id);
-      setNoticeTitle(notice.title);
-      setNoticeContent(notice.content);
-      setIsPinned(notice.isPinned);
+  const openNoticeModal = async notice => {
+    if (!notice) {
+      setNoticeModalVisible(true);
+      return;
     }
-    setNoticeModalVisible(true);
+
+    setIsLoading(true);
+    try {
+      const detailResponse = await getTeamNoticeApi(notice.id);
+      const detail = Array.isArray(detailResponse)
+        ? detailResponse[0] ?? {}
+        : detailResponse;
+      setEditingNoticeId(notice.id);
+      setNoticeTitle(detail.title ?? notice.title);
+      setNoticeContent(detail.content ?? '');
+      setIsPinned(detail.isPinned ?? notice.isPinned);
+      setNoticeModalVisible(true);
+    } catch (error) {
+      Alert.alert(
+        '오류',
+        error.response?.data?.message ??
+          '공지 상세 내용을 불러오지 못했습니다.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSaveNotice = async () => {
@@ -134,10 +154,7 @@ export const useProjectDetail = projectId => {
           isPinned,
         });
       } else {
-        const userId = await getUserId();
-        if (!userId) return;
         await createTeamNoticeApi(projectId, {
-          userId: Number(userId),
           title: noticeTitle.trim(),
           content: noticeContent.trim(),
           isPinned,
@@ -180,6 +197,7 @@ export const useProjectDetail = projectId => {
     setTodoContent('');
     setSelectedDateStr('');
     setIsTodoNotiEnabled(false);
+    setTodoIsChecked(false);
     setIsTodoTitleFocused(false);
     setIsTodoContentFocused(false);
   };
@@ -190,6 +208,7 @@ export const useProjectDetail = projectId => {
       setTodoTitle(todo.title);
       setTodoContent(todo.content);
       setIsTodoNotiEnabled(todo.sendPush);
+      setTodoIsChecked(todo.isDone);
       if (todo.dueDate) {
         const dueDate = dayjs(todo.dueDate);
         setDate(dueDate.toDate());
@@ -200,7 +219,8 @@ export const useProjectDetail = projectId => {
   };
 
   const handleSaveTodo = async () => {
-    if (!todoTitle.trim() || !todoContent.trim() || !projectId) return;
+    if (!todoTitle.trim() || !projectId) return;
+    if (!editingTodoId && !todoContent.trim()) return;
     if (isLoading) return;
     setIsLoading(true);
     try {
@@ -211,11 +231,12 @@ export const useProjectDetail = projectId => {
         sendPush: isTodoNotiEnabled,
       };
       if (editingTodoId) {
-        await updateTeamTodoApi(editingTodoId, todo);
+        await updateTeamTodoApi(editingTodoId, {
+          title: todo.title,
+          isChecked: todoIsChecked,
+        });
       } else {
-        const userId = await getUserId();
-        if (!userId) return;
-        await createTeamTodoApi(projectId, Number(userId), todo);
+        await createTeamTodoApi(projectId, todo);
       }
       closeTodoModal();
       await fetchDashboardData();
@@ -249,7 +270,8 @@ export const useProjectDetail = projectId => {
 
   const toggleTodo = async todoId => {
     try {
-      await toggleTeamTodoApi(todoId);
+      const todo = todos.find(item => item.id === String(todoId));
+      await toggleTeamTodoApi(todoId, todo?.title, !todo?.isDone);
       fetchDashboardData();
     } catch (error) {
       Alert.alert(

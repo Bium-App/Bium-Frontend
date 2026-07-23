@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { createTeamNoticeApi } from '../api/teamSpaces';
-import { getUserId } from '../utils/authStorage';
 
 export const useAddNotice = (teamSpaceId, navigation) => {
   const [title, setTitle] = useState('');
@@ -16,12 +15,8 @@ export const useAddNotice = (teamSpaceId, navigation) => {
     }
     setIsLoading(true);
     try {
-      const userId = await getUserId();
-      if (!userId || !teamSpaceId) {
-        throw new Error('팀 또는 사용자 정보를 찾을 수 없습니다.');
-      }
+      if (!teamSpaceId) throw new Error('팀 정보를 찾을 수 없습니다.');
       await createTeamNoticeApi(teamSpaceId, {
-        userId: Number(userId),
         title: title.trim(),
         content: content.trim(),
         isPinned,

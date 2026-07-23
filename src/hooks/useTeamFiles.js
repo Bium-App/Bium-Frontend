@@ -9,8 +9,7 @@ import {
   uploadSelectedFileApi,
 } from '../api/files';
 import { getApiErrorMessage } from '../utils/apiError';
-import { getUserId } from '../utils/authStorage';
-import { FILE_PREFIXES, formatFileSize } from '../utils/filePicker';
+import { FILE_DOMAINS, formatFileSize } from '../utils/filePicker';
 
 const getFileType = fileName => {
   const extension = fileName?.split('.').pop()?.toLowerCase();
@@ -77,16 +76,11 @@ export const useTeamFiles = teamSpaceId => {
     if (!teamSpaceId) throw new Error('팀스페이스 정보를 찾을 수 없습니다.');
     setIsUploading(true);
     try {
-      const userId = await getUserId();
-      if (!userId) throw new Error('사용자 정보를 찾을 수 없습니다.');
-
       const fileUrl = await uploadSelectedFileApi({
-        prefix: FILE_PREFIXES.TEAMS,
+        domain: FILE_DOMAINS.TEAM,
         file,
       });
-      await createTeamFileApi({
-        teamSpaceId: Number(teamSpaceId),
-        userId: Number(userId),
+      await createTeamFileApi(teamSpaceId, {
         fileName: file.name,
         fileUrl,
         fileSize: formatFileSize(file.size),

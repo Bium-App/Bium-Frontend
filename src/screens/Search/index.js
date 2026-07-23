@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  FlatList,
-  View,
-  Text,
-  Alert,
-} from 'react-native';
+import { TouchableOpacity, FlatList, View, Text, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSearch } from '../../hooks/useSearch';
@@ -50,6 +44,7 @@ export default function Search({ navigation }) {
     deleteAllRecentSearches,
     handleSearchSubmit,
     clearSearch,
+    getMemoDetail,
   } = useSearch();
 
   const onChangeKeyword = text => {
@@ -59,25 +54,41 @@ export default function Search({ navigation }) {
     }
   };
 
-  const handleResultPress = item => {
+  const handleResultPress = async item => {
     if (item.resultType === 'MEMO') {
-      navigation.navigate('MainTabs', {
-        screen: 'MemoEditor',
-        params: {
-          memoData: {
-            id: String(item.targetId),
-            title: item.title,
-            content: item.desc,
-            status: item.status,
+      try {
+        const memo = await getMemoDetail(item.targetId);
+        navigation.navigate('MainTabs', {
+          screen: 'MemoEditor',
+          params: {
+            memoData: {
+              id: String(memo.memoId),
+              title: memo.title,
+              content: memo.content,
+              status: memo.status,
+            },
           },
-        },
+        });
+      } catch (error) {
+        Alert.alert(
+          '오류',
+          error.response?.data?.message ??
+            '메모 상세 내용을 불러오지 못했습니다.',
+        );
+      }
+      return;
+    }
+
+    if (item.resultType === 'NOTICE' && item.teamSpaceId) {
+      navigation.navigate('ProjectDetail', {
+        projectId: String(item.teamSpaceId),
       });
       return;
     }
 
     Alert.alert(
       '상세 이동 준비 중',
-      '공지·할일·일정 검색 응답에는 소속 teamSpaceId가 있어야 해당 팀 화면으로 이동할 수 있습니다.',
+      '할일·일정 검색 결과에는 소속 teamSpaceId가 없어 해당 팀 화면으로 이동할 수 없습니다.',
     );
   };
 

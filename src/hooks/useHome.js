@@ -3,9 +3,10 @@ import { Alert } from 'react-native';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import {
+  getMemoApi,
   getUserMemosApi,
   moveMemoToTrashApi,
-  toggleMemoPinApi,
+  updateMemoPinApi,
   updateMemoStatusApi,
 } from '../api/memos';
 import { getUserId } from '../utils/authStorage';
@@ -46,7 +47,7 @@ export const useHome = () => {
       const userId = await getUserId();
       if (!userId) return;
 
-      const memos = await getUserMemosApi(userId);
+      const memos = await getUserMemosApi();
       const mapped = memos.map(memo => ({
         id: String(memo.memoId),
         MTitle: memo.title,
@@ -90,11 +91,13 @@ export const useHome = () => {
       '메모 상태를 변경하지 못했습니다.',
     );
 
-  const toggleMemoPin = memoId =>
+  const toggleMemoPin = (memoId, isPinned) =>
     runMemoAction(
-      () => toggleMemoPinApi(memoId),
+      () => updateMemoPinApi(memoId, !isPinned),
       '메모 고정 상태를 변경하지 못했습니다.',
     );
+
+  const getMemoDetail = memoId => getMemoApi(memoId);
 
   const moveMemoToTrash = memoId =>
     runMemoAction(
@@ -107,6 +110,7 @@ export const useHome = () => {
     isLoading,
     errorMessage,
     fetchMemos,
+    getMemoDetail,
     changeMemoStatus,
     toggleMemoPin,
     moveMemoToTrash,

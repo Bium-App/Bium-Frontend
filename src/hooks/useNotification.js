@@ -9,11 +9,19 @@ import {
   deleteNotificationApi,
 } from '../api/common';
 import { getMemoApi } from '../api/memos';
-import { getUserId } from '../utils/authStorage';
+import { getTeamNoticeApi } from '../api/teamSpaces';
 import { getApiErrorMessage } from '../utils/apiError';
 
 dayjs.extend(relativeTime);
 dayjs.locale('ko');
+
+const NOTIFICATION_TITLES = {
+  MEMO: '메모 알림',
+  FRIEND_REQUEST: '친구 요청',
+  TEAM_INVITE: '팀 초대',
+  TEAM_NOTICE: '팀 공지',
+  TEAM_TODO: '팀 할 일',
+};
 
 export const useNotification = () => {
   const [notifications, setNotifications] = useState([]);
@@ -24,16 +32,13 @@ export const useNotification = () => {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const userId = await getUserId();
-      if (!userId) return;
-
-      const data = await getNotificationsApi(userId);
+      const data = await getNotificationsApi();
 
       const mapped = data.map(n => ({
         id: String(n.notificationId),
-        title: n.type,
+        title: NOTIFICATION_TITLES[n.type] ?? n.type,
         description: n.message,
-        time: dayjs(n.createdAt).fromNow(),
+        time: n.createdAt ? dayjs(n.createdAt).fromNow() : '',
         isRead: n.isRead,
         targetId: n.targetId,
         notificationType: n.type,
@@ -42,9 +47,7 @@ export const useNotification = () => {
 
       setNotifications(mapped);
     } catch (error) {
-      setErrorMessage(
-        getApiErrorMessage(error, '알림을 불러오지 못했습니다.'),
-      );
+      setErrorMessage(getApiErrorMessage(error, '알림을 불러오지 못했습니다.'));
     } finally {
       setIsLoading(false);
     }
@@ -70,28 +73,56 @@ export const useNotification = () => {
     }
   };
 
-  const openNotification = async (notification, onMemoReady) => {
+  const openNotification = async (
+    notification,
+    { onMemoReady, onNavigate } = {},
+  ) => {
     await markAsRead(notification.id);
-    if (notification.notificationType !== 'MEMO' || !notification.targetId) {
-      Alert.alert(
-        '이동 정보 확인 필요',
-        '이 알림 유형의 targetId 화면 매핑이 아직 확정되지 않았습니다.',
-      );
+    if (!notification.targetId) {
+      Alert.alert('이동 실패', '알림에 연결된 대상 정보가 없습니다.');
       return;
     }
 
     try {
-      const memo = await getMemoApi(notification.targetId);
-      onMemoReady?.({
-        id: String(memo.memoId),
-        title: memo.title,
-        content: memo.content,
-        status: memo.status,
-      });
+      if (notification.notificationType === 'MEMO') {
+        const memo = await getMemoApi(notification.targetId);
+        onMemoReady?.({
+          id: String(memo.memoId),
+          title: memo.title,
+          content: memo.content,
+          status: memo.status,
+        });
+        return;
+      }
+      if (notification.notificationType === 'FRIEND_REQUEST') {
+        onNavigate?.('FriendRequestList');
+        return;
+      }
+      if (notification.notificationType === 'TEAM_INVITE') {
+        onNavigate?.('ProjectDetail', {
+          projectId: String(notification.targetId),
+        });
+        return;
+      }
+      if (notification.notificationType === 'TEAM_NOTICE') {
+        const noticeResponse = await getTeamNoticeApi(notification.targetId);
+        const notice = Array.isArray(noticeResponse)
+          ? noticeResponse[0] ?? {}
+          : noticeResponse;
+        Alert.alert(
+          notice.title ?? '팀 공지',
+          notice.content ?? '공지 내용이 없습니다.',
+        );
+        return;
+      }
+      Alert.alert(
+        '할 일 이동 준비 중',
+        '7/22 명세에는 todoId 단건 조회 API 또는 teamSpaceId가 없어 팀 할 일 화면으로 이동할 수 없습니다.',
+      );
     } catch (error) {
       Alert.alert(
         '이동 실패',
-        error.response?.data?.message ?? '연결된 메모를 불러오지 못했습니다.',
+        error.response?.data?.message ?? '연결된 내용을 불러오지 못했습니다.',
       );
     }
   };

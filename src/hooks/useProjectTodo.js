@@ -58,7 +58,8 @@ export const useProjectTodo = projectId => {
       ),
     );
     try {
-      await toggleTeamTodoApi(todoId);
+      const todo = todos.find(item => item.id === String(todoId));
+      await toggleTeamTodoApi(todoId, todo?.title, !todo?.isDone);
     } catch (error) {
       Alert.alert(
         '오류',

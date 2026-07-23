@@ -96,11 +96,13 @@ export default function AddTodo({ route, navigation }) {
           isFocused={isContentFocused}
           onFocus={() => setIsContentFocused(true)}
           onBlur={() => setIsContentFocused(false)}
+          editable={!todoData}
         />
         <DateActionRow>
           <DateActionLabel>날짜</DateActionLabel>
           <DateActionBox
             activeOpacity={0.7}
+            disabled={Boolean(todoData)}
             onPress={() => setIsDatePickerOpen(true)}
           >
             <DateActionBoxLeft>
@@ -113,6 +115,7 @@ export default function AddTodo({ route, navigation }) {
         <NotificationRow>
           <NotificationLabel>알림 발송</NotificationLabel>
           <Switch
+            disabled={Boolean(todoData)}
             value={isTodoNotiEnabled}
             onValueChange={setIsTodoNotiEnabled}
             trackColor={{ false: '#D1D5DB', true: '#FFD0AD' }}

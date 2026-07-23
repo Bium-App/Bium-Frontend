@@ -203,7 +203,7 @@ export default function Files({ route, navigation }) {
         <SectionContainer>
           <FilePickerField
             label="팀 파일 업로드"
-            helperText="이미지는 최대 10MB, 문서는 최대 20MB까지 업로드할 수 있습니다."
+            helperText="이미지는 최대 10MB, 문서는 최대 30MB까지 업로드할 수 있습니다."
             file={uploadFile}
             kind={uploadFile?.kind ?? 'document'}
             isPicking={isPicking}

@@ -1,160 +1,94 @@
 # BlazeMemo API 연동 가이드
 
-> 기준: API 명세 7/21, ERD 7/21  
-> 갱신일: 2026-07-22  
-> 실제 서버 E2E는 백엔드 실행 주소와 테스트 계정이 준비된 뒤 진행한다.
+> 기준: API 명세 7/22, ERD 7/22
+>
+> 갱신일: 2026-07-22
+>
+> 배포 대상: iOS
+>
+> 실제 서버 E2E는 개발 서버와 테스트 계정이 준비된 뒤 진행한다.
 
 - 화면별 현황: [`FRONTEND_API_PAGE_STATUS.md`](./FRONTEND_API_PAGE_STATUS.md)
-- 백엔드 전달본: [`BACKEND_HANDOFF_7_21.md`](./BACKEND_HANDOFF_7_21.md)
+- 백엔드 확인 요청: [`BACKEND_HANDOFF_7_22.md`](./BACKEND_HANDOFF_7_22.md)
 
-## 1. 확정된 공통 통신 규약
+## 1. 공통 통신 규약
 
-| 항목              | 확정 규격                                              | 프론트 적용                                 |
-| ----------------- | ------------------------------------------------------ | ------------------------------------------- |
-| 로컬 Base URL     | iOS `localhost:8080`, Android `10.0.2.2:8080`          | `local` 환경에서 플랫폼별 자동 선택         |
-| 임시/운영 URL     | AWS 임시 IP, 출시 전 운영 도메인                       | 빌드 시 `BLAZE_API_BASE_URL`로 주입          |
-| 인증              | 보호 API에 `Authorization: Bearer {Access_Token}`      | axios 요청 interceptor에서 자동 첨부        |
-| 일반 Content-Type | `application/json`                                     | 공통 client 기본 헤더                       |
-| 바이너리          | S3에 직접 PUT 후 API에는 URL 메타데이터만 전달         | Presigned URL 발급·PUT·메타 저장 함수 분리  |
-| 서버 시간대       | `Asia/Seoul`                                           | 날짜 생성 시 KST 기준 사용                  |
-| DateTime          | ISO 8601 `YYYY-MM-DDTHH:mm:ss`                         | `formatApiDateTime()` 사용                  |
-| Access Token      | 30분                                                   | 401 발생 시 refresh 후 원 요청 1회 재시도   |
-| Refresh Token     | 14일                                                   | iOS Keychain/Android Keystore에 저장         |
-| 성공 응답         | wrapper 없이 `[...]` 또는 `{...}`를 Root에서 직접 반환 | 모든 API 함수가 `response.data`를 직접 반환 |
-| 확정 오류         | `400` 유효성 실패, `401` 인증 없음/만료                | 서버 `message`를 우선 표시                  |
+| 항목          | 7/22 규격                              | 프론트 적용                                |
+| ------------- | -------------------------------------- | ------------------------------------------ |
+| Base URL      | 개발/테스트 `http://localhost:8080`    | local/AWS/production 환경 분리             |
+| 인증          | `Authorization: Bearer {Access_Token}` | axios interceptor 자동 첨부                |
+| 성공 응답     | wrapper 없는 Root 배열/객체            | `response.data` 직접 사용                  |
+| 오류 응답     | `{code,message,fieldErrors}`           | `message` 우선 표시, fieldErrors 파싱 가능 |
+| 상태 코드     | 400/401/403/404/409/500                | 상태별 기본 사용자 문구 적용               |
+| Access Token  | 30분                                   | 401 시 refresh 후 원 요청 1회 재시도       |
+| Refresh Token | 14일                                   | iOS Keychain 저장                          |
 
-정상 목록 응답 예시:
+## 2. 7/22 핵심 변경과 적용
 
-```json
-[
-  {
-    "memoId": 1,
-    "title": "메모"
-  }
-]
-```
+| 도메인      | 7/22 계약                                                  | 프론트 적용                                    |
+| ----------- | ---------------------------------------------------------- | ---------------------------------------------- |
+| 계정 찾기   | `POST /api/auth/find`, `type=ID/PW`                        | 아이디 조회와 임시 비밀번호 메일 발송으로 변경 |
+| 로그아웃    | `POST /api/auth/logout?type=CURRENT/ALL`                   | 현재/전체 로그아웃 연결                        |
+| 2FA         | `POST /api/auth/2fa`, action 방식                          | SETUP → SEND → VERIFY 순서 적용                |
+| 사용자      | `/api/users/me`, `/me/settings`                            | URL의 userId 제거                              |
+| 친구        | `/api/friends`, `/requests` + type/action                  | 검색·추천·요청함·수락·거절·취소 갱신           |
+| 메모        | `POST/GET /api/memos`                                      | 개인은 query 없음, 팀은 `teamSpaceId` query    |
+| 메모 상태   | `/api/memos/{id}/status?action=...&value=...`              | STATUS/PIN 통합 경로 적용                      |
+| 휴지통      | `/api/trash`                                               | 목록·복구·선택 영구 삭제 갱신                  |
+| 팀          | `/api/team-spaces`                                         | 내 팀 목록에서 userId 제거                     |
+| 공지        | 목록 `/api/notices?teamSpaceId=`, 상세 `/api/notices/{id}` | 축약 목록 클릭 시 상세 재조회                  |
+| 할 일       | `/api/todos?teamSpaceId=`                                  | 생성·목록·제목/체크 수정·삭제 갱신             |
+| 일정        | `startAt`, `endAt`                                         | 시작/종료 일시 입력과 월별 목록·상세 조회 적용 |
+| 문의        | `/api/inquiries`, `/api/inquiries/me`                      | userId와 명세 밖 attachmentUrl 제거            |
+| 서비스 공지 | `GET /api/service-notices`                                 | 마이페이지 공지 화면 연결                      |
+| 알림        | `/api/notifications/{id}`                                  | 목록·읽음·삭제 및 타입별 targetId 처리         |
+| 파일        | `fileName`, `fileType`, `domain`                           | PROFILE/MEMO/TEAM과 동일 MIME PUT 적용         |
 
-프론트는 다음과 같은 공통 wrapper를 파싱하지 않는다.
-
-```json
-{
-  "success": true,
-  "data": [],
-  "message": "성공"
-}
-```
-
-## 2. 프론트 코드 구조
+## 3. 파일 업로드 순서
 
 ```text
-src/screens/.../index.js
-  → src/hooks/use기능.js
-    → src/api/도메인.js
-      → src/api/client.js
-        → 백엔드 또는 S3
+GET /api/files/presigned-url
+  ?fileName={name}
+  &fileType={MIME}
+  &domain=PROFILE/MEMO/TEAM
+→ presignedUrl로 S3 PUT
+  Content-Type: 발급 요청과 동일한 MIME
+→ fileUrl 메타데이터 저장
 ```
 
-| 위치                | 역할                                             |
-| ------------------- | ------------------------------------------------ |
-| `src/screens`       | 렌더링, 입력, 버튼 이벤트                        |
-| `src/hooks`         | 상태, 검증, API 실행 순서, 응답의 화면 모델 변환 |
-| `src/api`           | Method, URI, Body, Query                         |
-| `src/api/client.js` | Base URL, Bearer, 401 refresh                    |
-| `src/utils`         | 세션 저장, 설정 캐시, 날짜 직렬화                |
+- 프로필: `PATCH /api/users/me`
+- 메모 이미지: `POST /api/memos/{memoId}/images`
+- 팀 파일: `POST /api/team-spaces/{teamSpaceId}/files`
+- 제한: 이미지 10MB, 문서 30MB
 
-## 3. 7/18에서 7/21로 변경된 내용과 적용 결과
+## 4. 화면 데이터 안전 처리
 
-| 도메인        | 7/21 변경                                          | 적용 결과                                               |
-| ------------- | -------------------------------------------------- | ------------------------------------------------------- |
-| 로그인        | 응답에 `deviceId` 추가                             | access/refresh/userId/deviceId 저장, 현재 기기 표시     |
-| 계정 찾기     | `POST /api/auth/find-id` 추가                      | FindId 화면 연결                                        |
-| 비밀번호 확인 | `POST /api/auth/verify-password` 추가              | 2FA 진입 전 실제 비밀번호 검증                          |
-| 2FA           | setup/verify API 추가                              | 휴대폰 등록 → 코드 검증 → 새 토큰 저장 → `use2fa` 반영  |
-| 사용자 설정   | `GET /api/users/{userId}/settings` 추가            | 서버 설정을 먼저 조회하고 로컬 캐시는 fallback으로 사용 |
-| 메모 목록     | `content`, `createdAt` 추가                        | 홈/타임라인의 항목별 상세 조회 제거                     |
-| 파일          | S3 Presigned URL 방식으로 확정                     | URL 발급 → S3 PUT → 메타 저장 함수 구현                 |
-| 메모 이미지   | multipart에서 JSON 메타 `{memoId,imageUrl}`로 변경 | FormData 제거                                           |
-| 친구          | 검색·요청·받은/보낸 목록·수락·거절·취소 추가       | 친구 추가/요청함 화면 연결                              |
-| 추천 친구     | `name` 대신 `nickname`                             | 화면 매핑 수정                                          |
-| 팀 목록       | `memberCount` 추가                                 | 팀별 멤버 목록 추가 호출 제거                           |
-| 공지 목록     | `content` 추가                                     | 프로젝트 홈에서 바로 표시                               |
-| 공지 상세     | `GET /api/team-notices/{noticeId}` 추가            | API 함수 추가                                           |
-| 할 일         | `dueDate` null 허용 명시                           | 날짜 미선택 시 null 전송                                |
-| 일정          | 개인 월별 목록 추가                                | API 함수 추가; 현재 개인 캘린더 화면은 없음             |
-| 통합 검색     | 4개 결과 묶음 유지                                 | 메모·공지·할 일·일정 모두 결과에 표시                   |
-| 문의 목록     | `createdAt`, `updatedAt` 추가                      | 문의 내역에 접수/수정 시각 표시                         |
-| 알림 ERD      | 딥링크 ID가 `target_id`로 정리                     | `targetId` 매핑; 화면 이동 규칙은 추가 확정 필요        |
+- 메모 목록에는 본문이 없으므로 수정 화면 진입 전에 `GET /api/memos/{memoId}`를 호출한다.
+- 공지 목록에는 본문이 없으므로 수정 모달 진입 전에 `GET /api/notices/{noticeId}`를 호출한다.
+- 할 일 목록에는 상세 API가 없으므로 기존 항목은 제목과 체크 상태만 수정한다.
+- 문의 목록은 명세에 있는 `inquiryId`, `status`, `response`만으로도 렌더링한다.
+- 일정은 `scheduleDate`를 사용하지 않고 `startAt/endAt`으로 표시한다.
+- 문서에 없는 이메일 인증, 직접 비밀번호 재설정, 문의 첨부 요청은 호출하지 않는다.
 
-## 4. 현재 구현된 공통 처리
+## 5. 서버 준비 후 E2E 순서
 
-- 보호 요청에 Bearer access token 자동 첨부
-- 동시 401에서 refresh 중복 호출 방지
-- refresh 성공 후 실패한 요청 1회 재시도
-- refresh 실패 시 access/refresh/userId/deviceId 제거
-- Refresh Token은 iOS Keychain/Android Keystore에 저장
-- 기존 AsyncStorage Refresh Token은 최초 조회 시 보안 저장소로 1회 이전 후 삭제
-- 로그인 시 현재 `deviceId` 저장
-- Root 배열/객체 직접 파싱
-- API body의 DateTime을 `YYYY-MM-DDTHH:mm:ss`로 생성
-- DELETE body `{ "memoIds": [...] }` 지원
-- Presigned URL은 API 인증 요청, S3 PUT은 Base URL/Bearer 없이 별도 요청
-- `local`, `aws`, `production` API 환경을 빌드 시점에 분리
+1. 회원가입 → 로그인 → Bearer 보호 요청을 확인한다.
+2. Access Token 만료 → refresh → 원 요청 재시도를 확인한다.
+3. 내 정보·설정·2FA·현재/전체 로그아웃·탈퇴를 확인한다.
+4. 메모 생성 → 상세 → 수정 → 상태/고정 → 휴지통을 확인한다.
+5. 친구 검색·추천·요청함 상태 전이를 두 계정으로 확인한다.
+6. 팀 생성 → 팀원 → 공지 → 할 일 → 일정을 확인한다.
+7. PROFILE/MEMO/TEAM Presigned URL과 S3 PUT을 확인한다.
+8. 검색·문의·서비스 공지·알림 targetId를 확인한다.
+9. iOS 시뮬레이터와 실제 기기에서 네트워크·날짜·파일 선택을 확인한다.
 
-### API 환경 실행 명령
+## 6. 백엔드 확인이 필요한 명세 불일치
 
-```sh
-# 로컬: iOS 시뮬레이터
-npm run start:local
-npm run ios:local
+- 회원가입 Body에는 `name`, `email`이 없지만 ERD의 `name`은 NOT NULL이고 계정 찾기는 email을 사용한다.
+- ERD에는 `expired_at`이 있지만 메모 생성·상세 계약에는 만료 설정 필드가 없다.
+- Inquiry ERD에는 `attachment_url`이 있지만 등록 API와 파일 domain에는 문의 첨부가 없다.
+- Schedule ERD/상세에는 `content`, `endAt`이 있지만 생성·수정 Body 지원 범위가 서로 다르다.
+- TEAM_TODO 알림은 todoId만 제공하지만 할 일 단건 조회 API와 teamSpaceId가 없다.
+- 로그인 기기 목록 API가 없어 현재 기기 외의 개별 `deviceId`를 프론트에서 얻을 수 없다.
 
-# AWS 임시 서버
-BLAZE_API_BASE_URL=http://서버IP:8080 npm run start:aws
-BLAZE_API_BASE_URL=http://서버IP:8080 npm run ios:aws
-
-# 운영
-BLAZE_API_BASE_URL=https://api.example.com npm run start:production
-BLAZE_API_BASE_URL=https://api.example.com npm run ios:production
-```
-
-Android는 같은 방식으로 `android:local`, `android:aws`,
-`android:production`을 사용한다. 환경을 변경하면 Metro를 종료한 뒤 다시
-시작해야 한다. 실제 기기 로컬 테스트는 `BLAZE_API_BASE_URL`에 개발 PC의
-LAN 주소를 넣는다.
-
-## 5. 실서버 연동 순서
-
-1. 백엔드 개발 주소를 `BLAZE_API_BASE_URL`에 넣고 `aws` 환경으로 실행한다.
-2. 회원가입 → 인증번호 발송/검증 → 로그인을 확인한다.
-3. 로그인 응답 4개 필드와 보호 API의 Bearer 헤더를 확인한다.
-4. access token을 만료시켜 refresh → 원 요청 재시도를 확인한다.
-5. 사용자 정보·설정 조회/수정, 기기 목록·원격 로그아웃을 확인한다.
-6. 메모 생성 → 목록 → 수정 → 상태/고정 → 휴지통 → 복구/선택 삭제를 확인한다.
-7. 팀 목록 → 공지 → 할 일 → 일정 → 파일 메타데이터를 확인한다.
-8. 친구 검색 → 요청 → 받은/보낸 요청 → 수락/거절/취소를 두 계정으로 확인한다.
-9. Presigned URL → S3 PUT → 최종 URL 접근 → 메타 저장을 확인한다.
-10. 통합 검색, 문의, 알림을 확인한다.
-11. iOS/Android 실제 기기에서 KST 날짜, 네트워크 정책, 오류 문구를 확인한다.
-
-## 6. 아직 남은 프론트 작업
-
-- 문의 첨부파일용 Presigned URL prefix 확정 후 `attachmentUrl` 업로드 연결
-- 파일 이동/공유 계약 확정 후 팀 파일 UI 확장
-- 공지·할 일·일정 검색 결과에 `teamSpaceId`가 제공되면 팀 상세 이동 연결
-- FRIEND/TEAM 알림의 `type + targetId` 이동 연결
-- 실제 서버 기반 E2E 및 실패 응답별 UI 검증
-
-미지원 SNS 로그인·파일 이동/공유 버튼과 서비스 공지 더미 데이터는
-사용자가 실제 기능으로 오인하지 않도록 화면에서 제거했다. 문의 첨부는 실제
-파일 선택 UI까지 제공하되 저장 prefix가 확정되기 전에는 업로드하지 않는다. 일정 수정 화면도
-상세 응답 계약이 확정될 때까지 라우트에서 제외했다.
-
-## 7. 백엔드와 추가 확정할 부분
-
-- 일정 월별 목록에는 `content`가 없고 일정 상세 API도 없다. 안전한 수정 화면을 위해 상세 API 또는 목록의 `content`가 필요하다.
-- 통합 검색의 `memos/notices/todos/schedules` 각 항목 필드를 명시해야 한다.
-- `targetId`가 FRIEND/TEAM/MEMO에서 가리키는 리소스와 이동 화면 매핑이 필요하다.
-- 2FA setup 호출이 인증번호 발송까지 수행하는지, 별도 재발송 방식이 무엇인지 확인해야 한다.
-- Presigned PUT 시 서명에 포함되는 `Content-Type`과 파일 크기·확장자 제한이 필요하다.
-- 문의 `attachmentUrl` 업로드에 사용할 prefix가 `PROFILES/MEMOS/TEAMS`에 없어 별도 값이 필요하다.
-- `400`, `401` 외 `403`, `404`, `409`, `500`의 공통 오류 정책을 확정해야 한다.
-- 마이페이지 서비스 공지/FAQ는 현재 정적 화면이며 별도 API가 명세에 없다.
+세부 전달 문구는 `BACKEND_HANDOFF_7_22.md`에 정리되어 있다.

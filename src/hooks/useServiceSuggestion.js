@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import { createInquiryApi } from '../api/common';
-import { getUserId } from '../utils/authStorage';
 
 export const useServiceSuggestion = navigation => {
   const [suggestion, setSuggestion] = useState('');
@@ -17,13 +16,10 @@ export const useServiceSuggestion = navigation => {
     setIsLoading(true);
 
     try {
-      const userId = await getUserId();
-      if (!userId) throw new Error('사용자 정보를 찾을 수 없습니다.');
-      await createInquiryApi(userId, {
+      await createInquiryApi({
         type: 'SUGGESTION',
         title: '서비스 개선 제안',
         content: suggestion.trim(),
-        attachmentUrl: null,
       });
       Alert.alert('감사합니다', '소중한 의견이 제출되었습니다.', [
         { text: '확인', onPress: () => navigation.goBack() },

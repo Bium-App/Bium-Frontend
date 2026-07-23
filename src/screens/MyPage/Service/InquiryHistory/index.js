@@ -76,7 +76,7 @@ export default function InquiryHistory({ navigation }) {
               }}
             >
               <Text style={{ color: '#FF8933', fontWeight: '600' }}>
-                {getTypeLabel(inquiry.type)}
+                {inquiry.type ? getTypeLabel(inquiry.type) : '문의'}
               </Text>
               <Text
                 style={{
@@ -87,11 +87,13 @@ export default function InquiryHistory({ navigation }) {
               </Text>
             </View>
             <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>
-              {inquiry.title}
+              {inquiry.title ?? `문의 #${inquiry.inquiryId}`}
             </Text>
-            <Text style={{ color: '#555555', lineHeight: 20 }}>
-              {inquiry.content}
-            </Text>
+            {inquiry.content ? (
+              <Text style={{ color: '#555555', lineHeight: 20 }}>
+                {inquiry.content}
+              </Text>
+            ) : null}
             {inquiry.createdAt ? (
               <Text style={{ color: '#999999', fontSize: 12, marginTop: 10 }}>
                 접수 {dayjs(inquiry.createdAt).format('YYYY.MM.DD HH:mm')}

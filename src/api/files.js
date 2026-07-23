@@ -1,9 +1,9 @@
 import apiClient from './client';
 import { readSelectedFile } from '../utils/filePicker';
 
-export const getPresignedUrlApi = async ({ prefix, fileName }) => {
+export const getPresignedUrlApi = async ({ domain, fileName, fileType }) => {
   const response = await apiClient.get('/api/files/presigned-url', {
-    params: { prefix, fileName },
+    params: { fileName, fileType, domain },
   });
   return response.data;
 };
@@ -24,14 +24,15 @@ export const uploadToPresignedUrl = async (
 };
 
 export const uploadFileApi = async ({
-  prefix,
+  domain,
   fileName,
   fileBody,
   contentType,
 }) => {
   const { presignedUrl, fileUrl } = await getPresignedUrlApi({
-    prefix,
+    domain,
     fileName,
+    fileType: contentType ?? 'application/octet-stream',
   });
   await uploadToPresignedUrl(
     presignedUrl,
@@ -41,11 +42,11 @@ export const uploadFileApi = async ({
   return fileUrl;
 };
 
-export const uploadSelectedFileApi = async ({ prefix, file }) => {
+export const uploadSelectedFileApi = async ({ domain, file }) => {
   const fileBody = await readSelectedFile(file);
   try {
     return await uploadFileApi({
-      prefix,
+      domain,
       fileName: file.name,
       fileBody,
       contentType: file.type,
@@ -55,18 +56,21 @@ export const uploadSelectedFileApi = async ({ prefix, file }) => {
   }
 };
 
-export const createTeamFileApi = async file => {
-  const response = await apiClient.post('/api/team-files', file);
+export const createTeamFileApi = async (teamSpaceId, file) => {
+  const response = await apiClient.post(
+    `/api/team-spaces/${teamSpaceId}/files`,
+    file,
+  );
   return response.data;
 };
 
 export const getTeamFilesApi = async teamSpaceId => {
-  const response = await apiClient.get(`/api/team-files/team/${teamSpaceId}`);
+  const response = await apiClient.get(`/api/team-spaces/${teamSpaceId}/files`);
   return response.data;
 };
 
 export const renameTeamFileApi = async (fileId, newFileName) => {
-  const response = await apiClient.patch(`/api/team-files/${fileId}/name`, {
+  const response = await apiClient.patch(`/api/team-files/${fileId}`, {
     newFileName,
   });
   return response.data;
@@ -78,8 +82,7 @@ export const deleteTeamFileApi = async fileId => {
 };
 
 export const addMemoImageApi = async (memoId, imageUrl) => {
-  const response = await apiClient.post('/api/memo-images', {
-    memoId: Number(memoId),
+  const response = await apiClient.post(`/api/memos/${memoId}/images`, {
     imageUrl,
   });
   return response.data;

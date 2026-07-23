@@ -3,22 +3,18 @@ import { Alert } from 'react-native';
 import { findLoginIdApi } from '../api/auth';
 
 export const useFindId = () => {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const findLoginId = async onFound => {
-    if (!name.trim() || !email.trim()) {
-      Alert.alert('알림', '이름과 이메일을 모두 입력해주세요.');
+    if (!email.trim()) {
+      Alert.alert('알림', '이메일을 입력해주세요.');
       return;
     }
 
     setIsLoading(true);
     try {
-      const data = await findLoginIdApi({
-        name: name.trim(),
-        email: email.trim(),
-      });
+      const data = await findLoginIdApi(email.trim());
       onFound?.(data.loginId);
     } catch (error) {
       Alert.alert(
@@ -30,5 +26,5 @@ export const useFindId = () => {
     }
   };
 
-  return { name, setName, email, setEmail, isLoading, findLoginId };
+  return { email, setEmail, isLoading, findLoginId };
 };

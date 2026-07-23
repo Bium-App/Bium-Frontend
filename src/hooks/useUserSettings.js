@@ -18,7 +18,7 @@ export const useUserSettings = () => {
     try {
       const userId = await getUserId();
       const loaded = userId
-        ? { ...DEFAULT_USER_SETTINGS, ...(await getUserSettingsApi(userId)) }
+        ? { ...DEFAULT_USER_SETTINGS, ...(await getUserSettingsApi()) }
         : await getStoredUserSettings();
       settingsRef.current = loaded;
       setSettings(loaded);
@@ -48,7 +48,7 @@ export const useUserSettings = () => {
     try {
       const userId = await getUserId();
       if (!userId) throw new Error('사용자 정보를 찾을 수 없습니다.');
-      await updateUserSettingsApi(userId, next);
+      await updateUserSettingsApi(next);
       await storeUserSettings(next);
       return next;
     } catch (error) {

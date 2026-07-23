@@ -5,17 +5,21 @@ export const createScheduleApi = async schedule => {
   return response.data;
 };
 
-export const getTeamSchedulesApi = async (teamSpaceId, year, month) => {
-  const response = await apiClient.get(`/api/schedules/team/${teamSpaceId}`, {
-    params: { year, month },
+export const getSchedulesApi = async ({ year, month, teamSpaceId }) => {
+  const response = await apiClient.get('/api/schedules', {
+    params: { year, month, ...(teamSpaceId ? { teamSpaceId } : {}) },
   });
   return response.data;
 };
 
-export const getUserSchedulesApi = async (userId, year, month) => {
-  const response = await apiClient.get(`/api/schedules/user/${userId}`, {
-    params: { year, month },
-  });
+export const getTeamSchedulesApi = async (teamSpaceId, year, month) =>
+  getSchedulesApi({ teamSpaceId, year, month });
+
+export const getUserSchedulesApi = async (year, month) =>
+  getSchedulesApi({ year, month });
+
+export const getScheduleApi = async scheduleId => {
+  const response = await apiClient.get(`/api/schedules/${scheduleId}`);
   return response.data;
 };
 

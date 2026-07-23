@@ -1,11 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import {
-  Modal,
-  StatusBar,
-  Platform,
-  Animated,
-  ActivityIndicator,
-} from 'react-native';
+import React, { useState } from 'react';
+import { StatusBar, Platform, ActivityIndicator } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
@@ -37,63 +31,7 @@ import {
   FontSizeText,
   ColorPickerWrapper,
   ColorCircle,
-  SectionTitle,
-  TimerBox,
-  TimerHeaderRow,
-  TimerDesc,
-  TimerButtonRow,
-  TimerButtonWrapper,
-  AnimatedTimerBox,
-  TimerButtonSub,
-  ModalOverlay,
-  ModalContainer,
-  ModalHeader,
-  ModalFireIcon,
-  ModalTitleWrapper,
-  ModalText,
-  ModalHighlight,
-  ModalSubText,
-  ModalBlueHighlight,
-  ModalFooter,
-  Checkbox,
-  CheckboxLabel,
 } from './MemoEditor.styles';
-
-const AnimatedTimerButton = ({ active, onPress, title, subTitle }) => {
-  const anim = useRef(new Animated.Value(active ? 1 : 0)).current;
-
-  useEffect(() => {
-    Animated.timing(anim, {
-      toValue: active ? 1 : 0,
-      duration: 250,
-      useNativeDriver: false,
-    }).start();
-  }, [active, anim]);
-
-  const bgColor = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['#FFFFFF', '#FF8933'],
-  });
-
-  const textColor = anim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['#FF8933', '#FFFFFF'],
-  });
-
-  const boxStyle = { backgroundColor: bgColor };
-  const textStyle = { fontSize: 15, fontWeight: '300', color: textColor };
-
-  return (
-    <TimerButtonWrapper>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-        <AnimatedTimerBox style={boxStyle}>
-          <Animated.Text style={textStyle}>{title}</Animated.Text>
-        </AnimatedTimerBox>
-      </TouchableOpacity>
-      <TimerButtonSub>{subTitle}</TimerButtonSub>
-    </TimerButtonWrapper>
-  );
-};
 
 // route 프로퍼티를 추가하여, 리스트에서 클릭해 들어왔을 때 데이터를 받을 수 있도록 처리
 export default function MemoEditor({ navigation, route }) {
@@ -107,8 +45,6 @@ export default function MemoEditor({ navigation, route }) {
     setTitle,
     content,
     setContent,
-    timer,
-    setTimer,
     imageFile,
     isPickingImage,
     selectImage,
@@ -125,8 +61,6 @@ export default function MemoEditor({ navigation, route }) {
     italic: false,
     underline: false,
   });
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [doNotShowAgain, setDoNotShowAgain] = useState(false);
 
   return (
     <Container>
@@ -280,88 +214,8 @@ export default function MemoEditor({ navigation, route }) {
               </ColorPickerWrapper>
             </ToolbarRow>
           </ToolbarBox>
-
-          <TimerBox>
-            <TimerHeaderRow>
-              <TouchableOpacity onPress={() => setModalVisible(true)}>
-                <Icon
-                  name="information-circle-outline"
-                  size={18}
-                  color="#FF8933"
-                />
-              </TouchableOpacity>
-              <SectionTitle>소멸 시간 설정</SectionTitle>
-            </TimerHeaderRow>
-            <TimerDesc>
-              설정한 시간이 지나면 메모가 자동으로 사라집니다.
-            </TimerDesc>
-
-            <TimerButtonRow>
-              <AnimatedTimerButton
-                active={timer === '6h'}
-                onPress={() => !isLoading && setTimer('6h')}
-                title="6h"
-                subTitle="6시간후 소멸"
-              />
-              <AnimatedTimerButton
-                active={timer === '12h'}
-                onPress={() => !isLoading && setTimer('12h')}
-                title="12h"
-                subTitle="12시간후 소멸"
-              />
-              <AnimatedTimerButton
-                active={timer === '24h'}
-                onPress={() => !isLoading && setTimer('24h')}
-                title="24h"
-                subTitle="24시간후 소멸"
-              />
-            </TimerButtonRow>
-          </TimerBox>
         </ContentContainer>
       </KeyboardContainer>
-
-      <Modal
-        transparent={true}
-        visible={isModalVisible}
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <ModalOverlay>
-          <ModalContainer>
-            <ModalHeader>
-              <ModalFireIcon>
-                <Icon name="flame" size={24} color="#FF8933" />
-              </ModalFireIcon>
-              <ModalTitleWrapper>
-                <ModalText>
-                  <ModalHighlight>불 메모</ModalHighlight>는 설정한 시간이
-                  지나면 {'\n'}
-                  <ModalHighlight>자동으로</ModalHighlight> 사라져요.
-                </ModalText>
-                <ModalSubText>
-                  중요한 내용은 {'\n'}
-                  <ModalBlueHighlight>'얼음'</ModalBlueHighlight>으로
-                  보관해보세요!
-                </ModalSubText>
-              </ModalTitleWrapper>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Icon name="close-circle-outline" size={24} color="#AAAAAA" />
-              </TouchableOpacity>
-            </ModalHeader>
-            <ModalFooter>
-              <Checkbox
-                checked={doNotShowAgain}
-                onPress={() => setDoNotShowAgain(!doNotShowAgain)}
-              >
-                {doNotShowAgain && (
-                  <Icon name="checkmark" size={14} color="#FFFFFF" />
-                )}
-              </Checkbox>
-              <CheckboxLabel>다시 보지 않기</CheckboxLabel>
-            </ModalFooter>
-          </ModalContainer>
-        </ModalOverlay>
-      </Modal>
     </Container>
   );
 }

@@ -70,9 +70,9 @@ export default function MemoCard({
         <ContentWrapper>
           <TitleText>{item.MTitle}</TitleText>
           <ContentText>{item.MContent}</ContentText>
-          {item.Status === 'FIRE' && (
+          {item.Status === 'FIRE' && item.remainingTime ? (
             <ExpireText>소멸 예정 : {item.remainingTime}</ExpireText>
-          )}
+          ) : null}
         </ContentWrapper>
         <RightWrapper>
           <TimeText>{item.time}</TimeText>

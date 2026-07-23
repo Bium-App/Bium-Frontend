@@ -36,7 +36,7 @@ export default function MyPageMain({ navigation }) {
           {isLoading && !user ? (
             <ActivityIndicator color="#FF8933" />
           ) : (
-            <UserName>{user?.nickname || user?.name || '사용자'}</UserName>
+            <UserName>{user?.nickname || '사용자'}</UserName>
           )}
           <EditProfileButton
             activeOpacity={0.7}

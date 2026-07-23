@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import { logoutDeviceApi } from '../api/auth';
-import { clearSession, getDeviceId } from '../utils/authStorage';
+import { logoutApi } from '../api/auth';
+import { clearSession } from '../utils/authStorage';
 
 export const useLogout = navigation => {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,8 +10,7 @@ export const useLogout = navigation => {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const deviceId = await getDeviceId();
-      if (deviceId) await logoutDeviceApi(deviceId);
+      await logoutApi('CURRENT');
       await clearSession();
       navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
     } catch (error) {

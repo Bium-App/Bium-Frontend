@@ -31,7 +31,7 @@ export default function VerifyCode({ route, navigation }) {
     CODE_EXPIRES_IN_SECONDS,
   );
   const { phoneNumber } = route.params ?? {};
-  const { setupPhone, verifyCode } = useTwoFactorAuth();
+  const { sendCode, verifyCode } = useTwoFactorAuth();
 
   useEffect(() => {
     if (!remainingSeconds) return undefined;
@@ -57,7 +57,7 @@ export default function VerifyCode({ route, navigation }) {
     }
     setIsLoading(true);
     try {
-      await verifyCode(code.trim());
+      await verifyCode(phoneNumber, code.trim());
       navigation.replace('Success', { phoneNumber });
     } catch (error) {
       Alert.alert(
@@ -73,7 +73,7 @@ export default function VerifyCode({ route, navigation }) {
     if (!phoneNumber || isLoading) return;
     setIsLoading(true);
     try {
-      await setupPhone(phoneNumber);
+      await sendCode(phoneNumber);
       setRemainingSeconds(CODE_EXPIRES_IN_SECONDS);
       Alert.alert('완료', '인증번호를 다시 전송했습니다.');
     } catch (error) {

@@ -7,7 +7,6 @@ import {
   searchFriendsApi,
   sendFriendRequestApi,
 } from '../api/friends';
-import { getUserId } from '../utils/authStorage';
 import { getApiErrorMessage } from '../utils/apiError';
 
 const mapFriend = friend => ({
@@ -36,16 +35,9 @@ export const useFriendAdd = () => {
     setIsLoading(true);
     setInitialErrorMessage('');
     try {
-      const userId = await getUserId();
-      if (!userId) {
-        setInitialErrorMessage(
-          '로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.',
-        );
-        return;
-      }
       const [recommended, received] = await Promise.all([
-        getRecommendedFriendsApi(userId),
-        getReceivedFriendRequestsApi(userId),
+        getRecommendedFriendsApi(),
+        getReceivedFriendRequestsApi(),
       ]);
       setRecommendedFriends(recommended.map(mapFriend));
       setRequestCount(received.length);
@@ -120,9 +112,7 @@ export const useFriendAdd = () => {
   const handleAddFriend = async receiverId => {
     setIsSubmitting(true);
     try {
-      const requesterId = await getUserId();
-      if (!requesterId) throw new Error('사용자 정보를 찾을 수 없습니다.');
-      await sendFriendRequestApi({ requesterId, receiverId });
+      await sendFriendRequestApi(receiverId);
       Alert.alert('완료', '친구 요청을 보냈습니다.');
     } catch (error) {
       Alert.alert(

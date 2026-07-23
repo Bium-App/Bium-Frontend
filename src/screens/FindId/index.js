@@ -19,8 +19,7 @@ import {
 } from './FindId.styles';
 
 export default function FindId({ navigation }) {
-  const { name, setName, email, setEmail, isLoading, findLoginId } =
-    useFindId();
+  const { email, setEmail, isLoading, findLoginId } = useFindId();
 
   const handleSubmit = () => {
     findLoginId(loginId => {
@@ -41,14 +40,6 @@ export default function FindId({ navigation }) {
       <HeaderDivider />
       <ScrollContent>
         <TitleText>아이디를 잊으셨나요?</TitleText>
-        <InputWrapper>
-          <InputField
-            placeholder="이름"
-            placeholderTextColor="#AAAAAA"
-            value={name}
-            onChangeText={setName}
-          />
-        </InputWrapper>
         <InputWrapper>
           <InputField
             placeholder="이메일"

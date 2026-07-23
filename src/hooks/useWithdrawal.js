@@ -12,7 +12,7 @@ export const useWithdrawal = navigation => {
     try {
       const userId = await getUserId();
       if (!userId) throw new Error('사용자 정보를 찾을 수 없습니다.');
-      await deleteUserApi(userId);
+      await deleteUserApi();
       await clearSession();
       navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
     } catch (error) {

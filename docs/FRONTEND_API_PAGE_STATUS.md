@@ -1,124 +1,86 @@
-# BlazeMemo 프론트 화면별 API 연동 현황
+# BlazeMemo 화면별 API 연동 현황
 
-> 기준일: 2026-07-22  
-> 기준 문서: API 명세 7/21, ERD 7/21  
-> `완료`는 프론트 코드 연결 기준이다. 실제 서버 E2E 완료를 뜻하지 않는다.
-> 개발용 Mock API는 제거했으며 모든 API 함수는 실제 Base URL을 사용한다.
+> 기준 문서: API 명세 7/22, ERD 7/22
+>
+> 기준일: 2026-07-22
+>
+> `연결`은 프론트 코드 기준이며 실제 서버 E2E 완료를 뜻하지 않는다.
 
-## 상태
+## 공통
 
-| 표시      | 의미                                                  |
-| --------- | ----------------------------------------------------- |
-| ✅ 연결   | 화면 이벤트 → 훅 → API → 응답 매핑 완료               |
-| 🟡 부분   | 핵심 일부만 연결됐거나 서버 계약/네이티브 기능이 남음 |
-| 🔴 대기   | 더미 화면 또는 필요한 계약이 없음                     |
-| ⚪ 불필요 | 정적/로컬 화면이라 서버 API가 필요 없음               |
-
-## 공통 기반
-
-| 기능         | 상태 | 적용                                            | 남은 작업                  |
-| ------------ | ---- | ----------------------------------------------- | -------------------------- |
-| Base URL     | ✅   | local/AWS/production 빌드 환경 분리             | 실제 AWS·운영 주소 주입    |
-| Bearer       | ✅   | 보호 요청 자동 첨부                             | 실서버 확인                |
-| 401 refresh  | ✅   | 중복 방지, 원 요청 재시도, 실패 시 Login 초기화 | 실서버 만료 검증           |
-| 세션         | ✅   | refresh는 Keychain/Keystore, 나머지는 AsyncStorage | 실제 기기 검증          |
-| Root 응답    | ✅   | 배열/객체 직접 파싱                             | 백엔드 wrapper 미사용 확인 |
-| KST DateTime | ✅   | `YYYY-MM-DDTHH:mm:ss`                           | 실제 서버 왕복 확인        |
-| S3 업로드    | 🟡   | 이미지/문서 선택, URI→Blob, URL 발급·PUT·메타 저장 | 실서버 Header·CORS 검증 |
+| 기능            | 상태 | 7/22 적용                                | 남은 작업           |
+| --------------- | ---- | ---------------------------------------- | ------------------- |
+| Base URL/Bearer | 연결 | 환경 분리, 보호 요청 자동 인증           | 개발 서버 확인      |
+| 401 refresh     | 연결 | 동시 요청 방지, 1회 재시도               | 토큰 만료 E2E       |
+| 오류            | 연결 | code/message/fieldErrors와 6개 상태 코드 | 실제 오류 응답 확인 |
+| Refresh Token   | 연결 | iOS Keychain 저장                        | 실제 기기 확인      |
+| S3              | 연결 | fileName/fileType/domain, 동일 MIME PUT  | CORS·서버 제한 확인 |
 
 ## 시작·인증
 
-| 페이지         | 상태 | 연결된 내용                        | 다음 작업               |
-| -------------- | ---- | ---------------------------------- | ----------------------- |
-| `StartScreen`  | ✅   | 저장 세션 확인 후 메인/온보딩 분기 | 실서버 만료 검증        |
-| `Splash`       | ⚪   | 온보딩/인증 화면 이동              | 온보딩 완료 저장은 선택 |
-| `Login`        | ✅   | 로그인, 4개 세션 값 저장           | 실서버 로그인           |
-| `SignUp`       | ✅   | 코드 발송·검증, 회원가입           | validation 확인         |
-| `FindId`       | ✅   | 이름+이메일로 아이디 조회          | 실서버 오류 문구 확인   |
-| `FindPassword` | ✅   | 코드 발송·검증, 새 비밀번호 재설정 | 실서버 만료/재전송 확인 |
+| 페이지             | 상태 | 연결 내용                           | 확인 필요             |
+| ------------------ | ---- | ----------------------------------- | --------------------- |
+| StartScreen/Splash | 연결 | 저장 세션 분기                      | 만료 세션 확인        |
+| Login              | 연결 | access/refresh/userId/deviceId 저장 | 실서버 로그인         |
+| SignUp             | 연결 | 7/22 Body 네 필드                   | ERD name/email 불일치 |
+| FindId             | 연결 | `/api/auth/find`, type ID           | 실서버 응답           |
+| FindPassword       | 연결 | type PW 임시 비밀번호 메일          | 메일 발송 확인        |
 
 ## 개인 메모·공통
 
-| 페이지         | 상태 | 연결된 내용                                        | 다음 작업                  |
-| -------------- | ---- | -------------------------------------------------- | -------------------------- |
-| `Home`         | ✅   | 목록, 수정 진입, 상태 변경, 고정, 휴지통, N+1 제거 | 실서버 제스처 검증         |
-| `Timeline`     | ✅   | 목록·수정 진입, 로딩·오류·빈 상태·새로고침         | 만료 타이머 실서버 확인    |
-| `MemoEditor`   | 🟡   | 생성/수정, 이미지 선택·MEMOS 업로드·메타 저장      | 실서버 업로드 검증         |
-| `Search`       | 🟡   | 4개 도메인 표시, 메모 수정 화면 이동               | 팀 결과의 teamSpaceId 필요 |
-| `Notification` | 🟡   | 목록·읽음·삭제, MEMO targetId 이동                 | FRIEND/TEAM 이동 매핑      |
+| 페이지       | 상태 | 연결 내용                                                   | 확인 필요                 |
+| ------------ | ---- | ----------------------------------------------------------- | ------------------------- |
+| Home         | 연결 | 축약 목록, 상세 진입, 상태/PIN, 휴지통                      | PIN value 확인            |
+| Timeline     | 부분 | FIRE/ICE/PIN 분류, 상세 진입                                | expiredAt API 없음        |
+| MemoEditor   | 연결 | 생성·수정, MEMO 이미지 업로드                               | 만료 필드 확인            |
+| Search       | 부분 | 4개 결과, 메모 상세, 공지 팀 이동                           | todo/schedule teamSpaceId |
+| Notification | 부분 | 목록·읽음·삭제, MEMO/FRIEND_REQUEST/TEAM_INVITE/TEAM_NOTICE | TEAM_TODO 상세 경로       |
 
 ## 팀스페이스
 
-| 페이지              | 상태 | 연결된 내용                            | 다음 작업                            |
-| ------------------- | ---- | -------------------------------------- | ------------------------------------ |
-| `TeamSpace/Home`    | ✅   | 내 팀 목록·검색·재진입 갱신, memberCount | 실서버 확인                        |
-| `TeamCreate`        | ✅   | 팀 생성, 친구 검색·추천·선택·멤버 추가 | 부분 실패 응답 실서버 확인           |
-| `ProjectDetail`     | 🟡   | 공지·할 일·일정 검색/CRUD, 조회 상태·새로고침 | 일정 상세·수정                    |
-| `AddNotice`         | ✅   | 제목·내용·상단 고정 공지 등록          | 실서버 확인                          |
-| `ProjectTodo`       | ✅   | 목록·검색·등록·수정·삭제·완료 토글     | 실서버 확인                          |
-| `AddTodo`           | ✅   | title/content/dueDate/sendPush 등록    | 실서버 null 확인                     |
-| `Schedule`          | 🟡   | 월별 목록, 검색, 날짜 그룹             | 상세 계약 후 수정·삭제               |
-| `AddSchedule`       | ✅   | 일정 생성                              | DateTime 왕복 확인                   |
-| `Files`             | 🟡   | 목록·검색·다운로드·이름 변경·삭제, TEAMS 파일 업로드 | 이동·공유 계약 및 실서버 검증 |
-| `FriendAdd`         | ✅   | 검색·추천·요청, 로딩·오류·빈 상태·새로고침 | 중복 요청 UX                      |
-| `FriendRequestList` | ✅   | 받은/보낸 요청 처리, 조회 상태·새로고침 | 두 계정 E2E                          |
+| 페이지            | 상태 | 연결 내용                                | 확인 필요               |
+| ----------------- | ---- | ---------------------------------------- | ----------------------- |
+| TeamSpace/Home    | 연결 | `/api/team-spaces` 목록                  | 실서버 확인             |
+| TeamCreate        | 연결 | 추천/검색, 생성, 멤버 추가               | 부분 실패 확인          |
+| ProjectDetail     | 연결 | 공지 상세 재조회, 할 일, 일정 목록       | 축약 응답 확인          |
+| AddNotice         | 연결 | title/content/isPinned 등록              | 실서버 확인             |
+| ProjectTodo       | 연결 | 목록·제목/체크 수정·삭제                 | 할 일 상세 API 없음     |
+| AddTodo           | 연결 | title/content/dueDate/sendPush 생성      | 수정은 제목/체크만 지원 |
+| Schedule          | 연결 | startAt/endAt 월별 그룹, 상세 조회       | 수정 UI 미구현          |
+| AddSchedule       | 연결 | 시작/종료 일시 생성                      | content/endAt 수정 계약 |
+| Files             | 연결 | TEAM 업로드·목록·다운로드·이름 변경·삭제 | S3 E2E                  |
+| FriendAdd         | 연결 | type SEARCH/RECOMMEND, 요청 전송         | 두 계정 E2E             |
+| FriendRequestList | 연결 | SENT/RECEIVED, ACCEPT/REJECT/DELETE      | 두 계정 E2E             |
 
-## 마이페이지 계정·설정
+## 마이페이지
 
-| 페이지                | 상태 | 연결된 내용                                       | 다음 작업                             |
-| --------------------- | ---- | ------------------------------------------------- | ------------------------------------- |
-| `MyPage/Main`         | ✅   | 사용자 정보·프로필 표시                           | 실서버 확인                           |
-| `EditProfile`         | 🟡   | 닉네임 수정, 이미지 선택·PROFILES 업로드           | 실서버 이미지 반영 확인                |
-| `Language`            | ✅   | 서버 설정 조회/저장, language/timezone/dateFormat | 다른 기기 동기화 확인                 |
-| `SettingNotification` | ✅   | allowPush/allowEvent                              | 푸시 권한 연동                        |
-| `PrivacySecurity`     | ⚪   | 하위 화면 이동                                    | 없음                                  |
-| `TwoFactorIntro`      | ⚪   | 설정 흐름 안내                                    | 없음                                  |
-| `PasswordCheck`       | ✅   | 현재 비밀번호 재확인                              | 실서버 확인                           |
-| `MethodSelect`        | ✅   | 휴대폰 2FA setup                                  | setup의 SMS 발송 여부 확인            |
-| `VerifyCode`          | ✅   | 2FA 코드 검증·토큰 교체·3분 타이머·재발송         | 재발송 계약 확인                      |
-| `Success`             | ✅   | 검증 성공 후 use2fa 저장                          | 실서버 상태 확인                      |
-| `Management`          | 🟡   | 서버 설정 조회, use2fa 토글                       | 비활성화 재인증 정책 확인             |
-| `DeviceManagement`    | ✅   | 기기 조회, 현재 deviceId 표시, 원격/전체 로그아웃 | 실서버 확인                           |
-| `Trash`               | ✅   | 목록·복구·선택 영구 삭제                          | DELETE body 실서버 확인               |
-| `MarketingConsent`    | ✅   | allowEvent 저장                                   | 세부 채널은 로컬 상태                 |
-| `PermissionSetup`     | ⚪   | 권한 안내 UI                                      | OS 권한 API는 별도                    |
-| `Logout`              | ✅   | 현재 device 서버 로그아웃 후 로컬 세션 삭제       | 실서버 확인                           |
-| `Withdrawal`          | ✅   | 회원 탈퇴와 세션 삭제                             | 실서버 확인                           |
+| 페이지             | 상태 | 연결 내용                     | 확인 필요             |
+| ------------------ | ---- | ----------------------------- | --------------------- |
+| MyPage/Main        | 연결 | `/api/users/me`               | 응답 필드 확인        |
+| EditProfile        | 연결 | nickname, PROFILE 이미지      | S3 E2E                |
+| Language/알림 설정 | 연결 | `/api/users/me/settings`      | 기기 간 동기화        |
+| PasswordCheck      | 연결 | password 단독 Body            | 실서버 확인           |
+| 2FA 설정           | 연결 | SETUP → SEND → VERIFY         | VERIFY 토큰 응답 확인 |
+| DeviceManagement   | 부분 | 현재 기기 표시, 전체 로그아웃 | 기기 목록 GET 없음    |
+| Trash              | 연결 | `/api/trash` 목록·복구·삭제   | DELETE Body 확인      |
+| Logout             | 연결 | type CURRENT                  | 실서버 확인           |
+| Withdrawal         | 연결 | `DELETE /api/users/me`        | 실서버 확인           |
 
-## 마이페이지 서비스
+## 서비스
 
-| 페이지              | 상태 | 연결된 내용                   | 다음 작업                          |
-| ------------------- | ---- | ----------------------------- | ---------------------------------- |
-| `CustomerCenter`    | ⚪   | 하위 화면 이동                | 없음                               |
-| `Inquiry`           | 🟡   | ONE_ON_ONE 등록, 실제 파일 선택·검증 UI | 문의 첨부 Presigned prefix 확정 후 업로드 |
-| `InquiryHistory`    | ✅   | 목록·상태·답변·접수/수정 시각 | 실서버 확인                        |
-| `ServiceSuggestion` | ✅   | SUGGESTION 등록               | 글자 수 서버 검증                  |
-| `FAQ`               | ⚪   | 정적 FAQ                      | 서버 관리형이면 API 필요           |
-| `Notice`            | 🔴   | 더미 제거 후 빈 상태만 표시   | 별도 서비스 공지 API 필요          |
-| `PhoneInquiry`      | ⚪   | `tel:` 연결                   | 운영 번호 관리 방식 확정           |
+| 페이지            | 상태 | 연결 내용                           | 확인 필요                 |
+| ----------------- | ---- | ----------------------------------- | ------------------------- |
+| Inquiry           | 연결 | `/api/inquiries` ONE_ON_ONE         | ERD attachment_url 불일치 |
+| InquiryHistory    | 연결 | `/api/inquiries/me`, 축약 응답 대응 | 실서버 필드 확인          |
+| ServiceSuggestion | 연결 | SUGGESTION 등록                     | 500자 검증                |
+| Notice            | 연결 | `/api/service-notices`              | 상세 내용 제공 여부       |
+| FAQ               | 로컬 | 정적 FAQ, 파일 10/30MB 표시         | 없음                      |
+| PhoneInquiry      | 로컬 | tel 링크                            | 운영 번호                 |
 
-## API 함수만 준비된 기능
+## 검증
 
-- 개인 월별 일정 `GET /api/schedules/user/{userId}`
-- 공지 상세 `GET /api/team-notices/{noticeId}`
-- 팀원 추가, 역할 변경, 제거
-- 일정 수정, 삭제
-- Presigned URL 전체 업로드 순서와 메모/팀 파일 메타 저장은 화면에서 사용 중
-
-일정 수정 더미 화면과 `EditSchedule` 라우트는 상세 계약 확정 전까지 제거했다.
-
-## 다음 작업 우선순위
-
-1. 백엔드 개발 Base URL과 테스트 계정으로 인증 E2E
-2. 메모·팀·친구·설정 주요 플로우 E2E
-3. Presigned URL Header·CORS·제한을 실서버에서 검증
-4. 일정 상세 응답 계약 확정 후 EditSchedule 연결
-5. 팀 검색 결과와 FRIEND/TEAM 알림 딥링크
-
-## 검증 결과
-
-- ESLint: 오류 0, 경고 0
-- Jest: 렌더·API 설정·에러·보안 세션·파일 선택 테스트 23개 통과
-- iOS Metro production bundle: 성공
-- 실제 서버 E2E: 대기
-- iOS/Android 실제 기기: 대기
+- ESLint: 통과
+- Jest: 기존 23개 통과, 7/22 API 계약 테스트 추가
+- iOS 네이티브 빌드: 파일 선택기 추가 시점에 성공
+- 실제 서버 E2E: 서버 미준비로 대기
+- Android: 배포 범위 제외

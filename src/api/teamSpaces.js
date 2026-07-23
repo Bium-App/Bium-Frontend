@@ -10,8 +10,8 @@ export const getTeamSpaceApi = async teamSpaceId => {
   return response.data;
 };
 
-export const getUserTeamSpacesApi = async userId => {
-  const response = await apiClient.get(`/api/team-spaces/user/${userId}`);
+export const getUserTeamSpacesApi = async () => {
+  const response = await apiClient.get('/api/team-spaces');
   return response.data;
 };
 
@@ -25,11 +25,13 @@ export const addTeamMemberApi = async (
   userId,
   role = 'MEMBER',
 ) => {
-  const response = await apiClient.post('/api/team-members', {
-    teamSpaceId: Number(teamSpaceId),
-    userId: Number(userId),
-    role,
-  });
+  const response = await apiClient.post(
+    `/api/team-spaces/${teamSpaceId}/members`,
+    {
+      userId: Number(userId),
+      role,
+    },
+  );
   return response.data;
 };
 
@@ -40,7 +42,7 @@ export const getTeamMembersApi = async teamSpaceId => {
 
 export const updateTeamMemberRoleApi = async (teamMemberId, role) => {
   const response = await apiClient.patch(
-    `/api/team-members/${teamMemberId}/role`,
+    `/api/team-members/${teamMemberId}`,
     null,
     {
       params: { role },
@@ -63,56 +65,56 @@ export const createTeamNoticeApi = async (teamSpaceId, notice) => {
 };
 
 export const getTeamNoticesApi = async teamSpaceId => {
-  const response = await apiClient.get(
-    `/api/team-spaces/${teamSpaceId}/notices`,
-  );
+  const response = await apiClient.get('/api/notices', {
+    params: { teamSpaceId },
+  });
   return response.data;
 };
 
 export const getTeamNoticeApi = async noticeId => {
-  const response = await apiClient.get(`/api/team-notices/${noticeId}`);
+  const response = await apiClient.get(`/api/notices/${noticeId}`);
   return response.data;
 };
 
 export const updateTeamNoticeApi = async (noticeId, notice) => {
-  const response = await apiClient.patch(
-    `/api/team-notices/${noticeId}`,
-    notice,
-  );
+  const response = await apiClient.patch(`/api/notices/${noticeId}`, notice);
   return response.data;
 };
 
 export const deleteTeamNoticeApi = async noticeId => {
-  const response = await apiClient.delete(`/api/team-notices/${noticeId}`);
+  const response = await apiClient.delete(`/api/notices/${noticeId}`);
   return response.data;
 };
 
-export const createTeamTodoApi = async (teamSpaceId, userId, todo) => {
+export const createTeamTodoApi = async (teamSpaceId, todo) => {
   const response = await apiClient.post(
-    `/api/team-todos/team-space/${teamSpaceId}/user/${userId}`,
+    `/api/team-spaces/${teamSpaceId}/todos`,
     todo,
   );
   return response.data;
 };
 
 export const getTeamTodosApi = async teamSpaceId => {
-  const response = await apiClient.get(
-    `/api/team-todos/team-space/${teamSpaceId}`,
-  );
+  const response = await apiClient.get('/api/todos', {
+    params: { teamSpaceId },
+  });
   return response.data;
 };
 
 export const updateTeamTodoApi = async (todoId, todo) => {
-  const response = await apiClient.patch(`/api/team-todos/${todoId}`, todo);
+  const response = await apiClient.patch(`/api/todos/${todoId}`, todo);
   return response.data;
 };
 
-export const toggleTeamTodoApi = async todoId => {
-  const response = await apiClient.patch(`/api/team-todos/${todoId}/check`);
+export const toggleTeamTodoApi = async (todoId, title, isChecked) => {
+  const response = await apiClient.patch(`/api/todos/${todoId}`, {
+    title,
+    isChecked,
+  });
   return response.data;
 };
 
 export const deleteTeamTodoApi = async todoId => {
-  const response = await apiClient.delete(`/api/team-todos/${todoId}`);
+  const response = await apiClient.delete(`/api/todos/${todoId}`);
   return response.data;
 };

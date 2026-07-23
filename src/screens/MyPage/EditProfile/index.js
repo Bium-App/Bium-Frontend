@@ -11,7 +11,7 @@ import Header from '../../../components/Header';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import { useFileSelection } from '../../../hooks/useFileSelection';
 import { uploadSelectedFileApi } from '../../../api/files';
-import { FILE_PREFIXES } from '../../../utils/filePicker';
+import { FILE_DOMAINS } from '../../../utils/filePicker';
 
 import {
   Container,
@@ -58,7 +58,7 @@ export default function EditProfile({ navigation }) {
     try {
       const profileImageUrl = profileImage
         ? await uploadSelectedFileApi({
-            prefix: FILE_PREFIXES.PROFILES,
+            domain: FILE_DOMAINS.PROFILE,
             file: profileImage,
           })
         : user?.profileImageUrl;
@@ -163,25 +163,11 @@ export default function EditProfile({ navigation }) {
             </InputGroup>
 
             <InputGroup>
-              <Label>이름</Label>
-              <Input value={user?.name ?? ''} editable={false} />
-            </InputGroup>
-
-            <InputGroup>
               <Label>이메일</Label>
               <Input
                 value={user?.email ?? ''}
                 editable={false}
                 keyboardType="email-address"
-              />
-            </InputGroup>
-
-            <InputGroup>
-              <Label>전화번호</Label>
-              <Input
-                value={user?.phoneNumber ?? ''}
-                editable={false}
-                keyboardType="phone-pad"
               />
             </InputGroup>
 

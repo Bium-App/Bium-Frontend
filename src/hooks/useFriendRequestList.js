@@ -9,12 +9,13 @@ import {
   getSentFriendRequestsApi,
   rejectFriendRequestApi,
 } from '../api/friends';
-import { getUserId } from '../utils/authStorage';
 import { getApiErrorMessage } from '../utils/apiError';
 
 const mapRequest = request => ({
   id: String(request.requestId),
-  handle: String(request.requesterId ?? request.receiverId),
+  handle: String(
+    request.requesterId ?? request.receiverId ?? request.requestId,
+  ),
   name: request.nickname,
   desc: request.createdAt
     ? `${dayjs(request.createdAt).format('YYYY.MM.DD HH:mm')} 요청`
@@ -33,14 +34,9 @@ export const useFriendRequestList = () => {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const userId = await getUserId();
-      if (!userId) {
-        setErrorMessage('로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
-        return;
-      }
       const [receivedData, sentData] = await Promise.all([
-        getReceivedFriendRequestsApi(userId),
-        getSentFriendRequestsApi(userId),
+        getReceivedFriendRequestsApi(),
+        getSentFriendRequestsApi(),
       ]);
       setReceived(receivedData.map(mapRequest));
       setSent(sentData.map(mapRequest));

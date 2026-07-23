@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { StatusBar, RefreshControl } from 'react-native';
+import { Alert, StatusBar, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
@@ -57,6 +57,7 @@ export default function Timeline({ navigation }) {
     isLoading,
     errorMessage,
     fetchMemos,
+    getMemoDetail,
   } = useTimeline();
   const hasActiveMemos =
     activeTab === 'fire'
@@ -70,15 +71,24 @@ export default function Timeline({ navigation }) {
     }, [fetchMemos]),
   );
 
-  const openMemo = item => {
-    navigation.navigate('MemoEditor', {
-      memoData: {
-        id: item.id,
-        title: item.title,
-        content: item.desc,
-        status: item.status,
-      },
-    });
+  const openMemo = async item => {
+    try {
+      const memo = await getMemoDetail(item.id);
+      navigation.navigate('MemoEditor', {
+        memoData: {
+          id: String(memo.memoId),
+          title: memo.title,
+          content: memo.content,
+          status: memo.status,
+        },
+      });
+    } catch (error) {
+      Alert.alert(
+        '오류',
+        error.response?.data?.message ??
+          '메모 상세 내용을 불러오지 못했습니다.',
+      );
+    }
   };
 
   // 불 메모 렌더링 로직
@@ -110,13 +120,15 @@ export default function Timeline({ navigation }) {
                 <CardDesc>{item.desc}</CardDesc>
               </TextWrapper>
             </CardLeft>
-            <CardRight>
-              <TimerRing>
-                <TimerValue>{item.remainingTime}</TimerValue>
-                <TimerLabel>남음</TimerLabel>
-                <TimerDot />
-              </TimerRing>
-            </CardRight>
+            {item.remainingTime ? (
+              <CardRight>
+                <TimerRing>
+                  <TimerValue>{item.remainingTime}</TimerValue>
+                  <TimerLabel>남음</TimerLabel>
+                  <TimerDot />
+                </TimerRing>
+              </CardRight>
+            ) : null}
           </MemoCard>
         </TimelineRow>
       );

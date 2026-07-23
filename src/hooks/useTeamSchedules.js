@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import dayjs from 'dayjs';
-import { getTeamSchedulesApi } from '../api/schedules';
+import { getScheduleApi, getTeamSchedulesApi } from '../api/schedules';
 
 export const useTeamSchedules = teamSpaceId => {
   const [schedules, setSchedules] = useState([]);
@@ -32,5 +32,10 @@ export const useTeamSchedules = teamSpaceId => {
     }, [fetchSchedules]),
   );
 
-  return { schedules, isLoading, fetchSchedules };
+  return {
+    schedules,
+    isLoading,
+    fetchSchedules,
+    getScheduleDetail: getScheduleApi,
+  };
 };

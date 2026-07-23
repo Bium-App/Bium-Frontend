@@ -1,47 +1,58 @@
 import apiClient from './client';
 
 export const searchFriendsApi = async keyword => {
-  const response = await apiClient.get('/api/friends/search', {
-    params: { keyword },
+  const response = await apiClient.get('/api/friends', {
+    params: { type: 'SEARCH', keyword },
   });
   return response.data;
 };
 
-export const getRecommendedFriendsApi = async userId => {
-  const response = await apiClient.get(`/api/friends/recommend/${userId}`);
+export const getRecommendedFriendsApi = async () => {
+  const response = await apiClient.get('/api/friends', {
+    params: { type: 'RECOMMEND' },
+  });
   return response.data;
 };
 
-export const sendFriendRequestApi = async ({ requesterId, receiverId }) => {
+export const sendFriendRequestApi = async receiverId => {
   const response = await apiClient.post('/api/friends/requests', {
-    requesterId: Number(requesterId),
     receiverId: Number(receiverId),
   });
   return response.data;
 };
 
-export const getReceivedFriendRequestsApi = async userId => {
-  const response = await apiClient.get(
-    `/api/friends/requests/received/${userId}`,
-  );
+export const getReceivedFriendRequestsApi = async () => {
+  const response = await apiClient.get('/api/friends/requests', {
+    params: { type: 'RECEIVED' },
+  });
   return response.data;
 };
 
-export const getSentFriendRequestsApi = async userId => {
-  const response = await apiClient.get(`/api/friends/requests/sent/${userId}`);
+export const getSentFriendRequestsApi = async () => {
+  const response = await apiClient.get('/api/friends/requests', {
+    params: { type: 'SENT' },
+  });
   return response.data;
 };
 
 export const acceptFriendRequestApi = async requestId => {
   const response = await apiClient.patch(
-    `/api/friends/requests/${requestId}/accept`,
+    `/api/friends/requests/${requestId}`,
+    null,
+    {
+      params: { action: 'ACCEPT' },
+    },
   );
   return response.data;
 };
 
 export const rejectFriendRequestApi = async requestId => {
   const response = await apiClient.patch(
-    `/api/friends/requests/${requestId}/reject`,
+    `/api/friends/requests/${requestId}`,
+    null,
+    {
+      params: { action: 'REJECT' },
+    },
   );
   return response.data;
 };

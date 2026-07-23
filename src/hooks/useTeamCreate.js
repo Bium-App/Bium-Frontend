@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { getRecommendedFriendsApi, searchFriendsApi } from '../api/friends';
 import { addTeamMemberApi, createTeamSpaceApi } from '../api/teamSpaces';
-import { getUserId } from '../utils/authStorage';
 
 const mapMember = member => ({
   id: String(member.userId),
@@ -24,9 +23,7 @@ export const useTeamCreate = navigation => {
 
   const fetchRecommended = useCallback(async () => {
     try {
-      const userId = await getUserId();
-      if (!userId) return;
-      const result = await getRecommendedFriendsApi(userId);
+      const result = await getRecommendedFriendsApi();
       setRecommendedMembers(result.map(mapMember));
     } catch (error) {
       Alert.alert(

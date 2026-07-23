@@ -1,24 +1,13 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import dayjs from 'dayjs';
 import { createMemoApi, updateMemoApi } from '../api/memos';
 import { addMemoImageApi, uploadSelectedFileApi } from '../api/files';
 import { useFileSelection } from './useFileSelection';
-import { getUserId } from '../utils/authStorage';
-import { formatApiDateTime } from '../utils/dateTime';
-import { FILE_PREFIXES } from '../utils/filePicker';
-
-const getExpiration = timer => {
-  const hours = Number.parseInt(timer, 10);
-  return Number.isFinite(hours)
-    ? formatApiDateTime(dayjs().add(hours, 'hour'))
-    : null;
-};
+import { FILE_DOMAINS } from '../utils/filePicker';
 
 export const useMemoEditor = initialData => {
   const [title, setTitle] = useState(initialData?.title ?? '');
   const [content, setContent] = useState(initialData?.content ?? '');
-  const [timer, setTimer] = useState(initialData?.timer ?? '24h');
   const [isLoading, setIsLoading] = useState(false);
   const {
     selectedFile: imageFile,
@@ -42,20 +31,10 @@ export const useMemoEditor = initialData => {
           content: content.trim(),
         });
       } else {
-        const userId = await getUserId();
-        if (!userId) {
-          Alert.alert(
-            '오류',
-            '사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.',
-          );
-          return;
-        }
-
-        const createdMemo = await createMemoApi(userId, {
+        const createdMemo = await createMemoApi({
           teamSpaceId: null,
           title: title.trim(),
           content: content.trim(),
-          expiredAt: getExpiration(timer),
           status: 'FIRE',
         });
         savedMemoId = createdMemo.memoId ?? createdMemo.id;
@@ -67,7 +46,7 @@ export const useMemoEditor = initialData => {
             throw new Error('저장된 메모 ID를 확인할 수 없습니다.');
           }
           const imageUrl = await uploadSelectedFileApi({
-            prefix: FILE_PREFIXES.MEMOS,
+            domain: FILE_DOMAINS.MEMO,
             file: imageFile,
           });
           await addMemoImageApi(savedMemoId, imageUrl);
@@ -103,8 +82,6 @@ export const useMemoEditor = initialData => {
     setTitle,
     content,
     setContent,
-    timer,
-    setTimer,
     imageFile,
     isPickingImage,
     selectImage,

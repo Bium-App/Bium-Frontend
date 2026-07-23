@@ -31,6 +31,7 @@ export default function Home({ navigation }) {
     isLoading,
     errorMessage,
     fetchMemos,
+    getMemoDetail,
     changeMemoStatus,
     toggleMemoPin,
     moveMemoToTrash,
@@ -42,15 +43,24 @@ export default function Home({ navigation }) {
     }, [fetchMemos]),
   );
 
-  const openMemoEditor = item => {
-    navigation.navigate('MemoEditor', {
-      memoData: {
-        id: item.id,
-        title: item.MTitle,
-        content: item.MContent,
-        status: item.Status,
-      },
-    });
+  const openMemoEditor = async item => {
+    try {
+      const memo = await getMemoDetail(item.id);
+      navigation.navigate('MemoEditor', {
+        memoData: {
+          id: String(memo.memoId),
+          title: memo.title,
+          content: memo.content,
+          status: memo.status,
+        },
+      });
+    } catch (error) {
+      Alert.alert(
+        '오류',
+        error.response?.data?.message ??
+          '메모 상세 내용을 불러오지 못했습니다.',
+      );
+    }
   };
 
   const confirmTrash = item => {
@@ -144,7 +154,7 @@ export default function Home({ navigation }) {
             item={item}
             onPress={openMemoEditor}
             onMore={openMemoMenu}
-            onPin={memo => toggleMemoPin(memo.id)}
+            onPin={memo => toggleMemoPin(memo.id, memo.isPinned)}
             onStatusChange={(memo, status) => changeMemoStatus(memo.id, status)}
           />
         )}

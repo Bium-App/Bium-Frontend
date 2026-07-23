@@ -32,11 +32,14 @@ export default function Notification({ navigation }) {
   } = useNotification();
 
   const handleOpenNotification = item => {
-    openNotification(item, memoData => {
-      navigation.navigate('MainTabs', {
-        screen: 'MemoEditor',
-        params: { memoData },
-      });
+    openNotification(item, {
+      onMemoReady: memoData => {
+        navigation.navigate('MainTabs', {
+          screen: 'MemoEditor',
+          params: { memoData },
+        });
+      },
+      onNavigate: (screen, params) => navigation.navigate(screen, params),
     });
   };
 

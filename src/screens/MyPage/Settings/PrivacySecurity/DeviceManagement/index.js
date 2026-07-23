@@ -26,7 +26,7 @@ import {
 } from './DeviceManagement.styles';
 
 export default function DeviceManagement({ navigation }) {
-  const { devices, isLoading, fetchDevices, logoutDevice, logoutAllDevices } =
+  const { devices, isLoading, fetchDevices, logoutAllDevices } =
     useDeviceManagement();
 
   const renderDeviceIcon = type => {
@@ -37,21 +37,6 @@ export default function DeviceManagement({ navigation }) {
       return <IcTablet width={50} height={38} color="#000000" />;
     }
     return <IcMobile width={32} height={32} color="#000000" />;
-  };
-
-  const confirmDeviceLogout = device => {
-    Alert.alert(
-      '기기 로그아웃',
-      `${device.name} 기기의 세션을 종료하시겠습니까?`,
-      [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '로그아웃',
-          style: 'destructive',
-          onPress: () => logoutDevice(device.id),
-        },
-      ],
-    );
   };
 
   const confirmLogoutAll = () => {
@@ -111,16 +96,15 @@ export default function DeviceManagement({ navigation }) {
               <DeviceRow
                 key={device.id}
                 isLast={index === devices.length - 1}
-                activeOpacity={device.isCurrent ? 1 : 0.7}
-                disabled={device.isCurrent}
-                onPress={() => confirmDeviceLogout(device)}
+                activeOpacity={1}
+                disabled={true}
               >
                 <DeviceIconWrapper>
                   {renderDeviceIcon(device.type)}
                 </DeviceIconWrapper>
                 <DeviceTextCol>
                   <DeviceName>{device.name}</DeviceName>
-                  <DeviceDesc>마지막 로그인</DeviceDesc>
+                  <DeviceDesc>7/22 명세 기준 현재 기기</DeviceDesc>
                 </DeviceTextCol>
                 <DeviceRightCol>
                   {device.isCurrent ? (

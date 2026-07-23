@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
-import { getUserMemosApi } from '../api/memos';
+import { getMemoApi, getUserMemosApi } from '../api/memos';
 import { getUserId } from '../utils/authStorage';
 import { getApiErrorMessage } from '../utils/apiError';
 
@@ -28,7 +28,7 @@ export const useTimeline = () => {
         setErrorMessage('로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
         return;
       }
-      const memos = await getUserMemosApi(userId);
+      const memos = await getUserMemosApi();
       const mapped = memos.map(memo => ({
         id: String(memo.memoId),
         title: memo.title,
@@ -62,5 +62,6 @@ export const useTimeline = () => {
     isLoading,
     errorMessage,
     fetchMemos,
+    getMemoDetail: getMemoApi,
   };
 };

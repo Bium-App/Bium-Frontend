@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import dayjs from 'dayjs';
 import { createTeamTodoApi, updateTeamTodoApi } from '../api/teamSpaces';
-import { getUserId } from '../utils/authStorage';
 
 export const useAddTodo = (projectId, navigation, initialData) => {
   const initialDueDate = initialData?.dueDate
@@ -27,7 +26,7 @@ export const useAddTodo = (projectId, navigation, initialData) => {
       return;
     }
 
-    if (!todoContent.trim()) {
+    if (!initialData?.id && !todoContent.trim()) {
       Alert.alert('알림', '내용을 입력하세요.');
       return;
     }
@@ -43,14 +42,13 @@ export const useAddTodo = (projectId, navigation, initialData) => {
         sendPush: isTodoNotiEnabled,
       };
       if (initialData?.id) {
-        await updateTeamTodoApi(initialData.id, todo);
+        await updateTeamTodoApi(initialData.id, {
+          title: todo.title,
+          isChecked: initialData.isDone ?? initialData.isChecked ?? false,
+        });
       } else {
-        const userId = await getUserId();
-        if (!userId || !projectId) {
-          Alert.alert('오류', '팀 또는 사용자 정보를 찾을 수 없습니다.');
-          return;
-        }
-        await createTeamTodoApi(projectId, Number(userId), todo);
+        if (!projectId) throw new Error('팀 정보를 찾을 수 없습니다.');
+        await createTeamTodoApi(projectId, todo);
       }
       // 저장 성공 시 이전 화면으로 복귀
       navigation.goBack();

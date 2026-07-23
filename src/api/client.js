@@ -25,10 +25,7 @@ const isPublicAuthRequest = url =>
   [
     '/api/auth/login',
     '/api/auth/signup',
-    '/api/auth/find-id',
-    '/api/auth/code',
-    '/api/auth/verify',
-    '/api/auth/reset-password',
+    '/api/auth/find',
     '/api/auth/refresh',
   ].some(path => url?.startsWith(path));
 

@@ -1,34 +1,28 @@
-import {
-  setupTwoFactorApi,
-  verifyPasswordApi,
-  verifyTwoFactorApi,
-} from '../api/auth';
-import { getUserId, updateTokens } from '../utils/authStorage';
-
-const requireUserId = async () => {
-  const userId = await getUserId();
-  if (!userId) throw new Error('사용자 정보를 찾을 수 없습니다.');
-  return userId;
-};
+import { twoFactorApi, verifyPasswordApi } from '../api/auth';
+import { updateTokens } from '../utils/authStorage';
 
 export const useTwoFactorAuth = () => {
   const verifyCurrentPassword = async password => {
-    const userId = await requireUserId();
-    const result = await verifyPasswordApi({ userId, password });
+    const result = await verifyPasswordApi(password);
     return result.isMatched;
   };
 
   const setupPhone = async phoneNumber => {
-    const userId = await requireUserId();
-    return setupTwoFactorApi({ userId, phoneNumber });
+    await twoFactorApi({ action: 'SETUP', phoneNumber });
+    return twoFactorApi({ action: 'SEND', phoneNumber });
   };
 
-  const verifyCode = async code => {
-    const userId = await requireUserId();
-    const tokens = await verifyTwoFactorApi({ userId, code });
-    await updateTokens(tokens);
+  const sendCode = phoneNumber => twoFactorApi({ action: 'SEND', phoneNumber });
+
+  const verifyCode = async (phoneNumber, code) => {
+    const tokens = await twoFactorApi({
+      action: 'VERIFY',
+      phoneNumber,
+      code,
+    });
+    if (tokens.accessToken && tokens.refreshToken) await updateTokens(tokens);
     return tokens;
   };
 
-  return { verifyCurrentPassword, setupPhone, verifyCode };
+  return { verifyCurrentPassword, setupPhone, sendCode, verifyCode };
 };
