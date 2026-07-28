@@ -1,6 +1,6 @@
 # BlazeMemo 프로젝트 진행 상황
 
-> 기준: API 명세 7/23 V2(V9), ERD 7/23 V2(V7)
+> 기준: API 명세 7/28, ERD 7/28
 >
 > 프론트: React Native iOS
 >
@@ -18,22 +18,26 @@
 - 통합 검색·서비스 공지·문의·알림 연동
 - PROFILE/MEMO/TEAM/INQUIRY Presigned URL 업로드
 - 이미지·문서 네이티브 선택기
-- 7/23 회원가입 `name/email/phoneNumber` 반영
+- 회원가입 `name/email/phoneNumber` 반영
 - FIRE 메모 `expiredAt` 설정과 표시
 - 할 일 전체 필드 수정
 - 일정 content/startAt/endAt 생성·수정·삭제
 - 검색 todo/schedule teamSpaceId 이동
 - 문의 이미지 선택·S3 업로드·attachmentUrl 전송
-- 7/23 V2 API 계약 테스트
+- 7/28 기기 목록·개별 로그아웃 연동
+- 7/28 TEAM_TODO 상세 조회·팀 화면 이동
+- 7/28 알림 읽음 `/read` 경로 반영
+- 7/28 API 계약 테스트
 - ESLint·Jest 30개·iOS 프로덕션 번들 통과
 - Android 배포 범위 제외
 
-## 부분 완료
+## 명세 확정
 
-- TEAM_TODO 알림: todoId만으로 팀 화면을 찾을 수 없음
-- 로그인 기기 관리: 기기 목록 GET이 없음
-- 메모 PIN: value 형식 최종 확인 필요
-- 알림 읽음: `/read` 사용 여부 확인 필요
+- 메모 PIN은 `true/false` 문자열
+- TEAM_TODO는 todo 상세 응답의 `teamSpaceId`로 이동
+- 기기 목록 GET 경로 확정
+- 알림 읽음 `/read` 경로 확정
+- 개발 S3 CORS와 용량 제한 확정
 
 ## 서버 준비 후
 
@@ -50,4 +54,4 @@
 
 - [`API_INTEGRATION.md`](./API_INTEGRATION.md)
 - [`FRONTEND_API_PAGE_STATUS.md`](./FRONTEND_API_PAGE_STATUS.md)
-- [`BACKEND_HANDOFF_7_23.md`](./BACKEND_HANDOFF_7_23.md)
+- [`BACKEND_HANDOFF_7_28.md`](./BACKEND_HANDOFF_7_28.md)

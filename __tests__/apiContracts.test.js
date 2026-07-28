@@ -11,6 +11,7 @@ jest.mock('../src/api/client', () => ({
 import apiClient from '../src/api/client';
 import {
   findAccountApi,
+  getDevicesApi,
   logoutApi,
   logoutDeviceApi,
   signUpApi,
@@ -45,6 +46,7 @@ import {
   addTeamMemberApi,
   createTeamTodoApi,
   getTeamNoticesApi,
+  getTeamTodoApi,
   getTeamTodosApi,
   toggleTeamTodoApi,
 } from '../src/api/teamSpaces';
@@ -75,7 +77,7 @@ beforeEach(() => {
   );
 });
 
-test('7/23 인증 계약을 사용한다', async () => {
+test('7/28 인증·기기 계약을 사용한다', async () => {
   await signUpApi({
     loginId: 'blaze',
     password: 'pw',
@@ -98,6 +100,7 @@ test('7/23 인증 계약을 사용한다', async () => {
   await verifyPasswordApi('pw');
   await twoFactorApi({ action: 'VERIFY', phoneNumber: '010', code: '123456' });
   await logoutApi('ALL');
+  await getDevicesApi();
   await logoutDeviceApi(3);
 
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/find', {
@@ -115,6 +118,7 @@ test('7/23 인증 계약을 사용한다', async () => {
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/logout', null, {
     params: { type: 'ALL' },
   });
+  expect(apiClient.get).toHaveBeenCalledWith('/api/auth/devices');
   expect(apiClient.delete).toHaveBeenCalledWith('/api/auth/devices/3');
 });
 
@@ -149,7 +153,7 @@ test('사용자 API는 토큰 기반 me 경로를 사용한다', async () => {
   expect(apiClient.delete).toHaveBeenCalledWith('/api/users/me');
 });
 
-test('메모와 휴지통 API는 7/23 통합 경로와 만료 필드를 사용한다', async () => {
+test('메모와 휴지통 API는 7/28 통합 경로와 문자열 PIN을 사용한다', async () => {
   await createMemoApi({
     teamSpaceId: null,
     title: '제목',
@@ -217,11 +221,12 @@ test('친구 API는 type과 action 쿼리를 사용한다', async () => {
   );
 });
 
-test('팀 공지와 할 일은 7/23 리소스 경로와 전체 수정 Body를 사용한다', async () => {
+test('팀 공지와 할 일은 7/28 목록·상세·전체 수정 계약을 사용한다', async () => {
   await addTeamMemberApi(2, 8);
   await getTeamNoticesApi(2);
   await createTeamTodoApi(2, { title: '할 일' });
   await getTeamTodosApi(2);
+  await getTeamTodoApi(5);
   await toggleTeamTodoApi(5, {
     title: '할 일',
     content: '내용',
@@ -243,6 +248,7 @@ test('팀 공지와 할 일은 7/23 리소스 경로와 전체 수정 Body를 �
   expect(apiClient.get).toHaveBeenCalledWith('/api/todos', {
     params: { teamSpaceId: 2 },
   });
+  expect(apiClient.get).toHaveBeenCalledWith('/api/todos/5');
   expect(apiClient.patch).toHaveBeenCalledWith('/api/todos/5', {
     title: '할 일',
     content: '내용',
@@ -252,7 +258,7 @@ test('팀 공지와 할 일은 7/23 리소스 경로와 전체 수정 Body를 �
   });
 });
 
-test('일정·문의·공지·알림은 7/23 통합 계약을 사용한다', async () => {
+test('일정·문의·공지·알림은 7/28 통합 계약을 사용한다', async () => {
   const schedule = {
     teamSpaceId: 2,
     title: '회의',
@@ -300,7 +306,7 @@ test('일정·문의·공지·알림은 7/23 통합 계약을 사용한다', asy
   expect(apiClient.get).toHaveBeenCalledWith('/api/inquiries/me');
   expect(apiClient.get).toHaveBeenCalledWith('/api/service-notices');
   expect(apiClient.get).toHaveBeenCalledWith('/api/notifications');
-  expect(apiClient.patch).toHaveBeenCalledWith('/api/notifications/4');
+  expect(apiClient.patch).toHaveBeenCalledWith('/api/notifications/4/read');
 });
 
 test('Presigned URL과 메타데이터 API는 domain·fileType 계약을 사용한다', async () => {

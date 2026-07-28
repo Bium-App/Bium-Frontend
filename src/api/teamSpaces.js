@@ -101,6 +101,11 @@ export const getTeamTodosApi = async teamSpaceId => {
   return response.data;
 };
 
+export const getTeamTodoApi = async todoId => {
+  const response = await apiClient.get(`/api/todos/${todoId}`);
+  return response.data;
+};
+
 export const updateTeamTodoApi = async (todoId, todo) => {
   const response = await apiClient.patch(`/api/todos/${todoId}`, todo);
   return response.data;

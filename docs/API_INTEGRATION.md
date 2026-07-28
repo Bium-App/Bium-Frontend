@@ -1,16 +1,16 @@
 # BlazeMemo API 연동 가이드
 
-> 기준: API 명세 7/23 V2(V9), ERD 7/23 V2(V7)
+> 기준: API 명세 7/28, ERD 7/28
 >
-> 갱신일: 2026-07-23
+> 갱신일: 2026-07-28
 >
 > 배포 대상: React Native iOS
 >
 > 코드 연결 상태와 실제 서버 E2E 완료 상태는 구분한다.
 
 - 화면별 현황: [`FRONTEND_API_PAGE_STATUS.md`](./FRONTEND_API_PAGE_STATUS.md)
-- 백엔드 확인 요청: [`BACKEND_HANDOFF_7_23.md`](./BACKEND_HANDOFF_7_23.md)
-- 전체 진행 상황: [`PROJECT_PROGRESS_7_23.md`](./PROJECT_PROGRESS_7_23.md)
+- 백엔드 E2E 준비: [`BACKEND_HANDOFF_7_28.md`](./BACKEND_HANDOFF_7_28.md)
+- 전체 진행 상황: [`PROJECT_PROGRESS_7_28.md`](./PROJECT_PROGRESS_7_28.md)
 
 ## 1. 공통 통신
 
@@ -26,24 +26,15 @@
 | 토큰 만료     | Access 30분, Refresh 14일                                    |
 | 날짜          | 서버 KST, ISO 8601 직렬화                                    |
 
-## 2. 7/23 V2 변경 적용
+## 2. 7/28 변경 적용
 
-| 영역        | 7/23 V2 규격                                   | 프론트 적용                                   |
-| ----------- | ---------------------------------------------- | --------------------------------------------- |
-| 공통        | 통신·토큰·오류 규격 재명시                     | 기존 공통 client 동작과 일치                  |
-| 회원가입    | `name`, `email`, `phoneNumber`                 | 입력 UI, 유효성 검사, Body 반영               |
-| 내 정보     | `name`, `phoneNumber`, `profileImageUrl` 응답  | 프로필 화면 표시                              |
-| 설정        | 6개 설정 필드                                  | 전체 필드를 GET/PATCH와 로컬 캐시에 동기화    |
-| 메모        | `expiredAt`, `createdAt`, `updatedAt`          | FIRE 메모 만료 설정·남은 시간 표시            |
-| 공지        | 목록에 `content`, 시각 필드                    | 목록 렌더 및 수정 데이터 보존                 |
-| 할 일       | 목록·수정에 전체 필드                          | 내용·마감일·푸시·체크 전체 수정               |
-| 일정        | 생성·수정에 `content/endAt`                    | 생성·상세·수정·삭제 UI 연결                   |
-| 검색        | todo/schedule에 `teamSpaceId`                  | 검색 결과에서 팀 화면 이동                    |
-| 서비스 공지 | `content`                                      | 공지 내용 표시                                |
-| 문의        | `attachmentUrl`, Presigned domain `INQUIRY`    | 이미지 선택·S3 업로드·문의 URL 전송·목록 표시 |
-| 알림        | `createdAt`                                    | 상대 시간 표시                                |
-| 팀 파일     | `fileSize`, `uploadedAt`                       | 파일 정보 표시 데이터 수용                    |
-| S3          | `PROFILE/MEMO/TEAM/INQUIRY`, CORS 및 용량 제한 | 발급 요청과 S3 PUT에 동일 MIME 사용           |
+| 영역         | 7/28 확정 규격                                 | 프론트 적용                                 |
+| ------------ | ---------------------------------------------- | ------------------------------------------- |
+| 로그인 기기  | `GET /api/auth/devices` 추가                   | 전체 기기 목록·현재 기기 구분·개별 로그아웃 |
+| 메모 PIN     | `value=true/false` 문자열                      | Boolean을 문자열로 변환해 Query 전송        |
+| 팀 할 일     | `GET /api/todos/{todoId}`와 `teamSpaceId` 응답 | TEAM_TODO 알림에서 팀 할 일 화면 이동       |
+| 알림 읽음    | `PATCH /api/notifications/{id}/read` 확정      | 읽음 요청 경로 변경                         |
+| S3 개발 버킷 | Origins `*`, Methods `PUT`, Headers `*` 적용   | 동일 MIME PUT·10MB/30MB 선택 제한 유지      |
 
 ## 3. 도메인별 연결
 
@@ -53,6 +44,7 @@
 - `POST /api/auth/login`
 - `POST /api/auth/refresh`
 - `POST /api/auth/logout?type=CURRENT/ALL`
+- `GET /api/auth/devices`
 - `DELETE /api/auth/devices/{deviceId}`
 - `POST /api/auth/find`
 - `POST /api/auth/verify-password`
@@ -82,7 +74,7 @@
 - `GET/DELETE /api/trash`
 - `PATCH /api/trash/{memoId}/restore`
 
-FIRE 메모 생성 시 `expiredAt`을 ISO 8601 날짜로 보낸다. 목록에는 본문이 없으므로 편집 화면 진입 전 상세 API를 다시 호출한다. 수정 Body에는 만료 필드가 없으므로 기존 메모의 만료 시간 변경은 노출하지 않는다.
+FIRE 메모 생성 시 `expiredAt`을 ISO 8601 날짜로 보낸다. 목록에는 본문이 없으므로 편집 화면 진입 전 상세 API를 다시 호출한다. PIN은 `true/false` 문자열로 전송한다. 수정 Body에는 만료 필드가 없으므로 기존 메모의 만료 시간 변경은 노출하지 않는다.
 
 ### 친구
 
@@ -103,9 +95,10 @@ FIRE 메모 생성 시 `expiredAt`을 ISO 8601 날짜로 보낸다. 목록에는
 - `GET/PATCH/DELETE /api/notices/{noticeId}`
 - `POST /api/team-spaces/{teamSpaceId}/todos`
 - `GET /api/todos?teamSpaceId=...`
+- `GET /api/todos/{todoId}`
 - `PATCH/DELETE /api/todos/{todoId}`
 
-할 일 PATCH는 `title`, `content`, `dueDate`, `isChecked`, `sendPush`를 모두 보존해서 전송한다.
+할 일 PATCH는 `title`, `content`, `dueDate`, `isChecked`, `sendPush`를 모두 보존해서 전송한다. 할 일 상세의 `teamSpaceId`는 TEAM_TODO 알림 이동에 사용한다.
 
 ### 일정
 
@@ -122,7 +115,8 @@ FIRE 메모 생성 시 `expiredAt`을 ISO 8601 날짜로 보낸다. 목록에는
 - `POST /api/inquiries`
 - `GET /api/inquiries/me`
 - `GET /api/notifications`
-- `PATCH/DELETE /api/notifications/{notificationId}`
+- `PATCH /api/notifications/{notificationId}/read`
+- `DELETE /api/notifications/{notificationId}`
 
 검색 결과의 notice/todo/schedule `teamSpaceId`를 팀 화면 이동에 사용한다.
 
@@ -152,17 +146,14 @@ GET /api/files/presigned-url
 
 1. 회원가입 7개 필드 저장과 로그인 응답을 확인한다.
 2. Access Token 만료, refresh, 원 요청 재시도를 확인한다.
-3. 내 정보·설정·2FA·현재/전체 로그아웃·탈퇴를 확인한다.
+3. 내 정보·설정·2FA·기기 목록·개별/전체 로그아웃·탈퇴를 확인한다.
 4. 메모 생성·만료·상세·수정·상태·고정·휴지통을 확인한다.
 5. 친구 검색·추천·요청 상태 전이를 두 계정으로 확인한다.
 6. 팀 생성·팀원·공지·할 일 전체 수정·일정 CRUD를 확인한다.
 7. PROFILE/MEMO/TEAM/INQUIRY Presigned URL과 S3 PUT을 확인한다.
-8. 검색 이동·문의·서비스 공지·알림 targetId를 확인한다.
+8. 검색 이동·문의·서비스 공지·5개 알림 targetId를 확인한다.
 9. iOS 시뮬레이터와 실제 기기에서 네트워크·날짜·파일 선택을 확인한다.
 
-## 6. 남은 백엔드 확인
+## 6. 남은 작업
 
-- PIN 변경의 `value`가 `true/false` 문자열이 맞는지
-- TEAM_TODO 알림에서 팀 화면으로 이동할 `teamSpaceId` 또는 todo 상세 API
-- 로그인 기기 목록을 조회할 API
-- 알림 읽음 PATCH가 기본 경로인지 `/{id}/read`인지
+명세상 미확정 API는 없다. 개발 서버가 준비되면 Base URL과 테스트 계정을 받아 실제 응답·인증·S3·딥링크 E2E를 진행한다.

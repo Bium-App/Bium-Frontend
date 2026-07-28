@@ -67,6 +67,11 @@ export const logoutApi = async (type = 'CURRENT') => {
   return response.data;
 };
 
+export const getDevicesApi = async () => {
+  const response = await apiClient.get('/api/auth/devices');
+  return response.data;
+};
+
 export const logoutDeviceApi = async deviceId => {
   const response = await apiClient.delete(`/api/auth/devices/${deviceId}`);
   return response.data;

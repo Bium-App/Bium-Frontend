@@ -9,7 +9,7 @@ import {
   deleteNotificationApi,
 } from '../api/common';
 import { getMemoApi } from '../api/memos';
-import { getTeamNoticeApi } from '../api/teamSpaces';
+import { getTeamNoticeApi, getTeamTodoApi } from '../api/teamSpaces';
 import { getApiErrorMessage } from '../utils/apiError';
 
 dayjs.extend(relativeTime);
@@ -117,10 +117,13 @@ export const useNotification = () => {
         );
         return;
       }
-      Alert.alert(
-        '할 일 이동 준비 중',
-        '7/23 명세에도 todoId 단건 조회 API 또는 teamSpaceId가 없어 팀 할 일 화면으로 이동할 수 없습니다.',
-      );
+      if (notification.notificationType === 'TEAM_TODO') {
+        const todo = await getTeamTodoApi(notification.targetId);
+        onNavigate?.('ProjectTodo', {
+          projectId: String(todo.teamSpaceId),
+          todoId: String(todo.todoId),
+        });
+      }
     } catch (error) {
       Alert.alert(
         '이동 실패',

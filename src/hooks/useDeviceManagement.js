@@ -1,29 +1,53 @@
 import { useCallback, useState } from 'react';
-import { Platform } from 'react-native';
+import dayjs from 'dayjs';
 import { useFocusEffect } from '@react-navigation/native';
-import { logoutApi } from '../api/auth';
+import { getDevicesApi, logoutApi, logoutDeviceApi } from '../api/auth';
 import { clearSession, getDeviceId } from '../utils/authStorage';
+import { getApiErrorMessage } from '../utils/apiError';
+
+const getDeviceType = deviceName => {
+  const normalizedName = deviceName?.toLowerCase() ?? '';
+  if (normalizedName.includes('ipad') || normalizedName.includes('tablet')) {
+    return 'tablet';
+  }
+  if (
+    normalizedName.includes('mac') ||
+    normalizedName.includes('windows') ||
+    normalizedName.includes('pc')
+  ) {
+    return 'laptop';
+  }
+  return 'mobile';
+};
 
 export const useDeviceManagement = () => {
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const fetchDevices = useCallback(async () => {
     setIsLoading(true);
+    setErrorMessage('');
     try {
-      const currentDeviceId = await getDeviceId();
+      const [currentDeviceId, data] = await Promise.all([
+        getDeviceId(),
+        getDevicesApi(),
+      ]);
       setDevices(
-        currentDeviceId
-          ? [
-              {
-                id: currentDeviceId,
-                name: `현재 ${Platform.OS === 'ios' ? 'iOS' : '앱'} 기기`,
-                type: 'mobile',
-                isCurrent: true,
-                time: '',
-              },
-            ]
-          : [],
+        data.map(device => ({
+          id: String(device.deviceId),
+          name: device.deviceName,
+          type: getDeviceType(device.deviceName),
+          isCurrent: String(device.deviceId) === String(currentDeviceId),
+          time: device.lastLoginAt
+            ? dayjs(device.lastLoginAt).format('YYYY.MM.DD HH:mm')
+            : '',
+        })),
+      );
+    } catch (error) {
+      setDevices([]);
+      setErrorMessage(
+        getApiErrorMessage(error, '로그인 기기를 불러오지 못했습니다.'),
       );
     } finally {
       setIsLoading(false);
@@ -36,6 +60,23 @@ export const useDeviceManagement = () => {
     }, [fetchDevices]),
   );
 
+  const logoutDevice = async deviceId => {
+    setIsLoading(true);
+    try {
+      const currentDeviceId = await getDeviceId();
+      const isCurrent = String(deviceId) === String(currentDeviceId);
+      await logoutDeviceApi(deviceId);
+      if (isCurrent) {
+        await clearSession();
+      } else {
+        await fetchDevices();
+      }
+      return isCurrent;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logoutAllDevices = async () => {
     setIsLoading(true);
     try {
@@ -46,5 +87,12 @@ export const useDeviceManagement = () => {
     }
   };
 
-  return { devices, isLoading, fetchDevices, logoutAllDevices };
+  return {
+    devices,
+    isLoading,
+    errorMessage,
+    fetchDevices,
+    logoutDevice,
+    logoutAllDevices,
+  };
 };

@@ -27,7 +27,7 @@ export const getNotificationsApi = async () => {
 
 export const readNotificationApi = async notificationId => {
   const response = await apiClient.patch(
-    `/api/notifications/${notificationId}`,
+    `/api/notifications/${notificationId}/read`,
   );
   return response.data;
 };
