@@ -1,0 +1,87 @@
+import type {NavigatorScreenParams} from '@react-navigation/native';
+import type {EntityId} from './api';
+
+export interface MemoEditorData {
+  id: string;
+  title: string;
+  content: string;
+  status?: string;
+  expiredAt?: string | null;
+  createdAt?: string;
+}
+
+export interface TeamTodoRouteData {
+  todoId?: EntityId;
+  id?: EntityId;
+  title: string;
+  content: string;
+  dueDate: string;
+  isChecked: boolean;
+  sendPush: boolean;
+}
+
+export interface ScheduleRouteData {
+  scheduleId?: EntityId;
+  id?: EntityId;
+  title: string;
+  content: string;
+  startAt: string;
+  endAt: string;
+}
+
+export type MainTabParamList = {
+  Home: undefined;
+  Timeline: undefined;
+  MemoEditor: {memoData?: MemoEditorData} | undefined;
+  TeamSpace: undefined;
+  MyPage: undefined;
+};
+
+export type RootStackParamList = {
+  StartScreen: undefined;
+  Splash: undefined;
+  Login: undefined;
+  SignUp: undefined;
+  FindId: undefined;
+  FindPassword: undefined;
+  MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
+  Search: undefined;
+  Notification: undefined;
+  ProjectDetail: {projectId: EntityId};
+  ProjectTodo: {projectId: EntityId; todoId?: EntityId};
+  Schedule: {projectId: EntityId};
+  Files: {projectId: EntityId};
+  AddNotice: {projectId: EntityId};
+  AddTodo: {projectId: EntityId; todoData?: TeamTodoRouteData};
+  AddSchedule: {
+    projectId: EntityId;
+    scheduleData?: ScheduleRouteData;
+  };
+  FriendAdd: undefined;
+  FriendRequestList: undefined;
+  TeamCreate: undefined;
+  EditProfile: undefined;
+  Language: undefined;
+  SettingNotification: undefined;
+  Privacy: undefined;
+  TwoFactorIntro: undefined;
+  PasswordCheck: undefined;
+  MethodSelect: undefined;
+  VerifyCode: {phoneNumber: string};
+  Success: {phoneNumber: string};
+  Management: undefined;
+  DeviceManagement: undefined;
+  ServiceSuggestion: undefined;
+  PrivacyPolicy: undefined;
+  MarketingConsent: undefined;
+  PermissionSetup: undefined;
+  Trash: undefined;
+  Notice: undefined;
+  CustomerCenter: undefined;
+  Inquiry: undefined;
+  InquiryHistory: undefined;
+  FAQ: undefined;
+  PhoneInquiry: undefined;
+  Logout: undefined;
+  Withdrawal: undefined;
+};

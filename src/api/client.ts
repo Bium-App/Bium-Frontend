@@ -1,7 +1,10 @@
-import axios from 'axios';
-import { Alert } from 'react-native';
-import { API_BASE_URL, API_TIMEOUT_MS } from '../config/api';
-import { resetToLogin } from '../navigation/navigationRef';
+import axios, {
+  type AxiosError,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import {Alert} from 'react-native';
+import {API_BASE_URL, API_TIMEOUT_MS} from '../config/api';
+import {resetToLogin} from '../navigation/navigationRef';
 import {
   clearSession,
   getAccessToken,
@@ -9,6 +12,11 @@ import {
   updateAccessToken,
   updateRefreshToken,
 } from '../utils/authStorage';
+import type {AuthTokens} from '../types/api';
+
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  _retry?: boolean;
+};
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -18,10 +26,10 @@ const apiClient = axios.create({
   },
 });
 
-let refreshRequest = null;
+let refreshRequest: Promise<string> | null = null;
 let didShowSessionExpiredAlert = false;
 
-const isPublicAuthRequest = url =>
+const isPublicAuthRequest = (url?: string) =>
   [
     '/api/auth/login',
     '/api/auth/signup',
@@ -29,26 +37,26 @@ const isPublicAuthRequest = url =>
     '/api/auth/refresh',
   ].some(path => url?.startsWith(path));
 
-const refreshAccessToken = async () => {
+const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) throw new Error('저장된 리프레시 토큰이 없습니다.');
 
-  const response = await axios.post(
+  const response = await axios.post<AuthTokens>(
     `${API_BASE_URL}/api/auth/refresh`,
-    { refreshToken },
+    {refreshToken},
     {
       timeout: API_TIMEOUT_MS,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type': 'application/json'},
     },
   );
 
-  const { accessToken, refreshToken: rotatedRefreshToken } = response.data;
+  const {accessToken, refreshToken: rotatedRefreshToken} = response.data;
   await updateAccessToken(accessToken);
   if (rotatedRefreshToken) await updateRefreshToken(rotatedRefreshToken);
   return accessToken;
 };
 
-const getRefreshedAccessToken = () => {
+const getRefreshedAccessToken = (): Promise<string> => {
   if (!refreshRequest) {
     refreshRequest = refreshAccessToken().finally(() => {
       refreshRequest = null;
@@ -60,7 +68,6 @@ const getRefreshedAccessToken = () => {
 apiClient.interceptors.request.use(async config => {
   const accessToken = await getAccessToken();
   if (accessToken) {
-    config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
@@ -73,8 +80,8 @@ apiClient.interceptors.response.use(
     }
     return response;
   },
-  async error => {
-    const originalRequest = error.config;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as RetryableRequestConfig | undefined;
     const canRefresh =
       error.response?.status === 401 &&
       originalRequest &&
@@ -86,7 +93,6 @@ apiClient.interceptors.response.use(
     originalRequest._retry = true;
     try {
       const accessToken = await getRefreshedAccessToken();
-      originalRequest.headers = originalRequest.headers ?? {};
       originalRequest.headers.Authorization = `Bearer ${accessToken}`;
       didShowSessionExpiredAlert = false;
       return apiClient(originalRequest);

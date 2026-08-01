@@ -1,8 +1,15 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { navigationRef } from './navigationRef';
+import {NavigationContainer} from '@react-navigation/native';
+import {
+  createNativeStackNavigator,
+  type NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
+import {
+  createBottomTabNavigator,
+  type BottomTabBarProps,
+} from '@react-navigation/bottom-tabs';
+import {navigationRef} from './navigationRef';
+import type {MainTabParamList, RootStackParamList} from '../types/navigation';
 
 import StartScreen from '../screens/StartScreen';
 import Splash from '../screens/Splash';
@@ -66,14 +73,16 @@ import PhoneInquiry from '../screens/MyPage/Service/PhoneInquiry';
 import Logout from '../screens/MyPage/account/Logout';
 import Withdrawal from '../screens/MyPage/account/Withdrawal';
 
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
-const renderTabBar = props => <Footer {...props} />;
+const renderTabBar = (props: BottomTabBarProps) => <Footer {...props} />;
+
+const noAnimation: NativeStackNavigationOptions = {animation: 'none'};
 
 function FooterTabs() {
   return (
-    <Tab.Navigator tabBar={renderTabBar} screenOptions={{ headerShown: false }}>
+    <Tab.Navigator tabBar={renderTabBar} screenOptions={{headerShown: false}}>
       <Tab.Screen name="Home" component={Home} />
       <Tab.Screen name="Timeline" component={Timeline} />
       <Tab.Screen name="MemoEditor" component={MemoEditor} />
@@ -88,7 +97,7 @@ export default function Navigation() {
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         initialRouteName="StartScreen"
-        screenOptions={{ headerShown: false }}
+        screenOptions={{headerShown: false}}
       >
         <Stack.Screen name="StartScreen" component={StartScreen} />
         <Stack.Screen name="Splash" component={Splash} />
@@ -104,22 +113,22 @@ export default function Navigation() {
         <Stack.Screen
           name="ProjectDetail"
           component={ProjectDetail}
-          options={{ animation: 'none' }}
+          options={noAnimation}
         />
         <Stack.Screen
           name="ProjectTodo"
           component={ProjectTodo}
-          options={{ animation: 'none' }}
+          options={noAnimation}
         />
         <Stack.Screen
           name="Schedule"
           component={Schedule}
-          options={{ animation: 'none' }}
+          options={noAnimation}
         />
         <Stack.Screen
           name="Files"
           component={Files}
-          options={{ animation: 'none' }}
+          options={noAnimation}
         />
         <Stack.Screen name="AddNotice" component={AddNotice} />
         <Stack.Screen name="AddTodo" component={AddTodo} />
