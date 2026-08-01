@@ -1,4 +1,5 @@
 import React from 'react';
+import type {RootScreenProps} from '../../types/navigation';
 import { Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
@@ -16,7 +17,9 @@ import {
   HelperText,
 } from './FindPassword.styles';
 
-export default function FindPassword({ navigation }) {
+export default function FindPassword({
+  navigation,
+}: RootScreenProps<'FindPassword'>) {
   const { email, setEmail, isLoading, findPassword } = useFindPassword();
 
   const handleFindPassword = () => {

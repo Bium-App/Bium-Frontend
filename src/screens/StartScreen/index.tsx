@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import type {RootScreenProps} from '../../types/navigation';
 import { StatusBar } from 'react-native';
 import {
   clearSession,
@@ -10,7 +11,9 @@ import LogoWhite from '../../assets/icons/logo_white.svg';
 
 import { Container, LogoWrapper, SubTitleText } from './StartScreen.styles';
 
-export default function StartScreen({ navigation }) {
+export default function StartScreen({
+  navigation,
+}: RootScreenProps<'StartScreen'>) {
   useEffect(() => {
     let isMounted = true;
 

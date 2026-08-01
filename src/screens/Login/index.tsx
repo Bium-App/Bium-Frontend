@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import type {RootScreenProps} from '../../types/navigation';
 import { Animated, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
@@ -19,7 +20,7 @@ import {
   LinkDivider,
 } from './Login.styles';
 
-export default function Login({ navigation }) {
+export default function Login({navigation}: RootScreenProps<'Login'>) {
   const { loginId, setLoginId, password, setPassword, isLoading, handleLoginSubmit } = useLogin();
   const fillAnimation = useRef(new Animated.Value(0)).current;
   const pressAnimation = useRef(new Animated.Value(1)).current;

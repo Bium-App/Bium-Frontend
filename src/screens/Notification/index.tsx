@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import type {RootScreenProps} from '../../types/navigation';
 import { TouchableOpacity, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -8,6 +9,7 @@ import IceIcon from '../../assets/icons/ic_ice.svg';
 import Header from '../../components/Header';
 import AsyncState from '../../components/AsyncState';
 import { useNotification } from '../../hooks/useNotification';
+import type {NotificationListItem} from '../../hooks/useNotification';
 import {
   Container,
   ListContainer,
@@ -21,7 +23,9 @@ import {
   DeleteButton,
 } from './Notification.styles';
 
-export default function Notification({ navigation }) {
+export default function Notification({
+  navigation,
+}: RootScreenProps<'Notification'>) {
   const {
     notifications,
     isLoading,
@@ -31,7 +35,7 @@ export default function Notification({ navigation }) {
     deleteNotification,
   } = useNotification();
 
-  const handleOpenNotification = item => {
+  const handleOpenNotification = (item: NotificationListItem) => {
     openNotification(item, {
       onMemoReady: memoData => {
         navigation.navigate('MainTabs', {
@@ -39,7 +43,18 @@ export default function Notification({ navigation }) {
           params: { memoData },
         });
       },
-      onNavigate: (screen, params) => navigation.navigate(screen, params),
+      onNavigate: (screen, params) => {
+        if (screen === 'FriendRequestList') {
+          navigation.navigate(screen);
+        } else if (screen === 'ProjectDetail' && params) {
+          navigation.navigate(screen, {projectId: params.projectId});
+        } else if (screen === 'ProjectTodo' && params) {
+          navigation.navigate(screen, {
+            projectId: params.projectId,
+            todoId: params.todoId,
+          });
+        }
+      },
     });
   };
 

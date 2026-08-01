@@ -32,7 +32,7 @@ export const NotificationCard = styled.TouchableOpacity`
   border-color: #eeeeee;
 `;
 
-export const IconWrapper = styled.View`
+export const IconWrapper = styled.View<{type: 'FIRE' | 'ICE'}>`
   width: 48px;
   height: 48px;
   border-radius: 24px;

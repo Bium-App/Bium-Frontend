@@ -1,9 +1,12 @@
 import React from 'react';
+import type {RootScreenProps} from '../../types/navigation';
 import { TouchableOpacity, FlatList, View, Text, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSearch } from '../../hooks/useSearch';
+import type {SearchResultItem} from '../../hooks/useSearch';
 import AsyncState from '../../components/AsyncState';
+import {getApiResponseMessage} from '../../utils/apiError';
 
 import {
   Container,
@@ -28,7 +31,7 @@ import {
   RecommendSectionHeader,
 } from './Search.styles';
 
-export default function Search({ navigation }) {
+export default function Search({navigation}: RootScreenProps<'Search'>) {
   const insets = useSafeAreaInsets();
 
   const {
@@ -47,14 +50,14 @@ export default function Search({ navigation }) {
     getMemoDetail,
   } = useSearch();
 
-  const onChangeKeyword = text => {
+  const onChangeKeyword = (text: string) => {
     setKeyword(text);
     if (text.length === 0) {
       clearSearch();
     }
   };
 
-  const handleResultPress = async item => {
+  const handleResultPress = async (item: SearchResultItem) => {
     if (item.resultType === 'MEMO') {
       try {
         const memo = await getMemoDetail(item.targetId);
@@ -74,7 +77,7 @@ export default function Search({ navigation }) {
       } catch (error) {
         Alert.alert(
           '오류',
-          error.response?.data?.message ??
+          getApiResponseMessage(error) ??
             '메모 상세 내용을 불러오지 못했습니다.',
         );
       }
@@ -94,7 +97,7 @@ export default function Search({ navigation }) {
     );
   };
 
-  const renderSearchResultItem = ({ item }) => (
+  const renderSearchResultItem = ({item}: {item: SearchResultItem}) => (
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={() => handleResultPress(item)}

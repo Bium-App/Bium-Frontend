@@ -1,5 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StatusBar, Animated, Dimensions, Easing } from 'react-native';
+import type {RootScreenProps} from '../../types/navigation';
+import {
+  StatusBar,
+  Animated,
+  Dimensions,
+  Easing,
+  FlatList,
+  type ViewToken,
+} from 'react-native';
+import type {FunctionComponent} from 'react';
+import type {SvgProps} from 'react-native-svg';
 
 import LogoOrange from '../../assets/icons/logo_orange.svg';
 import OnboardingFire from '../../assets/icons/onboarding_fire.svg';
@@ -29,7 +39,15 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const SPLASH_DATA = [
+export interface SplashItem {
+  id: string;
+  title: string;
+  titleColor: string;
+  subtitle: string;
+  Icon: FunctionComponent<SvgProps>;
+}
+
+const SPLASH_DATA: SplashItem[] = [
   {
     id: '1',
     title: '딸깍',
@@ -60,9 +78,9 @@ const SPLASH_DATA = [
   }
 ];
 
-export default function Splash({ navigation }) {
+export default function Splash({navigation}: RootScreenProps<'Splash'>) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const flatListRef = useRef(null);
+  const flatListRef = useRef<FlatList<SplashItem>>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
 
   const contentAnim = useRef({
@@ -75,7 +93,7 @@ export default function Splash({ navigation }) {
   const iceAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    let anim = null;
+    let anim: Animated.CompositeAnimation | null = null;
     
     const animateContent = () => {
       contentAnim.scale.setValue(0.85);
@@ -139,11 +157,13 @@ export default function Splash({ navigation }) {
     };
   }, [fireAnim, iceAnim]);
 
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+  const onViewableItemsChanged = useRef(
+    ({viewableItems}: {viewableItems: ViewToken<SplashItem>[]}) => {
     if (viewableItems.length > 0) {
-      setCurrentIndex(viewableItems[0].index);
+      setCurrentIndex(viewableItems[0].index ?? 0);
     }
-  }).current;
+    },
+  ).current;
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
@@ -151,7 +171,7 @@ export default function Splash({ navigation }) {
 
   const handleNext = () => {
     if (currentIndex < SPLASH_DATA.length - 1) {
-      flatListRef.current.scrollToIndex({
+      flatListRef.current?.scrollToIndex({
         index: currentIndex + 1,
         animated: true,
       });
@@ -160,7 +180,7 @@ export default function Splash({ navigation }) {
     }
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}: {item: SplashItem}) => {
     const { Icon } = item;
 
     const fireTranslateY = fireAnim.interpolate({
@@ -252,7 +272,7 @@ export default function Splash({ navigation }) {
         ref={flatListRef}
         data={SPLASH_DATA}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item: SplashItem) => item.id}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}

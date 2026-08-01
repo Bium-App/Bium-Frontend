@@ -52,7 +52,8 @@ export const SubmitButton = styled.TouchableOpacity`
   border-radius: 8px;
   justify-content: center;
   align-items: center;
-  margin-top: 8px;
+  margin-top: 16px;
+  margin-bottom: 24px;
 `;
 
 export const SubmitButtonText = styled.Text`
@@ -61,70 +62,20 @@ export const SubmitButtonText = styled.Text`
   color: #FFFFFF;
 `;
 
-export const DividerRow = styled.View`
+export const LinksRow = styled.View`
   flex-direction: row;
-  align-items: center;
-  margin-top: 32px;
-  margin-bottom: 24px;
-`;
-
-export const DividerLine = styled.View`
-  flex: 1;
-  height: 1px;
-  background-color: #EEEEEE;
-`;
-
-export const DividerText = styled.Text`
-  font-size: 12px;
-  color: #000000;
-  margin-horizontal: 16px;
-  font-weight: 500;
-`;
-
-export const VerificationRow = styled.View`
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 8px;
-`;
-
-export const VerificationInput = styled.TextInput`
-  flex: 1;
-  height: 52px;
-  border-width: 1px;
-  border-color: #AAAAAA;
-  border-radius: 8px;
-  padding-horizontal: 16px;
-  font-size: 15px;
-  color: #000000;
-  background-color: #FFFFFF;
-`;
-
-export const TimerText = styled.Text`
-  font-size: 13px;
-  color: #FF8933;
-  margin-left: 12px;
-`;
-
-export const ResendButton = styled.TouchableOpacity`
-  height: 36px;
-  padding-horizontal: 12px;
-  border-width: 1px;
-  border-color: #FF8933;
-  border-radius: 4px;
   justify-content: center;
   align-items: center;
-  margin-left: 12px;
-  background-color: #FFFFFF;
+  margin-top: 8px;
 `;
 
-export const ResendButtonText = styled.Text`
-  font-size: 13px;
-  color: #FF8933;
-`;
-
-export const HelperText = styled.Text`
-  font-size: 11px;
+export const LinkText = styled.Text`
+  font-size: 14px;
   color: #000000;
-  margin-left: 4px;
-  margin-bottom: 24px;
+  margin-horizontal: 15px;
+`;
+
+export const LinkDivider = styled.Text`
+  color: #BBBBBB;
+  font-size: 12px;
 `;

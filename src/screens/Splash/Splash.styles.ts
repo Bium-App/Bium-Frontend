@@ -1,8 +1,12 @@
 import styled from 'styled-components/native';
-import { Dimensions, Animated, Platform } from 'react-native';
+import {Dimensions, Animated, Platform, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import type {SplashItem} from './index';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const AnimatedFlatList = Animated.createAnimatedComponent(
+  FlatList<SplashItem>,
+);
 
 export const Container = styled(SafeAreaView)`
   flex: 1;
@@ -26,7 +30,7 @@ export const SkipText = styled.Text`
   color: #FF8933;
 `;
 
-export const ListContainer = styled(Animated.FlatList).attrs({
+export const ListContainer = styled(AnimatedFlatList).attrs({
   contentContainerStyle: {
     flexGrow: 1,
   },

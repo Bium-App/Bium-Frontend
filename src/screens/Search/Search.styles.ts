@@ -5,7 +5,7 @@ export const Container = styled.View`
   background-color: #FFFFFF;
 `;
 
-export const SearchHeaderContainer = styled.View` 
+export const SearchHeaderContainer = styled.View<{paddingTop: number}>`
   flex-direction: row;
   align-items: center;
   padding-top: ${({ paddingTop }) => paddingTop || 0}px;
@@ -98,7 +98,7 @@ export const ChipDeleteButton = styled.TouchableOpacity`
   margin-left: 6px;
 `;
 
-export const RecommendChip = styled.View`
+export const RecommendChip = styled.TouchableOpacity`
   flex-direction: row;
   align-items: center;
   background-color: #F8F9FA;

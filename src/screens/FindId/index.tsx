@@ -1,4 +1,5 @@
 import React from 'react';
+import type {RootScreenProps} from '../../types/navigation';
 import { Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
@@ -18,7 +19,7 @@ import {
   LinkDivider,
 } from './FindId.styles';
 
-export default function FindId({ navigation }) {
+export default function FindId({navigation}: RootScreenProps<'FindId'>) {
   const { email, setEmail, isLoading, findLoginId } = useFindId();
 
   const handleSubmit = () => {

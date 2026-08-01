@@ -1,4 +1,5 @@
 import React from 'react';
+import type {RootScreenProps} from '../../types/navigation';
 import { TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
@@ -18,7 +19,7 @@ import {
   LoginLinkText,
 } from './SignUp.styles';
 
-export default function SignUp({ navigation }) {
+export default function SignUp({navigation}: RootScreenProps<'SignUp'>) {
   // 기존 useState -> 훅에서 상태와 함수를 모두 가져옴
   const {
     loginId,

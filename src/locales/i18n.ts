@@ -1,4 +1,5 @@
 import i18n from 'i18next';
+import type {LanguageDetectorAsyncModule} from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -33,25 +34,19 @@ const resources = {
 };
 
 // 2. 사용자가 이전에 저장한 언어 설정이 있는지 확인하는 로직
-const languageDetector = {
+const languageDetector: LanguageDetectorAsyncModule = {
   type: 'languageDetector',
   async: true,
-  detect: async (callback) => {
-    try {
-      const savedLanguage = await AsyncStorage.getItem('userLanguage');
-      if (savedLanguage) {
-        return callback(savedLanguage);
-      }
-      return callback('ko'); // 기본값은 한국어
-    } catch (error) {
-      return callback('ko');
-    }
+  detect: callback => {
+    AsyncStorage.getItem('userLanguage')
+      .then(savedLanguage => callback(savedLanguage || 'ko'))
+      .catch(() => callback('ko'));
   },
   init: () => {},
-  cacheUserLanguage: async (language) => {
+  cacheUserLanguage: async (language: string) => {
     try {
       await AsyncStorage.setItem('userLanguage', language);
-    } catch (error) {}
+    } catch {}
   }
 };
 
