@@ -6,7 +6,7 @@ import {getApiResponseMessage, getErrorMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
 import type {RootStackParamList} from '../types/navigation';
 
-type Navigation = NativeStackNavigationProp<RootStackParamList>;
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'AddNotice'>;
 
 export const useAddNotice = (
   teamSpaceId: EntityId | undefined,

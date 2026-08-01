@@ -7,7 +7,7 @@ import {getApiResponseMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
 import type {RootStackParamList, TeamTodoRouteData} from '../types/navigation';
 
-type Navigation = NativeStackNavigationProp<RootStackParamList>;
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'AddTodo'>;
 
 export const useAddTodo = (
   projectId: EntityId | undefined,

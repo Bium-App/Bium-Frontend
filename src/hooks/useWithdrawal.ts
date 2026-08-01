@@ -6,7 +6,7 @@ import {clearSession, getUserId} from '../utils/authStorage';
 import {getApiResponseMessage} from '../utils/apiError';
 import type {RootStackParamList} from '../types/navigation';
 
-type Navigation = NativeStackNavigationProp<RootStackParamList>;
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'Withdrawal'>;
 
 export const useWithdrawal = (navigation: Navigation) => {
   const [isAgreed, setIsAgreed] = useState(false);

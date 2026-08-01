@@ -6,7 +6,7 @@ import {clearSession} from '../utils/authStorage';
 import {getApiResponseMessage} from '../utils/apiError';
 import type {RootStackParamList} from '../types/navigation';
 
-type Navigation = NativeStackNavigationProp<RootStackParamList>;
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'Logout'>;
 
 export const useLogout = (navigation: Navigation) => {
   const [isLoading, setIsLoading] = useState(false);

@@ -8,7 +8,7 @@ import {getApiResponseMessage} from '../utils/apiError';
 import {useFileSelection} from './useFileSelection';
 import type {RootStackParamList} from '../types/navigation';
 
-type Navigation = NativeStackNavigationProp<RootStackParamList>;
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'Inquiry'>;
 
 interface InquiryIconProps {
   width?: number;

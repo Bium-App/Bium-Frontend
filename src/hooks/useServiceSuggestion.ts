@@ -5,7 +5,10 @@ import {createInquiryApi} from '../api/common';
 import {getApiResponseMessage} from '../utils/apiError';
 import type {RootStackParamList} from '../types/navigation';
 
-type Navigation = NativeStackNavigationProp<RootStackParamList>;
+type Navigation = NativeStackNavigationProp<
+  RootStackParamList,
+  'ServiceSuggestion'
+>;
 
 export const useServiceSuggestion = (navigation: Navigation) => {
   const [suggestion, setSuggestion] = useState('');

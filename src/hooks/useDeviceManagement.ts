@@ -6,7 +6,7 @@ import {clearSession, getDeviceId} from '../utils/authStorage';
 import {getApiErrorMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
 
-type DeviceType = 'mobile' | 'tablet' | 'laptop';
+export type DeviceType = 'mobile' | 'tablet' | 'laptop';
 
 export interface DeviceListItem {
   id: string;
