@@ -7,7 +7,7 @@ import {getApiResponseMessage} from '../utils/apiError';
 import type {FriendUser} from '../types/friend';
 import type {RootStackParamList} from '../types/navigation';
 
-type Navigation = NativeStackNavigationProp<RootStackParamList>;
+type Navigation = NativeStackNavigationProp<RootStackParamList, 'TeamCreate'>;
 
 export interface TeamMemberOption {
   id: string;
