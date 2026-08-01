@@ -15,8 +15,9 @@ export interface TeamTodoRouteData {
   id?: EntityId;
   title: string;
   content: string;
-  dueDate: string;
-  isChecked: boolean;
+  dueDate: string | null;
+  isChecked?: boolean;
+  isDone?: boolean;
   sendPush: boolean;
 }
 
