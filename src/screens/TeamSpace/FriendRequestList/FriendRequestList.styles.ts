@@ -122,3 +122,9 @@ export const ActionBtnText = styled.Text<{
   color: ${({ isOutline, colorType }) =>
     isOutline ? (colorType === 'gray' ? '#000000' : '#FF8933') : '#FFFFFF'};
 `;
+
+export const EmptyRequestText = styled.Text`
+  text-align: center;
+  padding: 20px;
+  color: #aaaaaa;
+`;

@@ -1,6 +1,6 @@
 import type {ApiMutationResponse, EntityId} from './api';
 import type {MemoSummary} from './memo';
-import type {Schedule} from './schedule';
+import type {ScheduleSummary} from './schedule';
 import type {TeamNotice, TeamTodo} from './teamSpace';
 
 export interface SearchResponse {
@@ -10,7 +10,7 @@ export interface SearchResponse {
   >;
   todos?: Array<Partial<TeamTodo> & Pick<TeamTodo, 'todoId' | 'title'>>;
   schedules?: Array<
-    Partial<Schedule> & Pick<Schedule, 'scheduleId' | 'title'>
+    Partial<ScheduleSummary> & Pick<ScheduleSummary, 'scheduleId' | 'title'>
   >;
 }
 
@@ -31,9 +31,11 @@ export interface CreateInquiryRequest {
   attachmentUrl: string | null;
 }
 
+export type InquiryStatus = 'WAITING' | 'ANSWERED';
+
 export interface Inquiry extends CreateInquiryRequest {
   inquiryId: EntityId;
-  status?: 'PENDING' | 'ANSWERED' | string;
+  status: InquiryStatus;
   response?: string | null;
   createdAt?: string;
   updatedAt?: string;

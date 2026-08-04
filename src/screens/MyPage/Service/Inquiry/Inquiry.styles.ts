@@ -1,5 +1,9 @@
 import styled from 'styled-components/native';
 
+export const FormLayer = styled.View`
+  z-index: 1;
+`;
+
 export const Container = styled.View`
   flex: 1;
   background-color: #FFFFFF;

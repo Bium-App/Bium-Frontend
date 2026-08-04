@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar, ScrollView, Text, RefreshControl } from 'react-native';
+import {StatusBar, ScrollView, RefreshControl} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Header from '../../../components/Header';
@@ -27,6 +27,7 @@ import {
   ActionBottomRow,
   ActionBtn,
   ActionBtnText,
+  EmptyRequestText,
 } from './FriendRequestList.styles';
 
 type FriendRequestListScreenProps = NativeStackScreenProps<
@@ -99,11 +100,9 @@ export default function FriendRequestList({
           <>
             <SectionTitle isFirst={true}>받은 요청</SectionTitle>
             {filteredReceived.length === 0 ? (
-              <Text
-                style={{ textAlign: 'center', padding: 20, color: '#AAAAAA' }}
-              >
+              <EmptyRequestText>
                 받은 요청이 없습니다.
-              </Text>
+              </EmptyRequestText>
             ) : (
               filteredReceived.map(req => (
                 <RequestCard key={`received-${req.id}`}>
@@ -150,11 +149,9 @@ export default function FriendRequestList({
 
             <SectionTitle isFirst={false}>보낸 요청</SectionTitle>
             {filteredSent.length === 0 ? (
-              <Text
-                style={{ textAlign: 'center', padding: 20, color: '#AAAAAA' }}
-              >
+              <EmptyRequestText>
                 보낸 요청이 없습니다.
-              </Text>
+              </EmptyRequestText>
             ) : (
               filteredSent.map(req => (
                 <RequestCard key={`sent-${req.id}`}>

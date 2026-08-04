@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type {RootScreenProps} from '../../../../types/navigation';
-import { TouchableOpacity, Text, Alert, RefreshControl } from 'react-native';
+import {TouchableOpacity, Alert, RefreshControl} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header'; // 💡 항상 공통 컴포넌트로 분리해서 사용하는 헤더
 import IcFire from '../../../../assets/icons/ic_fire.svg';
@@ -11,6 +11,8 @@ import {
   SelectAllBar,
   SelectAllButton,
   SelectText,
+  HeaderEditText,
+  SelectedCountText,
   ScrollContainer,
   Card,
   CardInner,     
@@ -26,7 +28,7 @@ import {
   RestoreButton,
   RestoreText,
   DeleteButton,
-  DeleteText
+  DeleteText,
 } from './Trash.styles';
 
 export default function Trash({navigation}: RootScreenProps<'Trash'>) {
@@ -104,9 +106,9 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
               setSelectedIds([]);       
             }}
           >
-            <Text style={{ fontSize: 15, color: '#FF8933', fontWeight: '500' }}>
+            <HeaderEditText>
               {isEditMode ? '취소' : '편집'}
-            </Text>
+            </HeaderEditText>
           </TouchableOpacity>
         }
       />
@@ -123,9 +125,9 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
             />
             <SelectText>전체</SelectText>
           </SelectAllButton>
-          <SelectText style={{ fontWeight: '400', marginLeft: 16 }}> 
+          <SelectedCountText>
             {selectedIds.length}개 선택됨
-          </SelectText>
+          </SelectedCountText>
         </SelectAllBar>
       )}
       
@@ -183,7 +185,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
           <RestoreButton 
             onPress={() => handleAction('restore')} 
             disabled={selectedIds.length === 0 || isLoading} 
-            style={{ opacity: selectedIds.length === 0 ? 0.3 : 1 }} // 0개일 때는 흐리게(0.3) 처리하여 시각적으로도 막아둠
+            $disabled={selectedIds.length === 0}
           >
             <RestoreText>복구({selectedIds.length})</RestoreText>
           </RestoreButton>
@@ -191,7 +193,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
           <DeleteButton 
             onPress={() => handleAction('delete')} 
             disabled={selectedIds.length === 0 || isLoading}
-            style={{ opacity: selectedIds.length === 0 ? 0.3 : 1 }}
+            $disabled={selectedIds.length === 0}
           >
             <DeleteText>삭제({selectedIds.length})</DeleteText>
           </DeleteButton>

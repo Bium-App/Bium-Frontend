@@ -1,4 +1,5 @@
 const SUPPORTED_API_ENVIRONMENTS = new Set(['local', 'aws', 'production']);
+const DEFAULT_AWS_API_BASE_URL = 'http://13.124.250.181:8080';
 
 const inlineApiConfiguration = ({ types }) => ({
   name: 'inline-blazememo-api-configuration',
@@ -34,7 +35,10 @@ module.exports = api => {
   const defaultEnvironment =
     process.env.NODE_ENV === 'production' ? 'production' : 'local';
   const apiEnvironment = process.env.BLAZE_API_ENV || defaultEnvironment;
-  const apiBaseUrl = (process.env.BLAZE_API_BASE_URL || '').trim();
+  const configuredApiBaseUrl = (process.env.BLAZE_API_BASE_URL || '').trim();
+  const apiBaseUrl =
+    configuredApiBaseUrl ||
+    (apiEnvironment === 'aws' ? DEFAULT_AWS_API_BASE_URL : '');
 
   if (!SUPPORTED_API_ENVIRONMENTS.has(apiEnvironment)) {
     throw new Error(

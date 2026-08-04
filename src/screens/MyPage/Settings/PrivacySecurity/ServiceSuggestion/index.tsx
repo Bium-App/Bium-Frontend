@@ -1,6 +1,6 @@
 import React from 'react';
 import type {RootScreenProps} from '../../../../../types/navigation';
-import { TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import {TouchableOpacity, Platform} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../../components/Header';
 import ImgSuggestion from '../../../../../assets/icons/img_suggestion.svg';
@@ -19,6 +19,7 @@ import {
   CharCountText,
   SubmitButton,
   SubmitButtonText,
+  KeyboardContainer,
 } from './ServiceSuggestion.styles';
 
 export default function ServiceSuggestion({navigation}: RootScreenProps<'ServiceSuggestion'>) {
@@ -46,8 +47,7 @@ export default function ServiceSuggestion({navigation}: RootScreenProps<'Service
         title="서비스 개선 제안"
       />
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
+      <KeyboardContainer
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollContainer showsVerticalScrollIndicator={false}>
@@ -91,7 +91,7 @@ export default function ServiceSuggestion({navigation}: RootScreenProps<'Service
             <SubmitButtonText>제출하기</SubmitButtonText>
           </SubmitButton>
         </ScrollContainer>
-      </KeyboardAvoidingView>
+      </KeyboardContainer>
     </Container>
   );
 }

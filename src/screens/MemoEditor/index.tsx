@@ -66,9 +66,7 @@ const TimerButton = ({
 }: TimerButtonProps) => (
   <TimerButtonWrapper>
     <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={disabled}>
-      <AnimatedTimerBox
-        style={{ backgroundColor: active ? '#FF8933' : '#FFFFFF' }}
-      >
+      <AnimatedTimerBox $active={active}>
         <TimerButtonText active={active}>{title}</TimerButtonText>
       </AnimatedTimerBox>
     </TouchableOpacity>
@@ -233,7 +231,7 @@ export default function MemoEditor({
               </ToolGroup>
             </ToolbarRow>
             <ToolbarRowDivider />
-            <ToolbarRow style={{justifyContent: 'flex-start'}}>
+            <ToolbarRow $alignStart={true}>
               <FormatGroup>
                 <ToolButton
                   active={format.bold}

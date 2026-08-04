@@ -105,10 +105,11 @@ export const ToolbarBox = styled.View`
   background-color: #ffffff;
 `;
 
-export const ToolbarRow = styled.View`
+export const ToolbarRow = styled.View<{$alignStart?: boolean}>`
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: ${({$alignStart}) =>
+    $alignStart ? 'flex-start' : 'space-between'};
 `;
 
 export const ToolbarRowDivider = styled.View`
@@ -265,7 +266,7 @@ export const TimerButtonWrapper = styled.View`
   align-items: center;
 `;
 
-export const AnimatedTimerBox = styled(Animated.View)`
+export const AnimatedTimerBox = styled(Animated.View)<{$active: boolean}>`
   width: 85px;
   height: 33px;
   border-width: 1px;
@@ -273,6 +274,7 @@ export const AnimatedTimerBox = styled(Animated.View)`
   border-radius: 4px;
   justify-content: center;
   align-items: center;
+  background-color: ${({$active}) => ($active ? '#ff8933' : '#ffffff')};
 `;
 
 export const TimerButtonSub = styled.Text`

@@ -39,6 +39,11 @@ export const ProfileImageWrapper = styled.View`
   overflow: hidden;
 `;
 
+export const ProfileImage = styled.Image`
+  width: 100%;
+  height: 100%;
+`;
+
 export const BadgeWrapper = styled.TouchableOpacity`
   position: absolute;
   bottom: 0;

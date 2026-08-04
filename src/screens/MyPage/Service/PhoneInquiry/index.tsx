@@ -35,7 +35,7 @@ export default function PhoneInquiry({navigation}: RootScreenProps<'PhoneInquiry
           return Linking.openURL(phoneNumber);
         }
       })
-      .catch(err => console.log('전화 연결 에러:', err));
+      .catch(() => Alert.alert('안내', '전화 연결에 실패했습니다.'));
   };
 
   return (

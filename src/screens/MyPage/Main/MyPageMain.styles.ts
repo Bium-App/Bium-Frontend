@@ -23,6 +23,11 @@ export const ProfileImageWrapper = styled.View`
   overflow: hidden; 
 `;
 
+export const ProfileImage = styled.Image`
+  width: 100%;
+  height: 100%;
+`;
+
 export const UserName = styled.Text`
   font-size: 18px; 
   font-weight: 500;

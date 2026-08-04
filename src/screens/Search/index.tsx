@@ -1,6 +1,6 @@
 import React from 'react';
 import type {RootScreenProps} from '../../types/navigation';
-import { TouchableOpacity, FlatList, View, Text, Alert } from 'react-native';
+import {TouchableOpacity, FlatList, Alert} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSearch } from '../../hooks/useSearch';
@@ -29,6 +29,12 @@ import {
   RecommendChipText,
   RecommendSectionContainer,
   RecommendSectionHeader,
+  SearchResultsContainer,
+  ResultButton,
+  ResultTitle,
+  ResultCategory,
+  ResultDescription,
+  EmptyResultText,
 } from './Search.styles';
 
 export default function Search({navigation}: RootScreenProps<'Search'>) {
@@ -84,47 +90,38 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
       return;
     }
 
-    if (item.teamSpaceId) {
-      navigation.navigate('ProjectDetail', {
-        projectId: String(item.teamSpaceId),
-      });
+    if (!item.teamSpaceId) {
+      Alert.alert(
+        '상세 이동 준비 중',
+        '검색 결과에서 이동할 팀 정보를 확인할 수 없습니다.',
+      );
       return;
     }
 
-    Alert.alert(
-      '상세 이동 준비 중',
-      '검색 결과에서 이동할 팀 정보를 확인할 수 없습니다.',
-    );
+    const projectId = String(item.teamSpaceId);
+    if (item.resultType === 'TODO') {
+      navigation.navigate('ProjectTodo', {
+        projectId,
+        todoId: item.targetId,
+      });
+    } else if (item.resultType === 'SCHEDULE') {
+      navigation.navigate('Schedule', {projectId});
+    } else {
+      navigation.navigate('ProjectDetail', {projectId});
+    }
   };
 
   const renderSearchResultItem = ({item}: {item: SearchResultItem}) => (
-    <TouchableOpacity
+    <ResultButton
       activeOpacity={0.7}
       onPress={() => handleResultPress(item)}
-      style={{
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
-        backgroundColor: '#FFFFFF',
-      }}
     >
-      <Text
-        style={{
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          marginBottom: 4,
-        }}
-      >
-        {item.title}
-      </Text>
-      <Text style={{ fontSize: 12, color: '#FF8933', marginBottom: 4 }}>
-        {item.category}
-      </Text>
-      <Text style={{ fontSize: 14, color: '#888' }} numberOfLines={2}>
+      <ResultTitle>{item.title}</ResultTitle>
+      <ResultCategory>{item.category}</ResultCategory>
+      <ResultDescription numberOfLines={2}>
         {item.desc}
-      </Text>
-    </TouchableOpacity>
+      </ResultDescription>
+    </ResultButton>
   );
 
   return (
@@ -155,7 +152,7 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
 
       {/* 검색 여부에 따른 화면 분기 처리 */}
       {hasSearched ? (
-        <View style={{ flex: 1 }}>
+        <SearchResultsContainer>
           {isSearching || errorMessage ? (
             <AsyncState
               isLoading={isSearching}
@@ -163,11 +160,7 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
               onRetry={() => handleSearchSubmit(keyword)}
             />
           ) : searchResults.length === 0 ? (
-            <Text
-              style={{ textAlign: 'center', marginTop: 50, color: '#AAAAAA' }}
-            >
-              검색 결과가 없습니다.
-            </Text>
+            <EmptyResultText>검색 결과가 없습니다.</EmptyResultText>
           ) : (
             <FlatList
               data={searchResults}
@@ -176,7 +169,7 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
               showsVerticalScrollIndicator={false}
             />
           )}
-        </View>
+        </SearchResultsContainer>
       ) : (
         <>
           <SectionContainer>

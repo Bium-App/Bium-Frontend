@@ -4,7 +4,6 @@ import {
   Alert,
   StatusBar,
   ScrollView,
-  Text,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -15,7 +14,7 @@ import PlusIcon from '../../../assets/icons/ic_plus.svg';
 import { useTeamSchedules } from '../../../hooks/useTeamSchedules';
 import type {RootStackParamList} from '../../../types/navigation';
 import type {EntityId} from '../../../types/api';
-import type {Schedule as TeamSchedule} from '../../../types/schedule';
+import type {ScheduleSummary as TeamSchedule} from '../../../types/schedule';
 import {getApiResponseMessage} from '../../../utils/apiError';
 
 import {
@@ -31,6 +30,7 @@ import {
   SectionTitle,
   SmallAddButton,
   DateHeader,
+  EmptyScheduleText,
   ListCard,
   TouchableListItem,
   ListItemLeft,
@@ -69,7 +69,7 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
       const schedule = await getScheduleDetail(scheduleId);
       navigation.navigate('AddSchedule', {
         projectId,
-        scheduleData: schedule,
+        scheduleData: {...schedule, content: schedule.content ?? ''},
       });
     } catch (error) {
       Alert.alert(
@@ -142,11 +142,9 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
 
           {isLoading ? <ActivityIndicator color="#FF8933" /> : null}
           {!isLoading && !groupedSchedules.length ? (
-            <Text
-              style={{ textAlign: 'center', color: '#AAAAAA', padding: 20 }}
-            >
+            <EmptyScheduleText>
               등록된 일정이 없습니다.
-            </Text>
+            </EmptyScheduleText>
           ) : null}
 
           {groupedSchedules.map(([dateKey, items]) => (

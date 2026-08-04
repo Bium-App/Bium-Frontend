@@ -126,3 +126,38 @@ export const RecommendSectionContainer = styled.View`
 export const RecommendSectionHeader = styled(SectionHeader)`
   margin-bottom: 16px;
 `;
+
+export const SearchResultsContainer = styled.View`
+  flex: 1;
+`;
+
+export const ResultButton = styled.TouchableOpacity`
+  padding: 16px;
+  border-bottom-width: 1px;
+  border-bottom-color: #f0f0f0;
+  background-color: #ffffff;
+`;
+
+export const ResultTitle = styled.Text`
+  font-size: 16px;
+  font-weight: 700;
+  color: #333333;
+  margin-bottom: 4px;
+`;
+
+export const ResultCategory = styled.Text`
+  font-size: 12px;
+  color: #ff8933;
+  margin-bottom: 4px;
+`;
+
+export const ResultDescription = styled.Text`
+  font-size: 14px;
+  color: #888888;
+`;
+
+export const EmptyResultText = styled.Text`
+  text-align: center;
+  margin-top: 50px;
+  color: #aaaaaa;
+`;

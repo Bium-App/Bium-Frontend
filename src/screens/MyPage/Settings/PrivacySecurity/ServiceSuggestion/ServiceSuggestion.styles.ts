@@ -5,6 +5,10 @@ export const Container = styled.View`
   background-color: #FFFFFF;
 `;
 
+export const KeyboardContainer = styled.KeyboardAvoidingView`
+  flex: 1;
+`;
+
 export const ScrollContainer = styled.ScrollView.attrs({
   contentContainerStyle: {
     paddingHorizontal: 24, 

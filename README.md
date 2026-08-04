@@ -19,14 +19,16 @@ yarn start
 ```
 
 API 환경은 Metro를 시작할 때 선택합니다.
+Metro와 iOS 앱은 각각 별도 터미널에서 같은 환경으로 실행합니다.
 
 | 환경 | Metro 실행 | Base URL |
 | --- | --- | --- |
 | 로컬 | `npm run start:local` | iOS `localhost:8080`, Android 에뮬레이터 `10.0.2.2:8080` |
-| AWS 임시 서버 | `BLAZE_API_BASE_URL=http://서버IP:8080 npm run start:aws` | `BLAZE_API_BASE_URL` |
+| AWS 임시 서버 | `npm run start:aws` | `http://13.124.250.181:8080` |
 | 운영 | `BLAZE_API_BASE_URL=https://api.example.com npm run start:production` | `BLAZE_API_BASE_URL` |
 
 환경을 바꿀 때는 실행 중인 Metro를 종료하고 해당 환경 명령으로 다시 시작해야 합니다. 실제 기기는 로컬 PC의 LAN 주소를 주입합니다.
+AWS 주소를 임시로 바꾸려면 `BLAZE_API_BASE_URL`을 명령 앞에 지정할 수 있습니다.
 
 ```sh
 BLAZE_API_BASE_URL=http://192.168.0.10:8080 npm run start:local
@@ -43,7 +45,7 @@ With Metro running, open a new terminal window/pane from the root of your React 
 npm run android
 
 # AWS 환경
-BLAZE_API_BASE_URL=http://서버IP:8080 npm run android:aws
+npm run android:aws
 
 # OR using Yarn
 yarn android
@@ -72,13 +74,17 @@ For more information, please visit [CocoaPods Getting Started guide](https://gui
 npm run ios
 
 # AWS 환경
-BLAZE_API_BASE_URL=http://서버IP:8080 npm run ios:aws
+npm run ios:aws
 
 # OR using Yarn
 yarn ios
 ```
 
+예를 들어 AWS 개발 서버로 실행할 때는 첫 번째 터미널에서 `npm run start:aws`, 두 번째 터미널에서 `npm run ios:aws`를 실행합니다.
+
 If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+
+현재 AWS 개발 서버가 HTTP이므로 iOS ATS의 임시 HTTP 허용 설정을 사용합니다. 출시 전 HTTPS 도메인으로 전환하면서 `NSAllowsArbitraryLoads`를 다시 비활성화해야 합니다.
 
 This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 

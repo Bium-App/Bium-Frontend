@@ -1,8 +1,5 @@
 import {useCallback, useState} from 'react';
 import {Alert} from 'react-native';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import 'dayjs/locale/ko';
 import {
   deleteNotificationApi,
   getNotificationsApi,
@@ -12,30 +9,13 @@ import {getMemoApi} from '../api/memos';
 import {getTeamNoticeApi, getTeamTodoApi} from '../api/teamSpaces';
 import {getApiErrorMessage, getApiResponseMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
-import type {NotificationType} from '../types/common';
 import type {MemoEditorData} from '../types/navigation';
+import {
+  mapNotificationResponse,
+  type NotificationListItem,
+} from '../utils/viewModelMappers';
 
-dayjs.extend(relativeTime);
-dayjs.locale('ko');
-
-const NOTIFICATION_TITLES: Record<NotificationType, string> = {
-  MEMO: '메모 알림',
-  FRIEND_REQUEST: '친구 요청',
-  TEAM_INVITE: '팀 초대',
-  TEAM_NOTICE: '팀 공지',
-  TEAM_TODO: '팀 할 일',
-};
-
-export interface NotificationListItem {
-  id: string;
-  title: string;
-  description: string;
-  time: string;
-  isRead: boolean;
-  targetId?: EntityId | null;
-  notificationType: NotificationType;
-  type: 'FIRE' | 'ICE';
-}
+export type {NotificationListItem} from '../utils/viewModelMappers';
 
 interface NotificationHandlers {
   onMemoReady?: (memoData: MemoEditorData) => void;
@@ -57,20 +37,7 @@ export const useNotification = () => {
     setErrorMessage('');
     try {
       const data = await getNotificationsApi();
-      setNotifications(
-        data.map(notification => ({
-          id: String(notification.notificationId),
-          title: NOTIFICATION_TITLES[notification.type],
-          description: notification.message,
-          time: notification.createdAt
-            ? dayjs(notification.createdAt).fromNow()
-            : '',
-          isRead: notification.isRead,
-          targetId: notification.targetId,
-          notificationType: notification.type,
-          type: notification.type === 'MEMO' ? 'FIRE' : 'ICE',
-        })),
-      );
+      setNotifications(data.map(mapNotificationResponse));
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, '알림을 불러오지 못했습니다.'));
     } finally {

@@ -78,6 +78,12 @@ export const ListCard = styled.View`
   padding: 0 16px; 
 `;
 
+export const EmptyTodoText = styled.Text`
+  text-align: center;
+  padding-vertical: 20px;
+  color: #aaaaaa;
+`;
+
 export const TouchableListItem = styled.TouchableOpacity<{isLast: boolean}>`
   flex-direction: row; 
   align-items: center; 

@@ -12,7 +12,7 @@ import {
   updateAccessToken,
   updateRefreshToken,
 } from '../utils/authStorage';
-import type {AuthTokens} from '../types/api';
+import type {RefreshAccessTokenResponse} from '../types/api';
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -41,7 +41,7 @@ const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) throw new Error('저장된 리프레시 토큰이 없습니다.');
 
-  const response = await axios.post<AuthTokens>(
+  const response = await axios.post<RefreshAccessTokenResponse>(
     `${API_BASE_URL}/api/auth/refresh`,
     {refreshToken},
     {

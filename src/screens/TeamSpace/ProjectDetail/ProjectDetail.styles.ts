@@ -117,6 +117,13 @@ export const ListCard = styled.View`
   padding: 0 16px;
 `;
 
+export const EmptySectionText = styled.Text<{compact?: boolean}>`
+  text-align: center;
+  color: #aaaaaa;
+  margin-top: ${({compact}) => (compact ? 20 : 0)}px;
+  padding-vertical: ${({compact}) => (compact ? 0 : 20)}px;
+`;
+
 export const ListItem = styled.View<{isLast: boolean}>`
   flex-direction: row;
   align-items: center;

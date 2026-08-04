@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, StatusBar, ScrollView, Text } from 'react-native';
+import {Alert, StatusBar, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Header from '../../../components/Header';
@@ -19,6 +19,7 @@ import {
   SectionHeader,
   SectionTitle,
   ListCard,
+  EmptyTodoText,
   TouchableListItem,
   ListIconWrapper,
   ListItemText,
@@ -128,15 +129,9 @@ export default function ProjectTodo({
 
           <ListCard>
             {todos.length === 0 ? (
-              <Text
-                style={{
-                  textAlign: 'center',
-                  paddingVertical: 20,
-                  color: '#AAAAAA',
-                }}
-              >
+              <EmptyTodoText>
                 검색된 할 일이 없습니다.
-              </Text>
+              </EmptyTodoText>
             ) : (
               todos.map((todo, index) => (
                 <TouchableListItem

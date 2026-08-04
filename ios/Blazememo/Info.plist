@@ -28,8 +28,9 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<!-- TODO: 백엔드가 HTTPS로 전환되면 false로 되돌립니다. -->
 		<key>NSAllowsArbitraryLoads</key>
-		<false/>
+		<true/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>

@@ -1,13 +1,13 @@
 import apiClient from './client';
 import type {
   ApiMutationResponse,
-  AuthTokens,
   EntityId,
   FindAccountRequest,
   FindLoginIdResponse,
   LoginDevice,
   LoginRequest,
   LogoutType,
+  RefreshAccessTokenResponse,
   SessionResponse,
   SignUpRequest,
   TwoFactorRequest,
@@ -54,10 +54,11 @@ export const loginApi = async ({
 
 export const refreshAccessTokenApi = async (
   refreshToken: string,
-): Promise<AuthTokens> => {
-  const response = await apiClient.post<AuthTokens>('/api/auth/refresh', {
-    refreshToken,
-  });
+): Promise<RefreshAccessTokenResponse> => {
+  const response = await apiClient.post<RefreshAccessTokenResponse>(
+    '/api/auth/refresh',
+    {refreshToken},
+  );
   return response.data;
 };
 

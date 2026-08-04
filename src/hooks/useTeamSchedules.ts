@@ -5,10 +5,10 @@ import dayjs from 'dayjs';
 import {getScheduleApi, getTeamSchedulesApi} from '../api/schedules';
 import {getApiResponseMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
-import type {Schedule} from '../types/schedule';
+import type {ScheduleSummary} from '../types/schedule';
 
 export const useTeamSchedules = (teamSpaceId?: EntityId) => {
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [schedules, setSchedules] = useState<ScheduleSummary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchSchedules = useCallback(async (): Promise<void> => {

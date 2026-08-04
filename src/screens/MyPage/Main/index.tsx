@@ -1,12 +1,13 @@
 import React from 'react';
 import type {MyPageTabScreenProps} from '../../../types/navigation';
-import { ActivityIndicator, Image, ScrollView } from 'react-native';
+import {ActivityIndicator, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import {
   SafeArea,
   ProfileSection,
   ProfileImageWrapper,
+  ProfileImage,
   UserName,
   EditProfileButton,
   EditProfileText,
@@ -26,10 +27,7 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
         <ProfileSection>
           <ProfileImageWrapper>
             {user?.profileImageUrl ? (
-              <Image
-                source={{ uri: user.profileImageUrl }}
-                style={{ width: '100%', height: '100%' }}
-              />
+              <ProfileImage source={{uri: user.profileImageUrl}} />
             ) : (
               <Icon name="person" size={57} color="#AEAEB2" />
             )}

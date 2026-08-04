@@ -1,6 +1,6 @@
 import React from 'react';
 import type {RootScreenProps} from '../../../../types/navigation';
-import { TouchableOpacity, View } from 'react-native';
+import {TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header';
 import IcMegaphone from '../../../../assets/icons/ic_megaphone-outline.svg';
@@ -35,6 +35,7 @@ import {
   SubmitButtonContainer,
   SubmitButton,
   SubmitText,
+  FormLayer,
 } from './Inquiry.styles';
 
 const INQUIRY_TYPES = [
@@ -175,7 +176,7 @@ export default function Inquiry({navigation}: RootScreenProps<'Inquiry'>) {
           )}
         </DropdownWrapper>
 
-        <View style={{ zIndex: 1 }}>
+        <FormLayer>
           <SectionTitle>제목</SectionTitle>
           <InputWrapper>
             <TitleInput
@@ -212,7 +213,7 @@ export default function Inquiry({navigation}: RootScreenProps<'Inquiry'>) {
             onSelect={selectAttachment}
             onRemove={removeAttachment}
           />
-        </View>
+        </FormLayer>
       </ScrollContainer>
 
       <SubmitButtonContainer>

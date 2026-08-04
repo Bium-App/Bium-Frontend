@@ -11,11 +11,18 @@ export interface CreateScheduleRequest extends ScheduleRequest {
   teamSpaceId?: EntityId | null;
 }
 
-export interface Schedule extends ScheduleRequest {
+export interface ScheduleSummary {
   scheduleId: EntityId;
+  title: string;
+  startAt: string;
+  endAt: string;
   teamSpaceId?: EntityId | null;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ScheduleDetail extends ScheduleSummary {
+  content: string | null;
 }
 
 export interface ScheduleQuery {
@@ -24,4 +31,5 @@ export interface ScheduleQuery {
   teamSpaceId?: EntityId;
 }
 
-export type ScheduleMutationResponse = ApiMutationResponse & Partial<Schedule>;
+export type ScheduleMutationResponse = ApiMutationResponse &
+  Partial<ScheduleDetail>;

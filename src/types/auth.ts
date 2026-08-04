@@ -2,6 +2,7 @@ import type {
   ApiMutationResponse,
   AuthTokens,
   EntityId,
+  RefreshAccessTokenResponse,
   SessionResponse,
 } from './api';
 
@@ -56,5 +57,6 @@ export type {
   ApiMutationResponse,
   AuthTokens,
   EntityId,
+  RefreshAccessTokenResponse,
   SessionResponse,
 };

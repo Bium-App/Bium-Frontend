@@ -81,6 +81,12 @@ export const DateHeader = styled.Text`
   margin-bottom: 8px;
 `;
 
+export const EmptyScheduleText = styled.Text`
+  text-align: center;
+  color: #aaaaaa;
+  padding: 20px;
+`;
+
 export const ListCard = styled.View`
   background-color: #FFFFFF; 
   border-radius: 8px; 

@@ -24,6 +24,17 @@ export const SelectText = styled.Text`
   margin-left: 8px; 
 `;
 
+export const HeaderEditText = styled.Text`
+  font-size: 15px;
+  color: #ff8933;
+  font-weight: 500;
+`;
+
+export const SelectedCountText = styled(SelectText)`
+  font-weight: 400;
+  margin-left: 16px;
+`;
+
 export const ScrollContainer = styled.ScrollView.attrs({
   contentContainerStyle: {
     paddingHorizontal: 20, 
@@ -114,12 +125,12 @@ export const BottomBar = styled.View`
   background-color: #FFFFFF;
   padding-horizontal: 20px;
   padding-top: 16px;
-  padding-bottom: 40px; /
+  padding-bottom: 40px;
   border-top-width: 2px;
   border-top-color: #D9D9D9; /* F0F0F0 - > D9D9D9 */
 `;
 
-export const RestoreButton = styled.TouchableOpacity`
+export const RestoreButton = styled.TouchableOpacity<{$disabled: boolean}>`
   flex: 1;
   height: 57px;
   border-width: 1px;
@@ -128,6 +139,7 @@ export const RestoreButton = styled.TouchableOpacity`
   justify-content: center;
   align-items: center;
   margin-right: 12px; 
+  opacity: ${({$disabled}) => ($disabled ? 0.3 : 1)};
 `;
 
 export const RestoreText = styled.Text`
@@ -136,13 +148,14 @@ export const RestoreText = styled.Text`
   color: #000000;
 `;
 
-export const DeleteButton = styled.TouchableOpacity`
+export const DeleteButton = styled.TouchableOpacity<{$disabled: boolean}>`
   flex: 1; 
   height: 57px;
   background-color: #FF8933; 
   border-radius: 8px;
   justify-content: center;
   align-items: center;
+  opacity: ${({$disabled}) => ($disabled ? 0.3 : 1)};
 `;
 
 export const DeleteText = styled.Text`

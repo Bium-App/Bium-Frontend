@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type {RootScreenProps} from '../../../types/navigation';
 import {
   ActivityIndicator,
-  Alert,
-  Image,
   Platform,
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
-import { useCurrentUser } from '../../../hooks/useCurrentUser';
-import { useFileSelection } from '../../../hooks/useFileSelection';
-import { uploadSelectedFileApi } from '../../../api/files';
-import { FILE_DOMAINS } from '../../../utils/filePicker';
-import {getApiResponseMessage} from '../../../utils/apiError';
+import {useEditProfile} from '../../../hooks/useEditProfile';
 
 import {
   Container,
@@ -22,6 +16,7 @@ import {
   ProfileContainer,
   ProfileImageArea,
   ProfileImageWrapper,
+  ProfileImage,
   BadgeWrapper,
   ProfileActionButton,
   ProfileActionRow,
@@ -36,53 +31,19 @@ import {
 } from './EditProfile.styles';
 
 export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>) {
-  const { user, isLoading, updateProfile } = useCurrentUser();
-  const [nickname, setNickname] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
-    selectedFile: profileImage,
+    user,
+    nickname,
+    setNickname,
+    profileImage,
+    selectProfileImage,
+    removeProfileImage,
     isPicking,
-    selectFile: selectProfileImage,
-    clearFile: removeProfileImage,
-  } = useFileSelection({ kind: 'image' });
-
-  useEffect(() => {
-    setNickname(user?.nickname ?? '');
-  }, [user]);
-
-  const handleSubmit = async () => {
-    if (!nickname.trim()) {
-      Alert.alert('알림', '닉네임을 입력해주세요.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const profileImageUrl = profileImage
-        ? await uploadSelectedFileApi({
-            domain: FILE_DOMAINS.PROFILE,
-            file: profileImage,
-          })
-        : user?.profileImageUrl ?? null;
-      await updateProfile({
-        nickname: nickname.trim(),
-        profileImageUrl,
-      });
-      Alert.alert('완료', '내 정보가 수정되었습니다.', [
-        { text: '확인', onPress: () => navigation.goBack() },
-      ]);
-    } catch (error) {
-      Alert.alert(
-        '오류',
-        getApiResponseMessage(error) ?? '내 정보 수정에 실패했습니다.',
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const isBusy = isLoading || isSubmitting || isPicking;
-  const previewImageUrl = profileImage?.uri ?? user?.profileImageUrl;
+    isSubmitting,
+    isBusy,
+    previewImageUrl,
+    handleSubmit,
+  } = useEditProfile();
 
   return (
     <Container>
@@ -106,10 +67,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             <ProfileImageArea>
               <ProfileImageWrapper>
                 {previewImageUrl ? (
-                  <Image
-                    source={{ uri: previewImageUrl }}
-                    style={{ width: '100%', height: '100%' }}
-                  />
+                  <ProfileImage source={{uri: previewImageUrl}} />
                 ) : (
                   <Icon name="person" size={88} color="#AEAEB2" />
                 )}
@@ -190,7 +148,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             <SubmitButton
               activeOpacity={0.8}
               disabled={isBusy}
-              onPress={handleSubmit}
+              onPress={() => handleSubmit(() => navigation.goBack())}
             >
               {isSubmitting ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />

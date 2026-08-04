@@ -2,10 +2,11 @@ import apiClient from './client';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateScheduleRequest,
-  Schedule,
+  ScheduleDetail,
   ScheduleMutationResponse,
   ScheduleQuery,
   ScheduleRequest,
+  ScheduleSummary,
 } from '../types/schedule';
 
 export const createScheduleApi = async (
@@ -22,8 +23,8 @@ export const getSchedulesApi = async ({
   year,
   month,
   teamSpaceId,
-}: ScheduleQuery): Promise<Schedule[]> => {
-  const response = await apiClient.get<Schedule[]>('/api/schedules', {
+}: ScheduleQuery): Promise<ScheduleSummary[]> => {
+  const response = await apiClient.get<ScheduleSummary[]>('/api/schedules', {
     params: {year, month, ...(teamSpaceId ? {teamSpaceId} : {})},
   });
   return response.data;
@@ -40,8 +41,8 @@ export const getUserSchedulesApi = (year: number, month: number) =>
 
 export const getScheduleApi = async (
   scheduleId: EntityId,
-): Promise<Schedule> => {
-  const response = await apiClient.get<Schedule>(
+): Promise<ScheduleDetail> => {
+  const response = await apiClient.get<ScheduleDetail>(
     `/api/schedules/${scheduleId}`,
   );
   return response.data;

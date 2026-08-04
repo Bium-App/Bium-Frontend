@@ -4,7 +4,6 @@ import {
   StatusBar,
   ScrollView,
   Modal,
-  Text,
   RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -37,6 +36,7 @@ import {
   NoticeDesc,
   NoticeTime,
   ListCard,
+  EmptySectionText,
   ListItem,
   TouchableListItem,
   ListIconWrapper,
@@ -272,15 +272,9 @@ export default function ProjectDetail({
                 </NoticeAddButton>
               </SectionHeader>
               {filteredNotices.length === 0 ? (
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    marginTop: 20,
-                    color: '#AAAAAA',
-                  }}
-                >
+                <EmptySectionText compact={true}>
                   등록된 공지가 없습니다.
-                </Text>
+                </EmptySectionText>
               ) : (
                 filteredNotices.map(notice => (
                   <NoticeCard
@@ -308,15 +302,9 @@ export default function ProjectDetail({
               </SectionHeader>
               <ListCard>
                 {filteredTodos.length === 0 ? (
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      paddingVertical: 20,
-                      color: '#AAAAAA',
-                    }}
-                  >
+                  <EmptySectionText>
                     할 일이 없습니다.
-                  </Text>
+                  </EmptySectionText>
                 ) : (
                   filteredTodos.map((todo, index) => (
                     <TouchableListItem
@@ -359,15 +347,9 @@ export default function ProjectDetail({
               </SectionHeader>
               <ListCard>
                 {filteredSchedules.length === 0 ? (
-                  <Text
-                    style={{
-                      textAlign: 'center',
-                      paddingVertical: 20,
-                      color: '#AAAAAA',
-                    }}
-                  >
+                  <EmptySectionText>
                     등록된 일정이 없습니다.
-                  </Text>
+                  </EmptySectionText>
                 ) : (
                   filteredSchedules.map((schedule, index) => (
                     <ListItem

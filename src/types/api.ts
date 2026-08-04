@@ -15,6 +15,11 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export interface RefreshAccessTokenResponse {
+  accessToken: string;
+  refreshToken?: string;
+}
+
 export interface SessionResponse extends AuthTokens {
   userId: EntityId;
   deviceId?: EntityId;
