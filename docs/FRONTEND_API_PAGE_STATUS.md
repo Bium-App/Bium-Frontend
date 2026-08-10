@@ -6,7 +6,7 @@
 >
 > `연결`은 프론트 코드 기준이며 실제 서버 E2E 완료를 의미하지 않는다.
 >
-> 최종 점검: 2026-08-04
+> 최종 점검: 2026-08-10
 
 ## 공통
 
@@ -17,7 +17,7 @@
 | 오류 처리       | 연결 | code/message/fieldErrors와 상태 코드 | 실서버 오류   |
 | Refresh Token   | 연결 | iOS Keychain 저장                    | 실제 기기     |
 | 목록 응답 검증  | 연결 | Root 배열, 빈 본문 fallback, 오형식 감지 | 실서버 재시험 |
-| S3              | 준비 | 4개 domain/fileType, 동일 MIME PUT   | 버킷 생성 완료, 실업로드 재시험 |
+| S3              | 연결 | 4개 domain/fileType, 동일 MIME PUT   | 네 도메인 실업로드 완료, 크기 제한 확인 |
 
 ## 시작·인증
 
@@ -35,7 +35,7 @@
 | ------------ | ---- | ------------------------------------- | ------------------------ |
 | Home         | 연결 | 목록·상세·상태·문자열 PIN·휴지통·만료 | 실서버                   |
 | Timeline     | 연결 | FIRE/ICE/PIN·만료 시간                | 만료 배치 동작           |
-| MemoEditor   | 연결 | 생성·수정·expiredAt·MEMO 이미지       | 수정 시 만료 변경 미지원 |
+| MemoEditor   | 연결 | 생성·수정·expiredAt·MEMO 이미지       | 서버 상세 imageUrls 누락·이미지 메모 영구삭제 500 |
 | Trash        | 연결 | 목록·복구·영구 삭제                   | DELETE Body              |
 | Search       | 연결 | 4개 결과, 메모 상세, 팀 결과 이동     | 실응답 확인              |
 | Notification | 연결 | 목록·`/read`·삭제, 5개 타입 이동      | 실서버                   |
@@ -46,13 +46,13 @@
 | ----------------- | ---- | ------------------------------------ | -------------- |
 | TeamSpace/Home    | 완료 | 팀 목록·상세·빈 응답 처리            | 생성시각 일관성 |
 | TeamCreate        | 연결 | 검색/추천·생성·멤버 부분 실패 처리   | 검색 서버 오류 |
-| ProjectDetail     | 연결 | 공지·할 일·일정·팀 상세·멤버 관리·팀 삭제 | 멤버 ID/팀 삭제 서버 오류 |
+| ProjectDetail     | 연결 | 공지·할 일·일정·팀 상세·멤버 관리·팀 삭제 | 멤버 추가 500·teamMemberId 누락 |
 | AddNotice         | 연결 | title/content/isPinned               | 실서버         |
 | ProjectTodo       | 연결 | 목록·상세·전체 수정·체크·삭제        | 실서버         |
 | AddTodo           | 연결 | content/dueDate/sendPush 수정        | 실서버         |
 | Schedule          | 연결 | 월별 목록·상세                       | 실서버         |
 | AddSchedule       | 연결 | content/startAt/endAt 생성·수정·삭제 | 시간대         |
-| Files             | 연결 | 업로드·목록·다운로드·이름 변경·삭제  | 빈 목록 500, S3 미준비 |
+| Files             | 완료 | 업로드·목록·다운로드·이름 변경·삭제  | 실 S3 PUT·빈 목록·메타데이터 E2E 완료 |
 | FriendAdd         | 연결 | 검색/추천·요청, 요청함 실패와 추천 분리 | 검색/요청함 서버 오류 |
 | FriendRequestList | 연결 | SENT/RECEIVED 독립 로딩·수락·거절·취소 | 목록 500 |
 
@@ -61,7 +61,7 @@
 | 페이지           | 상태 | 7/28 연결                                   | 남은 확인      |
 | ---------------- | ---- | ------------------------------------------- | -------------- |
 | MyPage/Main      | 연결 | `/api/users/me`                             | 실응답         |
-| EditProfile      | 연결 | name/email/phone 표시, nickname/이미지 수정 | S3 E2E         |
+| EditProfile      | 완료 | name/email/phone 표시, nickname/이미지 수정 | PROFILE S3 E2E 완료 |
 | Language/알림    | 연결 | 설정 6개 필드 GET/PATCH                     | 기기 간 동기화 |
 | PasswordCheck    | 연결 | 비밀번호 확인                               | 실서버         |
 | 2FA              | 연결 | SETUP → SEND → VERIFY                       | VERIFY 토큰    |
@@ -73,8 +73,8 @@
 
 | 페이지            | 상태 | 7/28 연결                                     | 남은 확인  |
 | ----------------- | ---- | --------------------------------------------- | ---------- |
-| Inquiry           | 연결 | 이미지 선택·INQUIRY 업로드·attachmentUrl 전송 | S3 E2E     |
-| InquiryHistory    | 연결 | 전체 응답 필드 표시                           | 실서버     |
+| Inquiry           | 완료 | 이미지 선택·INQUIRY 업로드·attachmentUrl 전송 | S3 첨부 문의 E2E 완료 |
+| InquiryHistory    | 완료 | 전체 응답 필드 표시                           | 첨부 문의 내역 실응답 확인 |
 | ServiceSuggestion | 연결 | SUGGESTION 등록                               | 500자 검증 |
 | Notice            | 연결 | title/content/createdAt 표시                  | 실서버     |
 | FAQ               | 로컬 | 정적 FAQ                                      | 없음       |
@@ -83,7 +83,7 @@
 ## 검증
 
 - ESLint: 통과
-- Jest: 8 suites, 45 tests 통과
+- Jest: 9 suites, 47 tests 통과
 - iOS 프로덕션 번들: 통과
 - 실제 서버 E2E: 인증·메모·팀 공지/할 일/일정·사용자/설정 등 직접 검증
 - Android: 배포 범위 제외
