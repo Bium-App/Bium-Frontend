@@ -50,7 +50,7 @@ export interface SplashItem {
 const SPLASH_DATA: SplashItem[] = [
   {
     id: '1',
-    title: '딸깍',
+    title: '비움',
     titleColor: '#FF8933', 
     subtitle: '당신의 기록은\n어떤 온도인가요?',
     Icon: Logo,

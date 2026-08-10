@@ -40,7 +40,7 @@ export default function PrivacyPolicy({navigation}: RootScreenProps<'PrivacyPoli
       <ScrollContainer showsVerticalScrollIndicator={false}>
         
         <TopIntroText>
-          주식회사 딸깍(이하 '불메모')은 <TopIntroBoldText>관련 법령*</TopIntroBoldText>에 따라 이용자의 개인정보를 안전하게 처리하고 보호하고 있어요. 불메모는 이용자가 안심하고 서비스를 이용할 수 있도록 개인정보 처리방침을 공개하고 있으며, 개인정보가 어떤 목적으로 수집·이용되는지, 어떻게 보호되는지, 그리고 이용자가 어떤 권리를 가지고 있는지 쉽고 명확하게 안내하고 있어요. 또한 개인정보를 안전하게 관리하기 위한 기술적·관리적 보호조치를 적용하고 있으며, 개인정보와 관련된 문의나 불편 사항이 있을 경우 신속하게 도움을 받을 수 있도록 지원하고 있어요.{'\n\n'}
+          주식회사 딸깍(이하 '비움')은 <TopIntroBoldText>관련 법령*</TopIntroBoldText>에 따라 이용자의 개인정보를 안전하게 처리하고 보호하고 있어요. 비움은 이용자가 안심하고 서비스를 이용할 수 있도록 개인정보 처리방침을 공개하고 있으며, 개인정보가 어떤 목적으로 수집·이용되는지, 어떻게 보호되는지, 그리고 이용자가 어떤 권리를 가지고 있는지 쉽고 명확하게 안내하고 있어요. 또한 개인정보를 안전하게 관리하기 위한 기술적·관리적 보호조치를 적용하고 있으며, 개인정보와 관련된 문의나 불편 사항이 있을 경우 신속하게 도움을 받을 수 있도록 지원하고 있어요.{'\n\n'}
           <TopIntroBoldText>*관련 법령 : [개인정보보호법], [신용정보법] 등</TopIntroBoldText>
         </TopIntroText>
 
@@ -52,7 +52,7 @@ export default function PrivacyPolicy({navigation}: RootScreenProps<'PrivacyPoli
             </IconWrapper>
             
             <CardMainText>
-              불메모는 서비스를 제공하기 위해 필요한{'\n'}
+              비움은 서비스를 제공하기 위해 필요한{'\n'}
               <HighlightText>최소한</HighlightText>의 정보만 수집해요.
             </CardMainText>
 
@@ -93,7 +93,7 @@ export default function PrivacyPolicy({navigation}: RootScreenProps<'PrivacyPoli
             </IconWrapper>
             
             <CardMainText>
-              불메모는 서비스 제공에{'\n'}
+              비움은 서비스 제공에{'\n'}
               <HighlightText>필요한 경우</HighlightText>에만 개인정보를 <HighlightText>전달</HighlightText>해요.
             </CardMainText>
 
@@ -134,7 +134,7 @@ export default function PrivacyPolicy({navigation}: RootScreenProps<'PrivacyPoli
             </IconWrapper>
             
             <CardMainText>
-              불메모는 이용자의 정보를{'\n'}
+              비움은 이용자의 정보를{'\n'}
               <HighlightText>안전하게 보호</HighlightText>하고 있어요.
             </CardMainText>
 

@@ -152,11 +152,11 @@ export default function MarketingConsent({navigation}: RootScreenProps<'Marketin
         <TopBanner>
           <TopBannerTextCol>
             <BannerText>
-              불메모의 이벤트, 혜택, 신규 서비스 소식 등{'\n'}
+              비움의 이벤트, 혜택, 신규 서비스 소식 등{'\n'}
               다양한 마케팅 정보를 받아보실 수 있습니다.
             </BannerText>
             <BannerSubText>
-              동의하지 않아도 불메모 서비스를{'\n'}
+              동의하지 않아도 비움 서비스를{'\n'}
               이용하는 데에는 <HighlightText>제한이 없습니다.</HighlightText>
             </BannerSubText>
           </TopBannerTextCol>
@@ -233,7 +233,7 @@ export default function MarketingConsent({navigation}: RootScreenProps<'Marketin
                   adjustsFontSizeToFit
                   minimumFontScale={0.8}
                 >
-                  불메모를 더 잘 활용할 수 있는 팁과 가이드를 보내드려요.
+                  비움을 더 잘 활용할 수 있는 팁과 가이드를 보내드려요.
                 </ItemDesc>
               </ItemTextCol>
               <CheckboxSquare isChecked={agreements.tip}>
