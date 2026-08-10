@@ -50,7 +50,6 @@ export const FilePreview = styled.View`
 export const ImagePreview = styled.Image`
   width: 48px;
   height: 48px;
-  margin-right: 12px;
   border-radius: 6px;
   background-color: #f2f2f2;
 `;

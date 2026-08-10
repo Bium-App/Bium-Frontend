@@ -5,7 +5,9 @@ export const Container = styled.View`
   background-color: #ffffff;
 `;
 
-export const HeaderBackButton = styled.TouchableOpacity``;
+export const HeaderBackButton = styled.TouchableOpacity`
+  padding: 0 4px;
+`;
 
 export const ContentScroll = styled.ScrollView.attrs({
   contentContainerStyle: {
