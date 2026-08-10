@@ -88,6 +88,9 @@ export const useTeamCreate = (navigation: Navigation) => {
     setIsLoading(true);
     try {
       const team = await createTeamSpaceApi(teamName.trim());
+      if (team.teamSpaceId === undefined || team.teamSpaceId === null) {
+        throw new Error('생성된 팀 ID를 서버 응답에서 확인할 수 없습니다.');
+      }
       const results = await Promise.allSettled(
         selectedMembers.map(member =>
           addTeamMemberApi(team.teamSpaceId, member.id, 'MEMBER'),

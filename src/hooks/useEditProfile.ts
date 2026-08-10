@@ -7,7 +7,8 @@ import {useCurrentUser} from './useCurrentUser';
 import {useFileSelection} from './useFileSelection';
 
 export const useEditProfile = () => {
-  const {user, isLoading, updateProfile} = useCurrentUser();
+  const {user, isLoading, errorMessage, fetchUser, updateProfile} =
+    useCurrentUser();
   const [nickname, setNickname] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
@@ -63,6 +64,8 @@ export const useEditProfile = () => {
     isPicking,
     isSubmitting,
     isBusy: isLoading || isSubmitting || isPicking,
+    errorMessage,
+    fetchUser,
     previewImageUrl: profileImage?.uri ?? user?.profileImageUrl,
     handleSubmit,
   };

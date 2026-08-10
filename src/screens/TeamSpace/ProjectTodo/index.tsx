@@ -1,8 +1,14 @@
 import React from 'react';
-import {Alert, StatusBar, ScrollView} from 'react-native';
+import {
+  Alert,
+  StatusBar,
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Header from '../../../components/Header';
+import AsyncState from '../../../components/AsyncState';
 import { useProjectTodo } from '../../../hooks/useProjectTodo';
 import type {ProjectTodoItem} from '../../../hooks/useProjectTodo';
 import type {RootStackParamList} from '../../../types/navigation';
@@ -38,7 +44,7 @@ export default function ProjectTodo({
   navigation,
 }: ProjectTodoScreenProps) {
   // 라우터 파라미터에서 프로젝트 식별자 추출
-  const {projectId} = route.params;
+  const {projectId, projectName} = route.params;
 
   // 뷰모델 연결
   const {
@@ -47,6 +53,10 @@ export default function ProjectTodo({
     setSearchQuery,
     handleToggleTodo,
     handleDeleteTodo,
+    isLoading,
+    errorMessage,
+    hasTodos,
+    fetchTodos,
   } = useProjectTodo(projectId);
 
   const openTodoMenu = (todo: ProjectTodoItem) => {
@@ -75,9 +85,18 @@ export default function ProjectTodo({
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <Header title="팀 할 일" left={backButton} />
+      <Header title={projectName ?? '팀 할 일'} left={backButton} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchTodos}
+            tintColor="#FF8933"
+          />
+        }
+      >
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
           <SearchInput
@@ -91,7 +110,9 @@ export default function ProjectTodo({
         <TabContainer>
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('ProjectDetail', { projectId })}
+            onPress={() =>
+              navigation.replace('ProjectDetail', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>홈</TabText>
@@ -105,7 +126,9 @@ export default function ProjectTodo({
 
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('Schedule', { projectId })}
+            onPress={() =>
+              navigation.replace('Schedule', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>일정</TabText>
@@ -114,7 +137,9 @@ export default function ProjectTodo({
 
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('Files', { projectId })}
+            onPress={() =>
+              navigation.replace('Files', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>파일</TabText>
@@ -124,13 +149,20 @@ export default function ProjectTodo({
         <SectionContainer>
           <SectionHeader>
             <SectionTitle>할일 체크리스트</SectionTitle>
-            <Icon name="ellipsis-horizontal" size={20} color="#FF8933" />
           </SectionHeader>
 
           <ListCard>
-            {todos.length === 0 ? (
+            {todos.length === 0 && (isLoading || errorMessage) ? (
+              <AsyncState
+                isLoading={isLoading}
+                errorMessage={errorMessage}
+                onRetry={fetchTodos}
+              />
+            ) : todos.length === 0 ? (
               <EmptyTodoText>
-                검색된 할 일이 없습니다.
+                {searchQuery.trim() && hasTodos
+                  ? '검색된 할 일이 없습니다.'
+                  : '등록된 할 일이 없습니다.'}
               </EmptyTodoText>
             ) : (
               todos.map((todo, index) => (

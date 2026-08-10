@@ -1,4 +1,5 @@
 import apiClient from './client';
+import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateTeamTodoRequest,
@@ -28,8 +29,8 @@ export const getTeamSpaceApi = async (
 };
 
 export const getUserTeamSpacesApi = async (): Promise<TeamSpace[]> => {
-  const response = await apiClient.get<TeamSpace[]>('/api/team-spaces');
-  return response.data;
+  const response = await apiClient.get<unknown>('/api/team-spaces');
+  return parseRootArray<TeamSpace>(response.data, '팀스페이스 목록');
 };
 
 export const deleteTeamSpaceApi = async (
@@ -56,10 +57,10 @@ export const addTeamMemberApi = async (
 export const getTeamMembersApi = async (
   teamSpaceId: EntityId,
 ): Promise<TeamMember[]> => {
-  const response = await apiClient.get<TeamMember[]>(
+  const response = await apiClient.get<unknown>(
     `/api/team-members/team/${teamSpaceId}`,
   );
-  return response.data;
+  return parseRootArray<TeamMember>(response.data, '팀 멤버 목록');
 };
 
 export const updateTeamMemberRoleApi = async (
@@ -97,18 +98,16 @@ export const createTeamNoticeApi = async (
 export const getTeamNoticesApi = async (
   teamSpaceId: EntityId,
 ): Promise<TeamNotice[]> => {
-  const response = await apiClient.get<TeamNotice[]>('/api/notices', {
+  const response = await apiClient.get<unknown>('/api/notices', {
     params: {teamSpaceId},
   });
-  return response.data;
+  return parseRootArray<TeamNotice>(response.data, '팀 공지 목록');
 };
 
 export const getTeamNoticeApi = async (
   noticeId: EntityId,
-): Promise<TeamNotice | TeamNotice[]> => {
-  const response = await apiClient.get<TeamNotice | TeamNotice[]>(
-    `/api/notices/${noticeId}`,
-  );
+): Promise<TeamNotice> => {
+  const response = await apiClient.get<TeamNotice>(`/api/notices/${noticeId}`);
   return response.data;
 };
 
@@ -146,10 +145,10 @@ export const createTeamTodoApi = async (
 export const getTeamTodosApi = async (
   teamSpaceId: EntityId,
 ): Promise<TeamTodo[]> => {
-  const response = await apiClient.get<TeamTodo[]>('/api/todos', {
+  const response = await apiClient.get<unknown>('/api/todos', {
     params: {teamSpaceId},
   });
-  return response.data;
+  return parseRootArray<TeamTodo>(response.data, '팀 할 일 목록');
 };
 
 export const getTeamTodoApi = async (

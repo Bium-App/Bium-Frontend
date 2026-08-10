@@ -45,7 +45,7 @@ export const useNotification = () => {
     }
   }, []);
 
-  const markAsRead = async (id: EntityId): Promise<void> => {
+  const markAsRead = async (id: EntityId): Promise<boolean> => {
     try {
       await readNotificationApi(id);
       setNotifications(current =>
@@ -55,8 +55,12 @@ export const useNotification = () => {
             : notification,
         ),
       );
+      return true;
     } catch (error) {
-      console.error(error);
+      setErrorMessage(
+        getApiErrorMessage(error, '알림을 읽음 처리하지 못했습니다.'),
+      );
+      return false;
     }
   };
 
@@ -66,8 +70,11 @@ export const useNotification = () => {
       setNotifications(current =>
         current.filter(notification => notification.id !== String(id)),
       );
-    } catch {
-      Alert.alert('오류', '알림 삭제에 실패했습니다.');
+    } catch (error) {
+      Alert.alert(
+        '오류',
+        getApiErrorMessage(error, '알림 삭제에 실패했습니다.'),
+      );
     }
   };
 
@@ -105,10 +112,7 @@ export const useNotification = () => {
         return;
       }
       if (notification.notificationType === 'TEAM_NOTICE') {
-        const noticeResponse = await getTeamNoticeApi(notification.targetId);
-        const notice = Array.isArray(noticeResponse)
-          ? noticeResponse[0]
-          : noticeResponse;
+        const notice = await getTeamNoticeApi(notification.targetId);
         Alert.alert(
           notice?.title ?? '팀 공지',
           notice?.content ?? '공지 내용이 없습니다.',

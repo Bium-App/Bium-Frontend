@@ -11,7 +11,7 @@ import {
 import type {FunctionComponent} from 'react';
 import type {SvgProps} from 'react-native-svg';
 
-import LogoOrange from '../../assets/icons/logo_orange.svg';
+import Logo from '../../assets/icons/logo.svg';
 import OnboardingFire from '../../assets/icons/onboarding_fire.svg';
 import OnboardingIce from '../../assets/icons/onboarding_ice.svg';
 import OnboardingTeam from '../../assets/icons/onboarding_team.svg';
@@ -53,7 +53,7 @@ const SPLASH_DATA: SplashItem[] = [
     title: '딸깍',
     titleColor: '#FF8933', 
     subtitle: '당신의 기록은\n어떤 온도인가요?',
-    Icon: LogoOrange,
+    Icon: Logo,
   },
   {
     id: '2',

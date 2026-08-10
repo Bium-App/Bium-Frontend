@@ -67,9 +67,12 @@ export default function TeamSpaceHome({
     );
   }, [searchQuery, teams]);
 
-  const handleGoToProjectDetail = (projectId: EntityId) => {
+  const handleGoToProjectDetail = (
+    projectId: EntityId,
+    projectName: string,
+  ) => {
     // 팀방에 들어갈 때, 어떤 프로젝트인지 식별하기 위해 projectId를 함께 넘겨줌
-    navigation.navigate('ProjectDetail', { projectId });
+    navigation.navigate('ProjectDetail', {projectId, projectName});
   };
 
   const handleTeamCreate = () => navigation.navigate('TeamCreate');
@@ -132,7 +135,7 @@ export default function TeamSpaceHome({
           <ProjectCard 
             key={project.id} 
             activeOpacity={0.8}
-            onPress={() => handleGoToProjectDetail(project.id)}
+            onPress={() => handleGoToProjectDetail(project.id, project.title)}
           >
             <FolderCircle>
               <FolderIcon width={24} height={24} />
@@ -140,7 +143,7 @@ export default function TeamSpaceHome({
             <ProjectInfo>
               <TitleRow>
                 <ProjectTitle>{project.title}</ProjectTitle>
-                <Icon name="chevron-down" size={17} color="#AAAAAA" />
+                <Icon name="chevron-forward" size={17} color="#AAAAAA" />
               </TitleRow>
               <ProjectDesc>{project.desc}</ProjectDesc>
               <MemberRow>

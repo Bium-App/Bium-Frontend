@@ -49,20 +49,30 @@ export const useFriendAdd = () => {
   const fetchInitialData = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     setInitialErrorMessage('');
-    try {
-      const [recommended, received] = await Promise.all([
-        getRecommendedFriendsApi(),
-        getReceivedFriendRequestsApi(),
-      ]);
-      setRecommendedFriends(recommended.map(mapFriend));
-      setRequestCount(received.length);
-    } catch (error) {
-      setInitialErrorMessage(
-        getApiErrorMessage(error, '친구 정보를 불러오지 못했습니다.'),
-      );
-    } finally {
-      setIsLoading(false);
+    const [recommendedResult, receivedResult] = await Promise.allSettled([
+      getRecommendedFriendsApi(),
+      getReceivedFriendRequestsApi(),
+    ]);
+
+    if (recommendedResult.status === 'fulfilled') {
+      setRecommendedFriends(recommendedResult.value.map(mapFriend));
     }
+    if (receivedResult.status === 'fulfilled') {
+      setRequestCount(receivedResult.value.length);
+    }
+
+    const failedResult = [recommendedResult, receivedResult].find(
+      result => result.status === 'rejected',
+    );
+    if (failedResult?.status === 'rejected') {
+      setInitialErrorMessage(
+        getApiErrorMessage(
+          failedResult.reason,
+          '일부 친구 정보를 불러오지 못했습니다.',
+        ),
+      );
+    }
+    setIsLoading(false);
   }, []);
 
   useFocusEffect(

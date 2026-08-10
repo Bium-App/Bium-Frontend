@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../components/Header';
+import AsyncState from '../../../components/AsyncState';
 import {useEditProfile} from '../../../hooks/useEditProfile';
 
 import {
@@ -41,6 +42,8 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
     isPicking,
     isSubmitting,
     isBusy,
+    errorMessage,
+    fetchUser,
     previewImageUrl,
     handleSubmit,
   } = useEditProfile();
@@ -63,6 +66,9 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollContainer showsVerticalScrollIndicator={false}>
+          {errorMessage && !user ? (
+            <AsyncState errorMessage={errorMessage} onRetry={fetchUser} />
+          ) : null}
           <ProfileContainer>
             <ProfileImageArea>
               <ProfileImageWrapper>

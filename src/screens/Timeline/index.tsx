@@ -195,7 +195,7 @@ export default function Timeline({navigation}: TimelineScreenProps) {
             {isPinned ? (
               <IcePinIcon width={16} height={16} />
             ) : (
-              <PinIcon width={16} height={16} />
+              <PinIcon width={16} height={16} color="#7CC4FF" />
             )}
           </PinWrapper>
         </MemoCard>

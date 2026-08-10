@@ -74,6 +74,11 @@ export const MemberCard = styled.TouchableOpacity<{selected: boolean}>`
   padding: 12px;
   margin-bottom: 10px;
   background-color: ${({ selected }) => (selected ? '#FFF4EC' : '#FFFFFF')};
+  shadow-color: #6b6ea1;
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.25;
+  shadow-radius: 3px;
+  elevation: 1;
 `;
 
 export const MemberAvatar = styled.View`

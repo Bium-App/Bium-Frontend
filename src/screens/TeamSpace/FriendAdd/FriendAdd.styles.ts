@@ -100,6 +100,17 @@ export const SectionTitle = styled.Text`
   margin: 32px 20px 12px; 
 `;
 
+export const WarningText = styled.Text`
+  color: #b85d1d;
+  background-color: #fff4ec;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  margin: 12px 20px 0;
+  padding: 10px 12px;
+  text-align: center;
+`;
+
 export const TipContainer = styled.View`
   margin: 24px 20px 24px 37px; 
 `;

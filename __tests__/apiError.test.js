@@ -1,4 +1,7 @@
-import { getApiErrorMessage } from '../src/utils/apiError';
+import {
+  getApiErrorMessage,
+  getApiResponseMessage,
+} from '../src/utils/apiError';
 
 describe('getApiErrorMessage', () => {
   it('필드 오류를 가장 먼저 반환한다', () => {
@@ -50,6 +53,18 @@ describe('getApiErrorMessage', () => {
     expect(getApiErrorMessage({ code: 'ERR_NETWORK' }, '요청 실패')).toBe(
       '서버에 연결할 수 없습니다. 네트워크와 서버 주소를 확인해주세요.',
     );
+  });
+
+  it('로컬 검증 오류 메시지를 네트워크 오류로 바꾸지 않는다', () => {
+    expect(getApiErrorMessage(new Error('응답 형식 오류'), '요청 실패')).toBe(
+      '응답 형식 오류',
+    );
+  });
+
+  it('화면의 기존 응답 메시지 처리도 상태별 기본 문구를 사용한다', () => {
+    expect(
+      getApiResponseMessage({response: {status: 403, data: undefined}}),
+    ).toBe('이 작업을 수행할 권한이 없습니다.');
   });
 
   it('알 수 없는 상태 코드는 화면별 fallback을 반환한다', () => {

@@ -46,7 +46,8 @@ export default function FriendRequestList({
     filteredSent,
     isLoading,
     isProcessing,
-    errorMessage,
+    receivedErrorMessage,
+    sentErrorMessage,
     fetchRequests,
     hasRequests,
     handleAccept,
@@ -87,19 +88,25 @@ export default function FriendRequestList({
           />
         </SearchContainer>
 
-        {!hasRequests ? (
+        {isLoading && !hasRequests ? (
           <AsyncState
             isLoading={isLoading}
-            errorMessage={errorMessage}
             emptyMessage="친구 요청이 없습니다."
             onRetry={fetchRequests}
           />
-        ) : hasSearchQuery && !hasFilteredRequests ? (
+        ) : hasSearchQuery && !hasFilteredRequests &&
+          !receivedErrorMessage &&
+          !sentErrorMessage ? (
           <AsyncState emptyMessage="검색 결과가 없습니다." />
         ) : (
           <>
             <SectionTitle isFirst={true}>받은 요청</SectionTitle>
-            {filteredReceived.length === 0 ? (
+            {receivedErrorMessage ? (
+              <AsyncState
+                errorMessage={receivedErrorMessage}
+                onRetry={fetchRequests}
+              />
+            ) : filteredReceived.length === 0 ? (
               <EmptyRequestText>
                 받은 요청이 없습니다.
               </EmptyRequestText>
@@ -148,7 +155,12 @@ export default function FriendRequestList({
             )}
 
             <SectionTitle isFirst={false}>보낸 요청</SectionTitle>
-            {filteredSent.length === 0 ? (
+            {sentErrorMessage ? (
+              <AsyncState
+                errorMessage={sentErrorMessage}
+                onRetry={fetchRequests}
+              />
+            ) : filteredSent.length === 0 ? (
               <EmptyRequestText>
                 보낸 요청이 없습니다.
               </EmptyRequestText>

@@ -9,12 +9,12 @@ export interface TeamSpace {
 }
 
 export interface TeamMember {
-  teamMemberId: EntityId;
-  teamSpaceId: EntityId;
+  teamMemberId?: EntityId;
+  teamSpaceId?: EntityId;
   userId: EntityId;
   nickname?: string;
   profileImageUrl?: string | null;
-  role: string;
+  role: 'LEADER' | 'MEMBER' | string;
 }
 
 export interface TeamNoticeRequest {

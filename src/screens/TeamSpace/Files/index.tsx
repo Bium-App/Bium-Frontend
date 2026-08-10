@@ -70,7 +70,7 @@ type FileAction = 'rename' | 'delete';
 type FilesScreenProps = NativeStackScreenProps<RootStackParamList, 'Files'>;
 
 export default function Files({route, navigation}: FilesScreenProps) {
-  const {projectId} = route.params;
+  const {projectId, projectName} = route.params;
   const {
     files,
     isLoading,
@@ -161,7 +161,7 @@ export default function Files({route, navigation}: FilesScreenProps) {
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <Header title={`프로젝트 #${projectId ?? '-'}`} left={backButton} />
+      <Header title={projectName ?? '팀 파일'} left={backButton} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -185,7 +185,9 @@ export default function Files({route, navigation}: FilesScreenProps) {
         <TabContainer>
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('ProjectDetail', { projectId })}
+            onPress={() =>
+              navigation.replace('ProjectDetail', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>홈</TabText>
@@ -193,7 +195,9 @@ export default function Files({route, navigation}: FilesScreenProps) {
           <TabSeparator />
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('ProjectTodo', { projectId })}
+            onPress={() =>
+              navigation.replace('ProjectTodo', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>할일</TabText>
@@ -201,7 +205,9 @@ export default function Files({route, navigation}: FilesScreenProps) {
           <TabSeparator />
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('Schedule', { projectId })}
+            onPress={() =>
+              navigation.replace('Schedule', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>일정</TabText>

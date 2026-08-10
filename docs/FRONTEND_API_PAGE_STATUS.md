@@ -5,6 +5,8 @@
 > 배포 대상: iOS
 >
 > `연결`은 프론트 코드 기준이며 실제 서버 E2E 완료를 의미하지 않는다.
+>
+> 최종 점검: 2026-08-04
 
 ## 공통
 
@@ -14,16 +16,17 @@
 | 401 refresh     | 연결 | 동시 갱신 방지, 원 요청 1회 재시도   | 토큰 만료 E2E |
 | 오류 처리       | 연결 | code/message/fieldErrors와 상태 코드 | 실서버 오류   |
 | Refresh Token   | 연결 | iOS Keychain 저장                    | 실제 기기     |
-| S3              | 연결 | 4개 domain/fileType, 동일 MIME PUT   | 실제 업로드   |
+| 목록 응답 검증  | 연결 | Root 배열, 빈 본문 fallback, 오형식 감지 | 실서버 재시험 |
+| S3              | 준비 | 4개 domain/fileType, 동일 MIME PUT   | 버킷 생성 완료, 실업로드 재시험 |
 
 ## 시작·인증
 
 | 페이지       | 상태 | 7/28 연결                            | 남은 확인      |
 | ------------ | ---- | ------------------------------------ | -------------- |
 | Splash       | 연결 | 저장 세션 분기                       | 만료 세션      |
-| Login        | 연결 | access/refresh/userId/deviceId 저장  | 실서버 로그인  |
-| SignUp       | 연결 | name/email/phoneNumber 포함 7개 필드 | 중복·형식 오류 |
-| FindId       | 연결 | `/api/auth/find`, type ID            | 메일 응답      |
+| Login        | 완료 | access/refresh/userId/deviceId 저장  | 만료 자동갱신 수동 확인 |
+| SignUp       | 완료 | name/email/phoneNumber 포함 7개 필드 | 완료 |
+| FindId       | 연결 | 실제 아이디 형식 검증                | 서버 응답값 오류 |
 | FindPassword | 연결 | type PW 임시 비밀번호 발송           | 메일 발송      |
 
 ## 메모
@@ -41,17 +44,17 @@
 
 | 페이지            | 상태 | 7/28 연결                            | 남은 확인      |
 | ----------------- | ---- | ------------------------------------ | -------------- |
-| TeamSpace/Home    | 연결 | 팀 목록·상세                         | 실서버         |
-| TeamCreate        | 연결 | 검색/추천·생성·멤버 추가             | 부분 실패 처리 |
-| ProjectDetail     | 연결 | 공지·할 일 전체 필드·일정 목록       | 실응답         |
+| TeamSpace/Home    | 완료 | 팀 목록·상세·빈 응답 처리            | 생성시각 일관성 |
+| TeamCreate        | 연결 | 검색/추천·생성·멤버 부분 실패 처리   | 검색 서버 오류 |
+| ProjectDetail     | 연결 | 공지·할 일·일정·팀 상세·멤버 관리·팀 삭제 | 멤버 ID/팀 삭제 서버 오류 |
 | AddNotice         | 연결 | title/content/isPinned               | 실서버         |
 | ProjectTodo       | 연결 | 목록·상세·전체 수정·체크·삭제        | 실서버         |
 | AddTodo           | 연결 | content/dueDate/sendPush 수정        | 실서버         |
 | Schedule          | 연결 | 월별 목록·상세                       | 실서버         |
 | AddSchedule       | 연결 | content/startAt/endAt 생성·수정·삭제 | 시간대         |
-| Files             | 연결 | 업로드·목록·다운로드·이름 변경·삭제  | S3 E2E         |
-| FriendAdd         | 연결 | 검색/추천·요청                       | 두 계정        |
-| FriendRequestList | 연결 | SENT/RECEIVED·수락·거절·취소         | 두 계정        |
+| Files             | 연결 | 업로드·목록·다운로드·이름 변경·삭제  | 빈 목록 500, S3 미준비 |
+| FriendAdd         | 연결 | 검색/추천·요청, 요청함 실패와 추천 분리 | 검색/요청함 서버 오류 |
+| FriendRequestList | 연결 | SENT/RECEIVED 독립 로딩·수락·거절·취소 | 목록 500 |
 
 ## 마이페이지
 
@@ -80,7 +83,13 @@
 ## 검증
 
 - ESLint: 통과
-- Jest: 6 suites, 30 tests 통과
+- Jest: 8 suites, 45 tests 통과
 - iOS 프로덕션 번들: 통과
-- 실제 서버 E2E: 서버 준비 후 진행
+- 실제 서버 E2E: 인증·메모·팀 공지/할 일/일정·사용자/설정 등 직접 검증
 - Android: 배포 범위 제외
+
+## 현재 화면 범위 밖 API
+
+- 팀 메모 목록 `GET /api/memos?teamSpaceId=...`는 API 모듈과 계약 테스트까지 준비되어 있으나 현재 디자인에 팀 메모 페이지·탭이 없어 화면에서는 호출하지 않는다.
+- 개인 일정 목록 `GET /api/schedules?year&month`는 API 모듈이 준비되어 있으나 개인 캘린더 페이지가 없어 화면에서는 호출하지 않는다.
+- 두 기능을 제품 범위에 포함하려면 화면 위치와 생성·편집 진입 방식부터 확정해야 한다.

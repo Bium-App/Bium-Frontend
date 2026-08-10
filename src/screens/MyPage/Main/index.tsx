@@ -3,6 +3,7 @@ import type {MyPageTabScreenProps} from '../../../types/navigation';
 import {ActivityIndicator, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
+import AsyncState from '../../../components/AsyncState';
 import {
   SafeArea,
   ProfileSection,
@@ -19,7 +20,7 @@ import {
 } from './MyPageMain.styles';
 
 export default function MyPageMain({navigation}: MyPageTabScreenProps) {
-  const { user, isLoading } = useCurrentUser();
+  const {user, isLoading, errorMessage, fetchUser} = useCurrentUser();
 
   return (
     <SafeArea>
@@ -34,6 +35,11 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
           </ProfileImageWrapper>
           {isLoading && !user ? (
             <ActivityIndicator color="#FF8933" />
+          ) : errorMessage && !user ? (
+            <AsyncState
+              errorMessage={errorMessage}
+              onRetry={fetchUser}
+            />
           ) : (
             <UserName>{user?.nickname || '사용자'}</UserName>
           )}

@@ -278,8 +278,36 @@ export const HeaderBackButton = styled.TouchableOpacity`
   padding: 0 4px;
 `;
 
+export const HeaderActionButton = styled.TouchableOpacity`
+  padding: 0 4px;
+`;
+
 export const NoticeAddButton = styled.TouchableOpacity`
   padding: 4px;
+`;
+
+export const SectionMoreButton = styled.TouchableOpacity`
+  padding: 4px;
+`;
+
+export const SectionMoreText = styled.Text`
+  color: #ff8933;
+  font-size: 13px;
+  font-weight: 500;
+`;
+
+export const InlineWarningButton = styled.TouchableOpacity`
+  margin: 0 20px 20px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background-color: #fff4ec;
+`;
+
+export const InlineWarningText = styled.Text`
+  color: #b85d1d;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
 `;
 
 export const Divider = styled.View<{isSpaced: boolean}>`
@@ -333,4 +361,111 @@ export const DateActionText = styled.Text<{hasValue?: boolean}>`
   color: ${({ hasValue }) => (hasValue ? '#FF8933' : '#9C9C9C')};
   margin-left: 6px;
   margin-right: 4px;
+`;
+
+export const ManagementBody = styled.ScrollView`
+  max-height: 540px;
+  padding: 20px;
+`;
+
+export const TeamSummary = styled.View`
+  padding-bottom: 16px;
+`;
+
+export const TeamSummaryTitle = styled.Text`
+  color: #000000;
+  font-size: 18px;
+  font-weight: 600;
+`;
+
+export const TeamSummaryText = styled.Text`
+  color: #888888;
+  font-size: 13px;
+  margin-top: 6px;
+`;
+
+export const MemberList = styled.View`
+  background-color: #ffffff;
+  border-width: 1px;
+  border-color: #e8e8e8;
+  border-radius: 8px;
+  shadow-color: #6b6ea1;
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.25;
+  shadow-radius: 3px;
+  elevation: 1;
+`;
+
+export const MemberItem = styled.TouchableOpacity<{isLast: boolean}>`
+  flex-direction: row;
+  align-items: center;
+  padding: 14px;
+  border-bottom-width: ${({isLast}) => (isLast ? 0 : 1)}px;
+  border-bottom-color: #e8e8e8;
+`;
+
+export const MemberAvatar = styled.View`
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffe8d6;
+`;
+
+export const MemberAvatarText = styled.Text`
+  color: #ff8933;
+  font-size: 15px;
+  font-weight: 600;
+`;
+
+export const MemberInfo = styled.View`
+  flex: 1;
+  margin-left: 12px;
+`;
+
+export const MemberName = styled.Text`
+  color: #000000;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+export const MemberIdText = styled.Text`
+  color: #aaaaaa;
+  font-size: 11px;
+  margin-top: 3px;
+`;
+
+export const RoleBadge = styled.View<{isLeader: boolean}>`
+  padding: 5px 8px;
+  border-radius: 10px;
+  background-color: ${({isLeader}) => (isLeader ? '#FFE8D6' : '#F3F4F6')};
+`;
+
+export const RoleText = styled.Text<{isLeader: boolean}>`
+  color: ${({isLeader}) => (isLeader ? '#FF8933' : '#777777')};
+  font-size: 11px;
+  font-weight: 600;
+`;
+
+export const ManagementHelpText = styled.Text`
+  color: #999999;
+  font-size: 12px;
+  line-height: 18px;
+  margin-top: 12px;
+`;
+
+export const DeleteTeamButton = styled.TouchableOpacity`
+  align-items: center;
+  margin: 18px 0 20px;
+  padding: 13px;
+  border-width: 1px;
+  border-color: #ff4d4d;
+  border-radius: 8px;
+`;
+
+export const DeleteTeamText = styled.Text`
+  color: #ff0000;
+  font-size: 14px;
+  font-weight: 600;
 `;

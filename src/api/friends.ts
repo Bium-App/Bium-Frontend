@@ -1,4 +1,5 @@
 import apiClient from './client';
+import {parseRootArray} from '../utils/apiResponse';
 import type {EntityId} from '../types/api';
 import type {
   FriendMutationResponse,
@@ -9,17 +10,17 @@ import type {
 export const searchFriendsApi = async (
   keyword: string,
 ): Promise<FriendUser[]> => {
-  const response = await apiClient.get<FriendUser[]>('/api/friends', {
+  const response = await apiClient.get<unknown>('/api/friends', {
     params: {type: 'SEARCH', keyword},
   });
-  return response.data;
+  return parseRootArray<FriendUser>(response.data, '친구 검색 목록');
 };
 
 export const getRecommendedFriendsApi = async (): Promise<FriendUser[]> => {
-  const response = await apiClient.get<FriendUser[]>('/api/friends', {
+  const response = await apiClient.get<unknown>('/api/friends', {
     params: {type: 'RECOMMEND'},
   });
-  return response.data;
+  return parseRootArray<FriendUser>(response.data, '추천 친구 목록');
 };
 
 export const sendFriendRequestApi = async (
@@ -35,11 +36,11 @@ export const sendFriendRequestApi = async (
 const getFriendRequestsApi = async (
   type: 'RECEIVED' | 'SENT',
 ): Promise<FriendRequest[]> => {
-  const response = await apiClient.get<FriendRequest[]>(
+  const response = await apiClient.get<unknown>(
     '/api/friends/requests',
     {params: {type}},
   );
-  return response.data;
+  return parseRootArray<FriendRequest>(response.data, '친구 요청 목록');
 };
 
 export const getReceivedFriendRequestsApi = () =>

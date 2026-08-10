@@ -1,4 +1,5 @@
 import apiClient from './client';
+import {parseLoginId, parseRootArray} from '../utils/apiResponse';
 import type {
   ApiMutationResponse,
   EntityId,
@@ -7,7 +8,6 @@ import type {
   LoginDevice,
   LoginRequest,
   LogoutType,
-  RefreshAccessTokenResponse,
   SessionResponse,
   SignUpRequest,
   TwoFactorRequest,
@@ -52,16 +52,6 @@ export const loginApi = async ({
   return response.data;
 };
 
-export const refreshAccessTokenApi = async (
-  refreshToken: string,
-): Promise<RefreshAccessTokenResponse> => {
-  const response = await apiClient.post<RefreshAccessTokenResponse>(
-    '/api/auth/refresh',
-    {refreshToken},
-  );
-  return response.data;
-};
-
 export const findAccountApi = async ({
   type,
   email,
@@ -74,8 +64,10 @@ export const findAccountApi = async ({
 
 export const findLoginIdApi = async (
   email: string,
-): Promise<FindLoginIdResponse> =>
-  (await findAccountApi({type: 'ID', email})) as FindLoginIdResponse;
+): Promise<FindLoginIdResponse> => {
+  const data = await findAccountApi({type: 'ID', email});
+  return {...data, loginId: parseLoginId(data)};
+};
 
 export const findPasswordApi = (email: string) =>
   findAccountApi({type: 'PW', email});
@@ -115,8 +107,8 @@ export const logoutApi = async (
 };
 
 export const getDevicesApi = async (): Promise<LoginDevice[]> => {
-  const response = await apiClient.get<LoginDevice[]>('/api/auth/devices');
-  return response.data;
+  const response = await apiClient.get<unknown>('/api/auth/devices');
+  return parseRootArray<LoginDevice>(response.data, '로그인 기기 목록');
 };
 
 export const logoutDeviceApi = async (

@@ -2,7 +2,7 @@
 
 > 기준: API 명세 7/28, ERD 7/28
 >
-> 갱신일: 2026-07-28
+> 갱신일: 2026-08-04
 >
 > 배포 대상: React Native iOS
 >
@@ -34,7 +34,7 @@
 | 메모 PIN     | `value=true/false` 문자열                      | Boolean을 문자열로 변환해 Query 전송        |
 | 팀 할 일     | `GET /api/todos/{todoId}`와 `teamSpaceId` 응답 | TEAM_TODO 알림에서 팀 할 일 화면 이동       |
 | 알림 읽음    | `PATCH /api/notifications/{id}/read` 확정      | 읽음 요청 경로 변경                         |
-| S3 개발 버킷 | Origins `*`, Methods `PUT`, Headers `*` 적용   | 동일 MIME PUT·10MB/30MB 선택 제한 유지      |
+| S3 개발 버킷 | 버킷 생성 완료, 실제 CORS·Presigned URL 검증 대기 | 동일 MIME PUT·10MB/30MB 선택 제한 구현 완료 |
 
 ## 3. 도메인별 연결
 
@@ -139,10 +139,11 @@ GET /api/files/presigned-url
 - 이미지: 최대 10MB
 - 문서: 최대 30MB
 - 명세 CORS: `AllowedOrigins: [*]`, `AllowedMethods: [PUT]`, `AllowedHeaders: [*]`
+- 2026-08-06 버킷 생성 완료 전달을 받았다. 개발 서버 재가동 후 실제 Presigned URL, PUT, CORS Header를 재시험한다.
 
 문의 작성 화면은 이미지 1개를 선택할 수 있다. 선택한 이미지를 `INQUIRY` domain으로 업로드한 뒤 반환된 `fileUrl`을 `attachmentUrl`로 전송하며, 미첨부 시 `null`을 전송한다.
 
-## 5. 서버 준비 후 E2E 순서
+## 5. 잔여 E2E 순서
 
 1. 회원가입 7개 필드 저장과 로그인 응답을 확인한다.
 2. Access Token 만료, refresh, 원 요청 재시도를 확인한다.
@@ -154,6 +155,16 @@ GET /api/files/presigned-url
 8. 검색 이동·문의·서비스 공지·5개 알림 targetId를 확인한다.
 9. iOS 시뮬레이터와 실제 기기에서 네트워크·날짜·파일 선택을 확인한다.
 
-## 6. 남은 작업
+## 6. 현재 남은 서버·E2E 작업
 
-명세상 미확정 API는 없다. 개발 서버가 준비되면 Base URL과 테스트 계정을 받아 실제 응답·인증·S3·딥링크 E2E를 진행한다.
+- `GET /api/friends?type=SEARCH`가 존재하는 사용자도 빈 배열로 반환하는 문제 수정
+- 친구 요청 `SENT`/`RECEIVED` 목록의 500 수정
+- 팀 멤버 목록에 수정·삭제 경로용 `teamMemberId` 포함
+- 팀 삭제 500 수정
+- 빈 팀 파일 목록을 `200 []`로 반환
+- 아이디 찾기의 `loginId`에 실제 로그인 아이디 반환
+- `createdAt` KST/ISO 8601 직렬화 일관성 보장
+- S3 IAM·CORS·실제 Presigned URL 연결 후 4개 업로드 흐름 재시험
+- 테스트 데이터 생성 후 검색 결과 이동과 알림 5개 타입 이동 재시험
+
+프론트는 위 API가 정상화되면 추가 구조 변경 없이 재시험할 수 있도록 오류 상태, 부분 실패 격리, 팀 관리 UI와 응답 검증을 반영했다.

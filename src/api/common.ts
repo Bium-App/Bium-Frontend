@@ -1,4 +1,5 @@
 import apiClient from './client';
+import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateInquiryRequest,
@@ -17,8 +18,8 @@ export const searchApi = async (keyword: string): Promise<SearchResponse> => {
 };
 
 export const getServiceNoticesApi = async (): Promise<ServiceNotice[]> => {
-  const response = await apiClient.get<ServiceNotice[]>('/api/service-notices');
-  return response.data;
+  const response = await apiClient.get<unknown>('/api/service-notices');
+  return parseRootArray<ServiceNotice>(response.data, '서비스 공지 목록');
 };
 
 export const createInquiryApi = async (
@@ -32,13 +33,13 @@ export const createInquiryApi = async (
 };
 
 export const getInquiriesApi = async (): Promise<Inquiry[]> => {
-  const response = await apiClient.get<Inquiry[]>('/api/inquiries/me');
-  return response.data;
+  const response = await apiClient.get<unknown>('/api/inquiries/me');
+  return parseRootArray<Inquiry>(response.data, '문의 목록');
 };
 
 export const getNotificationsApi = async (): Promise<Notification[]> => {
-  const response = await apiClient.get<Notification[]>('/api/notifications');
-  return response.data;
+  const response = await apiClient.get<unknown>('/api/notifications');
+  return parseRootArray<Notification>(response.data, '알림 목록');
 };
 
 export const readNotificationApi = async (

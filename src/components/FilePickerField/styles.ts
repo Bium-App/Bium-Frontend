@@ -40,6 +40,11 @@ export const FilePreview = styled.View`
   border-color: #e8e8e8;
   border-radius: 8px;
   background-color: #ffffff;
+  shadow-color: #6b6ea1;
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.25;
+  shadow-radius: 3px;
+  elevation: 1;
 `;
 
 export const ImagePreview = styled.Image`

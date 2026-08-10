@@ -51,10 +51,14 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   Search: undefined;
   Notification: undefined;
-  ProjectDetail: {projectId: EntityId};
-  ProjectTodo: {projectId: EntityId; todoId?: EntityId};
-  Schedule: {projectId: EntityId};
-  Files: {projectId: EntityId};
+  ProjectDetail: {projectId: EntityId; projectName?: string};
+  ProjectTodo: {
+    projectId: EntityId;
+    projectName?: string;
+    todoId?: EntityId;
+  };
+  Schedule: {projectId: EntityId; projectName?: string};
+  Files: {projectId: EntityId; projectName?: string};
   AddNotice: {projectId: EntityId};
   AddTodo: {projectId: EntityId; todoData?: TeamTodoRouteData};
   AddSchedule: {

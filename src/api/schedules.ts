@@ -1,4 +1,5 @@
 import apiClient from './client';
+import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateScheduleRequest,
@@ -24,10 +25,10 @@ export const getSchedulesApi = async ({
   month,
   teamSpaceId,
 }: ScheduleQuery): Promise<ScheduleSummary[]> => {
-  const response = await apiClient.get<ScheduleSummary[]>('/api/schedules', {
+  const response = await apiClient.get<unknown>('/api/schedules', {
     params: {year, month, ...(teamSpaceId ? {teamSpaceId} : {})},
   });
-  return response.data;
+  return parseRootArray<ScheduleSummary>(response.data, '일정 목록');
 };
 
 export const getTeamSchedulesApi = (

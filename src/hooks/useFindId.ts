@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {Alert} from 'react-native';
 import {findLoginIdApi} from '../api/auth';
-import {getApiResponseMessage} from '../utils/apiError';
+import {getApiResponseMessage, getErrorMessage} from '../utils/apiError';
 
 export const useFindId = () => {
   const [email, setEmail] = useState('');
@@ -22,7 +22,9 @@ export const useFindId = () => {
     } catch (error) {
       Alert.alert(
         '아이디 찾기 실패',
-        getApiResponseMessage(error) ?? '입력한 회원 정보를 확인해주세요.',
+        getApiResponseMessage(error) ??
+          getErrorMessage(error) ??
+          '입력한 회원 정보를 확인해주세요.',
       );
     } finally {
       setIsLoading(false);

@@ -42,12 +42,12 @@ import FriendRequestList from '../screens/TeamSpace/FriendRequestList';
 import MyPage from '../screens/MyPage/Main';
 import EditProfile from '../screens/MyPage/EditProfile';
 
-// --- 🚧 미개발 마이페이지 하위 화면들 ---
+// 마이페이지 하위 화면
 import Language from '../screens/MyPage/Settings/Language';
 import SettingNotification from '../screens/MyPage/Settings/SettingNotification';
 import Privacy from '../screens/MyPage/Settings/PrivacySecurity';
 
-// 💡 [2단계 인증 전체 화면 import 세팅 완료!]
+// 2단계 인증 화면
 import TwoFactorIntro from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/TwoFactorIntro';
 import PasswordCheck from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/PasswordCheck';
 import MethodSelect from '../screens/MyPage/Settings/PrivacySecurity/TwoFactorAuth/MethodSelect';

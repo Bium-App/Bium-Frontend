@@ -1,5 +1,11 @@
 import apiClient from './client';
 import {readSelectedFile} from '../utils/filePicker';
+import {parseRootArray} from '../utils/apiResponse';
+import {
+  logFetchError,
+  logFetchRequest,
+  logFetchResponse,
+} from '../utils/apiLogger';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateTeamFileRequest,
@@ -29,11 +35,19 @@ export const uploadToPresignedUrl = async (
   fileBody: Blob,
   contentType = 'application/octet-stream',
 ): Promise<void> => {
-  const response = await fetch(presignedUrl, {
-    method: 'PUT',
-    headers: {'Content-Type': contentType},
-    body: fileBody,
-  });
+  const startedAt = logFetchRequest('PUT', presignedUrl, fileBody);
+  let response: Response;
+  try {
+    response = await fetch(presignedUrl, {
+      method: 'PUT',
+      headers: {'Content-Type': contentType},
+      body: fileBody,
+    });
+  } catch (error) {
+    logFetchError('PUT', presignedUrl, error, startedAt);
+    throw error;
+  }
+  logFetchResponse('PUT', presignedUrl, response.status, startedAt);
   if (!response.ok) {
     throw new Error(`S3 업로드에 실패했습니다. (${response.status})`);
   }
@@ -86,10 +100,10 @@ export const createTeamFileApi = async (
 export const getTeamFilesApi = async (
   teamSpaceId: EntityId,
 ): Promise<TeamFile[]> => {
-  const response = await apiClient.get<TeamFile[]>(
+  const response = await apiClient.get<unknown>(
     `/api/team-spaces/${teamSpaceId}/files`,
   );
-  return response.data;
+  return parseRootArray<TeamFile>(response.data, '팀 파일 목록');
 };
 
 export const renameTeamFileApi = async (

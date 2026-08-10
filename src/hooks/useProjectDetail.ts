@@ -70,15 +70,17 @@ export const useProjectDetail = (projectId?: EntityId) => {
     if (!projectId) return;
     setIsLoading(true);
     setErrorMessage('');
-    try {
-      const {year, month} = getMonthParams();
-      const [noticeData, todoData, scheduleData] = await Promise.all([
+    const {year, month} = getMonthParams();
+    const [noticeResult, todoResult, scheduleResult] =
+      await Promise.allSettled([
         getTeamNoticesApi(projectId),
         getTeamTodosApi(projectId),
         getTeamSchedulesApi(projectId, year, month),
       ]);
+
+    if (noticeResult.status === 'fulfilled') {
       setNotices(
-        noticeData.map(notice => ({
+        noticeResult.value.map(notice => ({
           id: String(notice.noticeId),
           title: notice.title,
           content: notice.content ?? '',
@@ -88,8 +90,10 @@ export const useProjectDetail = (projectId?: EntityId) => {
             : '',
         })),
       );
+    }
+    if (todoResult.status === 'fulfilled') {
       setTodos(
-        todoData.map(todo => ({
+        todoResult.value.map(todo => ({
           id: String(todo.todoId),
           title: todo.title,
           content: todo.content,
@@ -98,21 +102,30 @@ export const useProjectDetail = (projectId?: EntityId) => {
           isDone: todo.isChecked,
         })),
       );
+    }
+    if (scheduleResult.status === 'fulfilled') {
       setSchedules(
-        scheduleData.map(schedule => ({
+        scheduleResult.value.map(schedule => ({
           id: String(schedule.scheduleId),
           title: schedule.title,
           startAt: schedule.startAt,
           endAt: schedule.endAt,
         })),
       );
-    } catch (error) {
-      setErrorMessage(
-        getApiErrorMessage(error, '대시보드 데이터를 불러오지 못했습니다.'),
-      );
-    } finally {
-      setIsLoading(false);
     }
+
+    const failedResult = [noticeResult, todoResult, scheduleResult].find(
+      result => result.status === 'rejected',
+    );
+    if (failedResult?.status === 'rejected') {
+      setErrorMessage(
+        getApiErrorMessage(
+          failedResult.reason,
+          '일부 대시보드 데이터를 불러오지 못했습니다.',
+        ),
+      );
+    }
+    setIsLoading(false);
   }, [projectId]);
 
   useFocusEffect(
@@ -141,10 +154,7 @@ export const useProjectDetail = (projectId?: EntityId) => {
 
     setIsLoading(true);
     try {
-      const detailResponse = await getTeamNoticeApi(notice.id);
-      const detail = Array.isArray(detailResponse)
-        ? detailResponse[0]
-        : detailResponse;
+      const detail = await getTeamNoticeApi(notice.id);
       setEditingNoticeId(notice.id);
       setNoticeTitle(detail?.title ?? notice.title);
       setNoticeContent(detail?.content ?? '');

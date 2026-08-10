@@ -3,6 +3,7 @@ import type {RootScreenProps} from '../../../../types/navigation';
 import {TouchableOpacity, Alert, RefreshControl} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header'; // 💡 항상 공통 컴포넌트로 분리해서 사용하는 헤더
+import AsyncState from '../../../../components/AsyncState';
 import IcFire from '../../../../assets/icons/ic_fire.svg';
 import { useTrash } from '../../../../hooks/useTrash';
 
@@ -34,7 +35,7 @@ import {
 export default function Trash({navigation}: RootScreenProps<'Trash'>) {
   // 뷰모델에서 서버 데이터와 통신 함수 가져오기
   const { 
-    trashItems, isLoading, fetchTrashMemos, 
+    trashItems, isLoading, errorMessage, fetchTrashMemos,
     handleRestoreMemos, handlePermanentDeleteMemos 
   } = useTrash();
 
@@ -137,6 +138,14 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
           <RefreshControl refreshing={isLoading} onRefresh={fetchTrashMemos} tintColor="#FF8933" />
         }
       >
+        {trashItems.length === 0 ? (
+          <AsyncState
+            isLoading={isLoading}
+            errorMessage={errorMessage}
+            emptyMessage="휴지통이 비어 있습니다."
+            onRetry={fetchTrashMemos}
+          />
+        ) : null}
         {trashItems.map((item) => {
           const isSelected = selectedIds.includes(item.id);
           return (

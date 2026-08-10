@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StatusBar, Platform, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import {Modal, StatusBar, Platform, ActivityIndicator} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import type {CompositeScreenProps} from '@react-navigation/native';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
@@ -47,6 +47,18 @@ import {
   AnimatedTimerBox,
   TimerButtonSub,
   TimerButtonText,
+  ModalOverlay,
+  ModalContainer,
+  ModalHeader,
+  ModalFireIcon,
+  ModalTitleWrapper,
+  ModalText,
+  ModalHighlight,
+  ModalSubText,
+  ModalBlueHighlight,
+  ModalFooter,
+  Checkbox,
+  CheckboxLabel,
 } from './MemoEditor.styles';
 
 interface TimerButtonProps {
@@ -102,6 +114,7 @@ export default function MemoEditor({
     isPickingImage,
     selectImage,
     removeImage,
+    resetForm,
     isLoading,
     handleSave,
   } = useMemoEditor(initialData);
@@ -114,13 +127,38 @@ export default function MemoEditor({
     italic: false,
     underline: false,
   });
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [doNotShowAgain, setDoNotShowAgain] = useState(false);
+
+  const resetFormatting = useCallback(() => {
+    setFontSize(14);
+    setAlign('left');
+    setFormat({bold: false, italic: false, underline: false});
+  }, []);
+
+  useEffect(() => {
+    resetFormatting();
+  }, [memoId, resetFormatting]);
+
+  const closeEditor = useCallback(() => {
+    resetForm();
+    resetFormatting();
+    navigation.setParams({memoData: undefined});
+    navigation.goBack();
+  }, [navigation, resetForm, resetFormatting]);
+
+  const handleSaveSuccess = useCallback(() => {
+    resetFormatting();
+    navigation.setParams({memoData: undefined});
+    navigation.goBack();
+  }, [navigation, resetFormatting]);
 
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Header
         left={
-          <HeaderTextButton onPress={() => navigation.goBack()}>
+          <HeaderTextButton onPress={closeEditor}>
             <HeaderLeftText>취소</HeaderLeftText>
           </HeaderTextButton>
         }
@@ -129,7 +167,7 @@ export default function MemoEditor({
           // 로딩 중일 때는 터치를 막고, handleSave에 네비게이션 콜백 전달
           <HeaderTextButton
             onPress={() =>
-              !isLoading && handleSave(memoId, () => navigation.goBack())
+              !isLoading && handleSave(memoId, handleSaveSuccess)
             }
           >
             {isLoading ? (
@@ -271,11 +309,18 @@ export default function MemoEditor({
           {!memoId ? (
             <TimerBox>
               <TimerHeaderRow>
-                <Icon
-                  name="information-circle-outline"
-                  size={18}
-                  color="#FF8933"
-                />
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel="소멸 시간 안내 보기"
+                  hitSlop={{top: 8, right: 8, bottom: 8, left: 8}}
+                  onPress={() => setModalVisible(true)}
+                >
+                  <Icon
+                    name="information-circle-outline"
+                    size={18}
+                    color="#FF8933"
+                  />
+                </TouchableOpacity>
                 <SectionTitle>소멸 시간 설정</SectionTitle>
               </TimerHeaderRow>
               <TimerDesc>
@@ -311,6 +356,63 @@ export default function MemoEditor({
           ) : null}
         </ContentContainer>
       </KeyboardContainer>
+
+      <Modal
+        transparent
+        visible={isModalVisible}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalHeader>
+              <ModalFireIcon>
+                <Icon name="flame" size={24} color="#FF8933" />
+              </ModalFireIcon>
+              <ModalTitleWrapper>
+                <ModalText>
+                  <ModalHighlight>불 메모</ModalHighlight>는 설정한 시간이
+                  지나면 {'\n'}
+                  <ModalHighlight>자동으로</ModalHighlight> 사라져요.
+                </ModalText>
+                <ModalSubText>
+                  중요한 내용은 {'\n'}
+                  <ModalBlueHighlight>'얼음'</ModalBlueHighlight>으로
+                  보관해보세요!
+                </ModalSubText>
+              </ModalTitleWrapper>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel="안내 닫기"
+                onPress={() => setModalVisible(false)}
+              >
+                <Icon
+                  name="close-circle-outline"
+                  size={24}
+                  color="#AAAAAA"
+                />
+              </TouchableOpacity>
+            </ModalHeader>
+            <ModalFooter>
+              <Checkbox
+                checked={doNotShowAgain}
+                accessibilityRole="checkbox"
+                accessibilityState={{checked: doNotShowAgain}}
+                onPress={() => setDoNotShowAgain(value => !value)}
+              >
+                {doNotShowAgain ? (
+                  <Icon name="checkmark" size={14} color="#FFFFFF" />
+                ) : null}
+              </Checkbox>
+              <TouchableOpacity
+                onPress={() => setDoNotShowAgain(value => !value)}
+              >
+                <CheckboxLabel>다시 보지 않기</CheckboxLabel>
+              </TouchableOpacity>
+            </ModalFooter>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
     </Container>
   );
 }

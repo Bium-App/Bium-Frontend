@@ -23,9 +23,15 @@ export const EmptyText = styled.Text`
 export const InquiryCard = styled.View`
   margin-bottom: 12px;
   padding: 16px;
+  background-color: #ffffff;
   border-width: 1px;
   border-color: #e8e8e8;
   border-radius: 12px;
+  shadow-color: #6b6ea1;
+  shadow-offset: 0px 1px;
+  shadow-opacity: 0.25;
+  shadow-radius: 3px;
+  elevation: 1;
 `;
 
 export const InquiryHeader = styled.View`

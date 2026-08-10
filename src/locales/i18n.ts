@@ -3,7 +3,7 @@ import type {LanguageDetectorAsyncModule} from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// 1. 한국어와 영어 번역 데이터 (임시로 마이페이지 텍스트만 넣었습니다)
+// 언어 및 지역 화면에서 사용하는 번역 데이터
 const resources = {
   ko: {
     translation: {

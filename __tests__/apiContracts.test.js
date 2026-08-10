@@ -45,10 +45,16 @@ import {
 import {
   addTeamMemberApi,
   createTeamTodoApi,
+  deleteTeamSpaceApi,
+  getTeamMembersApi,
   getTeamNoticesApi,
+  getTeamSpaceApi,
   getTeamTodoApi,
   getTeamTodosApi,
+  getUserTeamSpacesApi,
+  removeTeamMemberApi,
   toggleTeamTodoApi,
+  updateTeamMemberRoleApi,
 } from '../src/api/teamSpaces';
 import {
   createScheduleApi,
@@ -73,7 +79,7 @@ import {
 beforeEach(() => {
   jest.clearAllMocks();
   Object.values(apiClient).forEach(method =>
-    method.mockResolvedValue({ data: {} }),
+    method.mockResolvedValue({ data: [] }),
   );
 });
 
@@ -256,6 +262,29 @@ test('팀 공지와 할 일은 7/28 목록·상세·전체 수정 계약을 사�
     isChecked: true,
     sendPush: false,
   });
+});
+
+test('팀 상세·멤버 관리·팀 삭제 계약을 사용한다', async () => {
+  await getTeamSpaceApi(2);
+  await getTeamMembersApi(2);
+  await updateTeamMemberRoleApi(9, 'LEADER');
+  await removeTeamMemberApi(9);
+  await deleteTeamSpaceApi(2);
+
+  expect(apiClient.get).toHaveBeenCalledWith('/api/team-spaces/2');
+  expect(apiClient.get).toHaveBeenCalledWith('/api/team-members/team/2');
+  expect(apiClient.patch).toHaveBeenCalledWith('/api/team-members/9', null, {
+    params: {role: 'LEADER'},
+  });
+  expect(apiClient.delete).toHaveBeenCalledWith('/api/team-members/9');
+  expect(apiClient.delete).toHaveBeenCalledWith('/api/team-spaces/2');
+});
+
+test('팀 목록의 빈 응답은 안전하게 빈 배열로 처리한다', async () => {
+  apiClient.get.mockResolvedValueOnce({data: ''});
+
+  await expect(getUserTeamSpacesApi()).resolves.toEqual([]);
+  expect(apiClient.get).toHaveBeenCalledWith('/api/team-spaces');
 });
 
 test('일정·문의·공지·알림은 7/28 통합 계약을 사용한다', async () => {

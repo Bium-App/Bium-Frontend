@@ -31,7 +31,26 @@ const asApiError = (error: unknown): ApiErrorLike =>
   error && typeof error === 'object' ? (error as ApiErrorLike) : {};
 
 export const getApiResponseMessage = (error: unknown): string | undefined =>
-  asApiError(error).response?.data?.message;
+  getResponseMessage(asApiError(error));
+
+const getFirstFieldError = (
+  fieldErrors?: Record<string, FieldErrorValue>,
+): string | undefined => {
+  if (!fieldErrors || typeof fieldErrors !== 'object') return undefined;
+  const firstFieldMessage = Object.values(fieldErrors).find(Boolean);
+  if (Array.isArray(firstFieldMessage)) return firstFieldMessage[0];
+  return firstFieldMessage ? String(firstFieldMessage) : undefined;
+};
+
+function getResponseMessage(error: ApiErrorLike): string | undefined {
+  const response = error.response;
+  if (!response) return undefined;
+  return (
+    getFirstFieldError(response.data?.fieldErrors) ??
+    response.data?.message ??
+    STATUS_ERROR_MESSAGES[response.status]
+  );
+}
 
 export const getErrorMessage = (error: unknown): string | undefined =>
   error instanceof Error ? error.message : undefined;
@@ -41,16 +60,11 @@ export const getApiErrorMessage = (
   fallback: string,
 ): string => {
   const apiError = asApiError(error);
-  const data = apiError.response?.data;
-  const fieldErrors = data?.fieldErrors;
-  if (fieldErrors && typeof fieldErrors === 'object') {
-    const firstFieldMessage = Object.values(fieldErrors).find(Boolean);
-    if (Array.isArray(firstFieldMessage)) {
-      return firstFieldMessage[0] ?? fallback;
-    }
-    if (firstFieldMessage) return String(firstFieldMessage);
+  const responseMessage = getResponseMessage(apiError);
+  if (responseMessage) return responseMessage;
+  if (!apiError.response && !apiError.code && error instanceof Error) {
+    return error.message || fallback;
   }
-  if (data?.message) return data.message;
   if (NETWORK_ERROR_CODES.has(apiError.code ?? '') || !apiError.response) {
     return '서버에 연결할 수 없습니다. 네트워크와 서버 주소를 확인해주세요.';
   }

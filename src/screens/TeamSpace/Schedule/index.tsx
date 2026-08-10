@@ -4,11 +4,13 @@ import {
   Alert,
   StatusBar,
   ScrollView,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import Header from '../../../components/Header';
+import AsyncState from '../../../components/AsyncState';
 import CalendarIcon from '../../../assets/icons/ic_calendar.svg';
 import PlusIcon from '../../../assets/icons/ic_plus.svg';
 import { useTeamSchedules } from '../../../hooks/useTeamSchedules';
@@ -47,8 +49,8 @@ type ScheduleScreenProps = NativeStackScreenProps<
 >;
 
 export default function Schedule({route, navigation}: ScheduleScreenProps) {
-  const {projectId} = route.params;
-  const { schedules, isLoading, getScheduleDetail } =
+  const {projectId, projectName} = route.params;
+  const {schedules, isLoading, errorMessage, fetchSchedules, getScheduleDetail} =
     useTeamSchedules(projectId);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -88,8 +90,17 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Header title={`프로젝트 #${projectId ?? '-'}`} left={backButton} />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <Header title={projectName ?? '팀 일정'} left={backButton} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchSchedules}
+            tintColor="#FF8933"
+          />
+        }
+      >
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
           <SearchInput
@@ -102,7 +113,9 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
         <TabContainer>
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('ProjectDetail', { projectId })}
+            onPress={() =>
+              navigation.replace('ProjectDetail', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>홈</TabText>
@@ -110,7 +123,9 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
           <TabSeparator />
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('ProjectTodo', { projectId })}
+            onPress={() =>
+              navigation.replace('ProjectTodo', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>할일</TabText>
@@ -122,7 +137,9 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
           <TabSeparator />
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('Files', { projectId })}
+            onPress={() =>
+              navigation.replace('Files', {projectId, projectName})
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>파일</TabText>
@@ -140,10 +157,20 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
             </SmallAddButton>
           </SectionHeader>
 
-          {isLoading ? <ActivityIndicator color="#FF8933" /> : null}
-          {!isLoading && !groupedSchedules.length ? (
+          {isLoading && schedules.length > 0 ? (
+            <ActivityIndicator color="#FF8933" />
+          ) : null}
+          {!groupedSchedules.length && (isLoading || errorMessage) ? (
+            <AsyncState
+              isLoading={isLoading}
+              errorMessage={errorMessage}
+              onRetry={fetchSchedules}
+            />
+          ) : !groupedSchedules.length ? (
             <EmptyScheduleText>
-              등록된 일정이 없습니다.
+              {searchQuery.trim() && schedules.length > 0
+                ? '검색된 일정이 없습니다.'
+                : '등록된 일정이 없습니다.'}
             </EmptyScheduleText>
           ) : null}
 

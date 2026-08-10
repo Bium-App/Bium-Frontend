@@ -37,25 +37,39 @@ export const useFriendRequestList = () => {
   const [sent, setSent] = useState<FriendRequestListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [receivedErrorMessage, setReceivedErrorMessage] = useState('');
+  const [sentErrorMessage, setSentErrorMessage] = useState('');
 
   const fetchRequests = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    setErrorMessage('');
-    try {
-      const [receivedData, sentData] = await Promise.all([
-        getReceivedFriendRequestsApi(),
-        getSentFriendRequestsApi(),
-      ]);
-      setReceived(receivedData.map(mapRequest));
-      setSent(sentData.map(mapRequest));
-    } catch (error) {
-      setErrorMessage(
-        getApiErrorMessage(error, '친구 요청함을 불러오지 못했습니다.'),
+    setReceivedErrorMessage('');
+    setSentErrorMessage('');
+    const [receivedResult, sentResult] = await Promise.allSettled([
+      getReceivedFriendRequestsApi(),
+      getSentFriendRequestsApi(),
+    ]);
+
+    if (receivedResult.status === 'fulfilled') {
+      setReceived(receivedResult.value.map(mapRequest));
+    } else {
+      setReceivedErrorMessage(
+        getApiErrorMessage(
+          receivedResult.reason,
+          '받은 친구 요청을 불러오지 못했습니다.',
+        ),
       );
-    } finally {
-      setIsLoading(false);
     }
+    if (sentResult.status === 'fulfilled') {
+      setSent(sentResult.value.map(mapRequest));
+    } else {
+      setSentErrorMessage(
+        getApiErrorMessage(
+          sentResult.reason,
+          '보낸 친구 요청을 불러오지 못했습니다.',
+        ),
+      );
+    }
+    setIsLoading(false);
   }, []);
 
   useFocusEffect(
@@ -111,7 +125,8 @@ export const useFriendRequestList = () => {
     filteredSent,
     isLoading,
     isProcessing,
-    errorMessage,
+    receivedErrorMessage,
+    sentErrorMessage,
     fetchRequests,
     hasRequests: received.length > 0 || sent.length > 0,
     handleAccept: (requestId: EntityId) =>

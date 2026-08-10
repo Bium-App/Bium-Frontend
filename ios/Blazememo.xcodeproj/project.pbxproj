@@ -262,7 +262,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = WF3D2SSL85;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = Blazememo/Info.plist;
+				INFOPLIST_FILE = Blazememo/Info.Debug.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

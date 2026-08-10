@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {Alert} from 'react-native';
 import dayjs from 'dayjs';
 import {createMemoApi, updateMemoApi} from '../api/memos';
@@ -31,6 +31,20 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
     selectFile: selectImage,
     clearFile: removeImage,
   } = useFileSelection({kind: 'image'});
+
+  const resetForm = useCallback((): void => {
+    setTitle('');
+    setContent('');
+    setTimer('24h');
+    removeImage();
+  }, [removeImage]);
+
+  useEffect(() => {
+    setTitle(initialData?.title ?? '');
+    setContent(initialData?.content ?? '');
+    setTimer('24h');
+    removeImage();
+  }, [initialData?.content, initialData?.id, initialData?.title, removeImage]);
 
   const handleSave = async (
     memoId?: EntityId,
@@ -71,6 +85,7 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
           });
           await addMemoImageApi(savedMemoId, imageUrl);
         } catch (uploadError) {
+          resetForm();
           Alert.alert(
             '이미지 업로드 실패',
             `메모는 저장됐지만 이미지를 첨부하지 못했습니다.\n${
@@ -84,6 +99,7 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
         }
       }
 
+      resetForm();
       Alert.alert(
         '성공',
         memoId ? '메모가 수정되었습니다.' : '새 메모가 저장되었습니다.',
@@ -110,6 +126,7 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
     isPickingImage,
     selectImage,
     removeImage,
+    resetForm,
     isLoading,
     handleSave,
   };

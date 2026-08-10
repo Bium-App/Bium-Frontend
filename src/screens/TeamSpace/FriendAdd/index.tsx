@@ -35,6 +35,7 @@ import {
   HeaderRightButton,
   BadgeContainer,
   BadgeText,
+  WarningText,
 } from './FriendAdd.styles';
 
 type FriendAddScreenProps = NativeStackScreenProps<
@@ -152,6 +153,9 @@ export default function FriendAdd({navigation}: FriendAddScreenProps) {
         )}
 
         <SectionTitle>추천 친구</SectionTitle>
+        {initialErrorMessage && recommendedFriends.length > 0 ? (
+          <WarningText>{initialErrorMessage}</WarningText>
+        ) : null}
         <ListCard>
           {recommendedFriends.length === 0 ? (
             <AsyncState

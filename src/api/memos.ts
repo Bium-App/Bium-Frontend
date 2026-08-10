@@ -1,4 +1,5 @@
 import apiClient from './client';
+import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateMemoRequest,
@@ -21,8 +22,8 @@ export const createMemoApi = async (
 };
 
 export const getUserMemosApi = async (): Promise<MemoSummary[]> => {
-  const response = await apiClient.get<MemoSummary[]>('/api/memos');
-  return response.data;
+  const response = await apiClient.get<unknown>('/api/memos');
+  return parseRootArray<MemoSummary>(response.data, '메모 목록');
 };
 
 export const getMemoApi = async (memoId: EntityId): Promise<MemoDetail> => {
@@ -33,10 +34,10 @@ export const getMemoApi = async (memoId: EntityId): Promise<MemoDetail> => {
 export const getTeamMemosApi = async (
   teamSpaceId: EntityId,
 ): Promise<MemoSummary[]> => {
-  const response = await apiClient.get<MemoSummary[]>('/api/memos', {
+  const response = await apiClient.get<unknown>('/api/memos', {
     params: {teamSpaceId},
   });
-  return response.data;
+  return parseRootArray<MemoSummary>(response.data, '팀 메모 목록');
 };
 
 export const updateMemoApi = async (
@@ -84,8 +85,8 @@ export const moveMemoToTrashApi = async (
 };
 
 export const getTrashMemosApi = async (): Promise<TrashMemo[]> => {
-  const response = await apiClient.get<TrashMemo[]>('/api/trash');
-  return response.data;
+  const response = await apiClient.get<unknown>('/api/trash');
+  return parseRootArray<TrashMemo>(response.data, '휴지통 목록');
 };
 
 export const restoreMemoApi = async (

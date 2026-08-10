@@ -4,7 +4,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import FireIcon from '../../assets/icons/ic_fire.svg';
 import IceIcon from '../../assets/icons/ic_ice.svg';
-import PinIcon from '../../assets/icons/ic_icepin.svg';
+import PinIcon from '../../assets/icons/ic_pin.svg';
+import PinnedPinIcon from '../../assets/icons/ic_icepin.svg';
 import type {MemoStatus} from '../../types/memo';
 
 import {
@@ -51,7 +52,11 @@ export default function MemoCard({
       align="flex-start"
       activeOpacity={0.8}
       onPress={() => onPin?.(item)}>
-      <PinIcon width={22} height={22} color="#7CC4FF" />
+      {item.isPinned ? (
+        <PinnedPinIcon width={22} height={22} />
+      ) : (
+        <PinIcon width={22} height={22} color="#7CC4FF" />
+      )}
     </ActionBackground>
   );
 

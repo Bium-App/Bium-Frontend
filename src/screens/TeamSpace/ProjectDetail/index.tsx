@@ -12,7 +12,13 @@ import Header from '../../../components/Header';
 import AsyncState from '../../../components/AsyncState';
 import DatePicker from 'react-native-date-picker';
 import { useProjectDetail } from '../../../hooks/useProjectDetail';
+import {useTeamManagement} from '../../../hooks/useTeamManagement';
+import {
+  getApiErrorMessage,
+  getErrorMessage,
+} from '../../../utils/apiError';
 import type {RootStackParamList} from '../../../types/navigation';
+import type {TeamMember} from '../../../types/teamSpace';
 
 import MegaphoneIcon from '../../../assets/icons/ic_megaphone.svg';
 import CalendarIcon from '../../../assets/icons/ic_calendar.svg';
@@ -62,11 +68,32 @@ import {
   ToggleRow,
   ToggleLabel,
   HeaderBackButton,
+  HeaderActionButton,
   NoticeAddButton,
+  SectionMoreButton,
+  SectionMoreText,
+  InlineWarningButton,
+  InlineWarningText,
   CustomToggle,
   ToggleCircle,
   DateRightWrapper,
   DateActionText,
+  ManagementBody,
+  TeamSummary,
+  TeamSummaryTitle,
+  TeamSummaryText,
+  MemberList,
+  MemberItem,
+  MemberAvatar,
+  MemberAvatarText,
+  MemberInfo,
+  MemberName,
+  MemberIdText,
+  RoleBadge,
+  RoleText,
+  ManagementHelpText,
+  DeleteTeamButton,
+  DeleteTeamText,
 } from './ProjectDetail.styles';
 
 type ProjectDetailScreenProps = NativeStackScreenProps<
@@ -79,7 +106,7 @@ export default function ProjectDetail({
   navigation,
 }: ProjectDetailScreenProps) {
   // 이전 화면에서 전달받은 팀 고유 ID 추출
-  const {projectId} = route.params;
+  const {projectId, projectName} = route.params;
 
   // 뷰모델 연결
   const {
@@ -129,7 +156,21 @@ export default function ProjectDetail({
     deleteTodo,
     toggleTodo,
   } = useProjectDetail(projectId);
+  const {
+    team,
+    members,
+    currentUserId,
+    canManage,
+    isLoading: isTeamLoading,
+    errorMessage: teamErrorMessage,
+    fetchTeamManagement,
+    updateMemberRole,
+    removeMember,
+    deleteTeam,
+  } = useTeamManagement(projectId);
+  const resolvedProjectName = team?.name ?? projectName;
   const [searchQuery, setSearchQuery] = useState('');
+  const [isManagementVisible, setManagementVisible] = useState(false);
   const hasDashboardData =
     notices.length > 0 || todos.length > 0 || schedules.length > 0;
 
@@ -184,24 +225,129 @@ export default function ProjectDetail({
     ]);
   };
 
+  const refreshAll = async (): Promise<void> => {
+    await Promise.all([fetchDashboardData(), fetchTeamManagement()]);
+  };
+
+  const getActionErrorMessage = (error: unknown, fallback: string): string =>
+    getApiErrorMessage(error, getErrorMessage(error) ?? fallback);
+
+  const openMemberActions = (member: TeamMember): void => {
+    if (!canManage) return;
+    if (String(member.userId) === String(currentUserId)) {
+      Alert.alert('팀원 관리', '본인의 역할은 이 화면에서 변경할 수 없습니다.');
+      return;
+    }
+    if (member.teamMemberId === undefined || member.teamMemberId === null) {
+      Alert.alert(
+        '팀원 관리 불가',
+        '서버의 팀원 목록 응답에 teamMemberId가 없어 역할 변경과 내보내기를 진행할 수 없습니다.',
+      );
+      return;
+    }
+
+    const nextRole = member.role === 'LEADER' ? 'MEMBER' : 'LEADER';
+    Alert.alert('팀원 관리', member.nickname || `사용자 #${member.userId}`, [
+      {
+        text: nextRole === 'LEADER' ? '리더로 변경' : '멤버로 변경',
+        onPress: async () => {
+          try {
+            await updateMemberRole(member, nextRole);
+          } catch (error) {
+            Alert.alert(
+              '역할 변경 실패',
+              getActionErrorMessage(error, '팀원 역할을 변경하지 못했습니다.'),
+            );
+          }
+        },
+      },
+      {
+        text: '팀에서 내보내기',
+        style: 'destructive',
+        onPress: () =>
+          Alert.alert('팀원 내보내기', '이 팀원을 내보내시겠습니까?', [
+            {text: '취소', style: 'cancel'},
+            {
+              text: '내보내기',
+              style: 'destructive',
+              onPress: async () => {
+                try {
+                  await removeMember(member);
+                } catch (error) {
+                  Alert.alert(
+                    '내보내기 실패',
+                    getActionErrorMessage(
+                      error,
+                      '팀원을 내보내지 못했습니다.',
+                    ),
+                  );
+                }
+              },
+            },
+          ]),
+      },
+      {text: '취소', style: 'cancel'},
+    ]);
+  };
+
+  const confirmDeleteTeam = (): void => {
+    Alert.alert(
+      '팀 삭제',
+      '팀의 공지, 할 일, 일정, 파일이 함께 삭제될 수 있습니다. 정말 삭제하시겠습니까?',
+      [
+        {text: '취소', style: 'cancel'},
+        {
+          text: '팀 삭제',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteTeam();
+              setManagementVisible(false);
+              navigation.goBack();
+            } catch (error) {
+              Alert.alert(
+                '팀 삭제 실패',
+                getActionErrorMessage(error, '팀을 삭제하지 못했습니다.'),
+              );
+            }
+          },
+        },
+      ],
+    );
+  };
+
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
       <Icon name="chevron-back" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
 
+  const managementButton = (
+    <HeaderActionButton
+      accessibilityLabel="팀 관리"
+      onPress={() => setManagementVisible(true)}
+      activeOpacity={0.8}
+    >
+      <Icon name="settings-outline" size={22} color="#FF8933" />
+    </HeaderActionButton>
+  );
+
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <Header title="프로젝트 상세" left={backButton} />
+      <Header
+        title={resolvedProjectName ?? '프로젝트 상세'}
+        left={backButton}
+        right={managementButton}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={isLoading}
-            onRefresh={fetchDashboardData}
+            refreshing={isLoading || isTeamLoading}
+            onRefresh={refreshAll}
             tintColor="#FF8933"
           />
         }
@@ -223,7 +369,12 @@ export default function ProjectDetail({
           <TabSeparator />
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('ProjectTodo', { projectId })}
+            onPress={() =>
+              navigation.replace('ProjectTodo', {
+                projectId,
+                projectName: resolvedProjectName,
+              })
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>할일</TabText>
@@ -231,7 +382,12 @@ export default function ProjectDetail({
           <TabSeparator />
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('Schedule', { projectId })}
+            onPress={() =>
+              navigation.replace('Schedule', {
+                projectId,
+                projectName: resolvedProjectName,
+              })
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>일정</TabText>
@@ -239,12 +395,26 @@ export default function ProjectDetail({
           <TabSeparator />
           <TabItem
             isActive={false}
-            onPress={() => navigation.replace('Files', { projectId })}
+            onPress={() =>
+              navigation.replace('Files', {
+                projectId,
+                projectName: resolvedProjectName,
+              })
+            }
             activeOpacity={0.7}
           >
             <TabText isActive={false}>파일</TabText>
           </TabItem>
         </TabContainer>
+
+        {errorMessage && hasDashboardData ? (
+          <InlineWarningButton onPress={fetchDashboardData} activeOpacity={0.8}>
+            <InlineWarningText>
+              일부 정보를 불러오지 못했습니다. 눌러서 다시 시도해주세요.{`\n`}
+              {errorMessage}
+            </InlineWarningText>
+          </InlineWarningButton>
+        ) : null}
 
         {showDashboardState ? (
           <AsyncState
@@ -298,7 +468,17 @@ export default function ProjectDetail({
             <SectionContainer>
               <SectionHeader>
                 <SectionTitle>할일 체크리스트</SectionTitle>
-                <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
+                <SectionMoreButton
+                  onPress={() =>
+                    navigation.navigate('ProjectTodo', {
+                      projectId,
+                      projectName: resolvedProjectName,
+                    })
+                  }
+                  activeOpacity={0.7}
+                >
+                  <SectionMoreText>전체보기</SectionMoreText>
+                </SectionMoreButton>
               </SectionHeader>
               <ListCard>
                 {filteredTodos.length === 0 ? (
@@ -343,7 +523,17 @@ export default function ProjectDetail({
             <SectionContainer>
               <SectionHeader>
                 <SectionTitle>일정</SectionTitle>
-                <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
+                <SectionMoreButton
+                  onPress={() =>
+                    navigation.navigate('Schedule', {
+                      projectId,
+                      projectName: resolvedProjectName,
+                    })
+                  }
+                  activeOpacity={0.7}
+                >
+                  <SectionMoreText>전체보기</SectionMoreText>
+                </SectionMoreButton>
               </SectionHeader>
               <ListCard>
                 {filteredSchedules.length === 0 ? (
@@ -528,6 +718,98 @@ export default function ProjectDetail({
                 </ModalDeleteButton>
               ) : null}
             </ModalBody>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
+
+      <Modal
+        visible={isManagementVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setManagementVisible(false)}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalHeader>
+              <ModalHeaderButton onPress={() => setManagementVisible(false)}>
+                <ModalCancelText>닫기</ModalCancelText>
+              </ModalHeaderButton>
+              <ModalTitleText>팀 관리</ModalTitleText>
+              <ModalHeaderButton onPress={fetchTeamManagement}>
+                <ModalSaveText>새로고침</ModalSaveText>
+              </ModalHeaderButton>
+            </ModalHeader>
+            <ManagementBody showsVerticalScrollIndicator={false}>
+              <TeamSummary>
+                <TeamSummaryTitle>{team?.name ?? '팀스페이스'}</TeamSummaryTitle>
+                <TeamSummaryText>멤버 {members.length}명</TeamSummaryText>
+              </TeamSummary>
+
+              {isTeamLoading && members.length === 0 ? (
+                <AsyncState isLoading={true} />
+              ) : teamErrorMessage && members.length === 0 ? (
+                <AsyncState
+                  errorMessage={teamErrorMessage}
+                  onRetry={fetchTeamManagement}
+                />
+              ) : members.length === 0 ? (
+                <AsyncState emptyMessage="등록된 팀원이 없습니다." />
+              ) : (
+                <MemberList>
+                  {members.map((member, index) => {
+                    const isLeader = member.role === 'LEADER';
+                    const isCurrent =
+                      String(member.userId) === String(currentUserId);
+                    return (
+                      <MemberItem
+                        key={String(member.teamMemberId ?? member.userId)}
+                        isLast={index === members.length - 1}
+                        disabled={!canManage}
+                        onPress={() => openMemberActions(member)}
+                        activeOpacity={canManage ? 0.7 : 1}
+                      >
+                        <MemberAvatar>
+                          <MemberAvatarText>
+                            {member.nickname?.charAt(0) || '?'}
+                          </MemberAvatarText>
+                        </MemberAvatar>
+                        <MemberInfo>
+                          <MemberName>
+                            {member.nickname || `사용자 #${member.userId}`}
+                            {isCurrent ? ' (나)' : ''}
+                          </MemberName>
+                          <MemberIdText>사용자 ID {member.userId}</MemberIdText>
+                        </MemberInfo>
+                        <RoleBadge isLeader={isLeader}>
+                          <RoleText isLeader={isLeader}>
+                            {isLeader ? '리더' : '멤버'}
+                          </RoleText>
+                        </RoleBadge>
+                      </MemberItem>
+                    );
+                  })}
+                </MemberList>
+              )}
+
+              {teamErrorMessage && members.length > 0 ? (
+                <ManagementHelpText>{teamErrorMessage}</ManagementHelpText>
+              ) : null}
+              <ManagementHelpText>
+                {canManage
+                  ? '팀원을 누르면 역할 변경 또는 내보내기를 할 수 있습니다.'
+                  : '팀 리더만 멤버 역할 변경, 내보내기, 팀 삭제를 할 수 있습니다.'}
+              </ManagementHelpText>
+
+              {canManage ? (
+                <DeleteTeamButton
+                  disabled={isTeamLoading}
+                  onPress={confirmDeleteTeam}
+                  activeOpacity={0.7}
+                >
+                  <DeleteTeamText>팀 삭제</DeleteTeamText>
+                </DeleteTeamButton>
+              ) : null}
+            </ManagementBody>
           </ModalContainer>
         </ModalOverlay>
       </Modal>

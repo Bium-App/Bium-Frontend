@@ -13,6 +13,11 @@ import {
   updateRefreshToken,
 } from '../utils/authStorage';
 import type {RefreshAccessTokenResponse} from '../types/api';
+import {
+  logApiError,
+  logApiRequest,
+  logApiResponse,
+} from '../utils/apiLogger';
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -70,11 +75,13 @@ apiClient.interceptors.request.use(async config => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
+  logApiRequest(config);
   return config;
 });
 
 apiClient.interceptors.response.use(
   response => {
+    logApiResponse(response);
     if (response.config.url?.startsWith('/api/auth/login')) {
       didShowSessionExpiredAlert = false;
     }
@@ -88,7 +95,10 @@ apiClient.interceptors.response.use(
       !originalRequest._retry &&
       !isPublicAuthRequest(originalRequest.url);
 
-    if (!canRefresh) return Promise.reject(error);
+    if (!canRefresh) {
+      logApiError(error);
+      return Promise.reject(error);
+    }
 
     originalRequest._retry = true;
     try {
@@ -97,6 +107,9 @@ apiClient.interceptors.response.use(
       didShowSessionExpiredAlert = false;
       return apiClient(originalRequest);
     } catch (refreshError) {
+      if (refreshError && typeof refreshError === 'object') {
+        logApiError(refreshError as AxiosError);
+      }
       await clearSession().catch(() => undefined);
       resetToLogin();
       if (!didShowSessionExpiredAlert) {

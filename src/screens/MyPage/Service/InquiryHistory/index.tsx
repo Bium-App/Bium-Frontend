@@ -1,14 +1,14 @@
 import React from 'react';
 import type {RootScreenProps} from '../../../../types/navigation';
-import { ActivityIndicator, RefreshControl } from 'react-native';
+import {RefreshControl} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import dayjs from 'dayjs';
 import Header from '../../../../components/Header';
+import AsyncState from '../../../../components/AsyncState';
 import { useInquiryHistory } from '../../../../hooks/useInquiryHistory';
 import {
   Container,
   ContentScroll,
-  EmptyText,
   HeaderBackButton,
   InquiryCard,
   InquiryContent,
@@ -29,7 +29,8 @@ const getStatusLabel = (status?: string): string =>
   status === 'ANSWERED' ? '답변 완료' : '답변 대기';
 
 export default function InquiryHistory({navigation}: RootScreenProps<'InquiryHistory'>) {
-  const { inquiries, isLoading, fetchInquiries } = useInquiryHistory();
+  const {inquiries, isLoading, errorMessage, fetchInquiries} =
+    useInquiryHistory();
 
   return (
     <Container>
@@ -54,12 +55,13 @@ export default function InquiryHistory({navigation}: RootScreenProps<'InquiryHis
           />
         }
       >
-        {isLoading && !inquiries.length ? (
-          <ActivityIndicator color="#FF8933" />
-        ) : null}
-
-        {!isLoading && !inquiries.length ? (
-          <EmptyText>등록된 문의가 없습니다.</EmptyText>
+        {!inquiries.length ? (
+          <AsyncState
+            isLoading={isLoading}
+            errorMessage={errorMessage}
+            emptyMessage="등록된 문의가 없습니다."
+            onRetry={fetchInquiries}
+          />
         ) : null}
 
         {inquiries.map(inquiry => (

@@ -6,7 +6,7 @@ import {
   getTrashMemosApi,
   restoreMemoApi,
 } from '../api/memos';
-import {getApiResponseMessage} from '../utils/apiError';
+import {getApiErrorMessage} from '../utils/apiError';
 
 export interface TrashItem {
   id: string;
@@ -18,9 +18,11 @@ export interface TrashItem {
 export const useTrash = () => {
   const [trashItems, setTrashItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const fetchTrashMemos = useCallback(async (): Promise<void> => {
     setIsLoading(true);
+    setErrorMessage('');
     try {
       const memos = await getTrashMemosApi();
       setTrashItems(
@@ -36,10 +38,8 @@ export const useTrash = () => {
         }),
       );
     } catch (error) {
-      Alert.alert(
-        '오류',
-        getApiResponseMessage(error) ??
-          '휴지통 데이터를 불러오지 못했습니다.',
+      setErrorMessage(
+        getApiErrorMessage(error, '휴지통 데이터를 불러오지 못했습니다.'),
       );
     } finally {
       setIsLoading(false);
@@ -58,7 +58,7 @@ export const useTrash = () => {
     } catch (error) {
       Alert.alert(
         '오류',
-        getApiResponseMessage(error) ?? '메모 복구에 실패했습니다.',
+        getApiErrorMessage(error, '메모 복구에 실패했습니다.'),
       );
     } finally {
       setIsLoading(false);
@@ -78,7 +78,7 @@ export const useTrash = () => {
     } catch (error) {
       Alert.alert(
         '오류',
-        getApiResponseMessage(error) ?? '메모 영구 삭제에 실패했습니다.',
+        getApiErrorMessage(error, '메모 영구 삭제에 실패했습니다.'),
       );
     } finally {
       setIsLoading(false);
@@ -88,6 +88,7 @@ export const useTrash = () => {
   return {
     trashItems,
     isLoading,
+    errorMessage,
     fetchTrashMemos,
     handleRestoreMemos,
     handlePermanentDeleteMemos,
