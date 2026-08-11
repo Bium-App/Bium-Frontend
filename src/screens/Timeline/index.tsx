@@ -207,7 +207,7 @@ export default function Timeline({navigation}: TimelineScreenProps) {
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Header
-        title=""
+        title="타임라인"
         right={
           <HeaderIconRow>
             <IconButton onPress={() => navigation.navigate('Notification')}>
