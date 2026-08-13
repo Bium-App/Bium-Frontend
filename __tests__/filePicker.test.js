@@ -9,6 +9,7 @@ import {
   formatFileSize,
   pickDocumentFile,
   pickImageFile,
+  pickMemoImageFiles,
   validateSelectedFile,
 } from '../src/utils/filePicker';
 
@@ -80,6 +81,26 @@ describe('filePicker', () => {
       height: 100,
       kind: 'image',
     });
+  });
+
+  it('메모 첨부에서 이미지 한 개만 선택한다', async () => {
+    launchImageLibrary.mockResolvedValue({
+      assets: [
+        {
+          uri: 'file://memo.jpg',
+          fileName: 'memo.jpg',
+          type: 'image/jpeg',
+          fileSize: 1200,
+        },
+      ],
+    });
+
+    await expect(pickMemoImageFiles()).resolves.toEqual([
+      expect.objectContaining({ name: 'memo.jpg', kind: 'image' }),
+    ]);
+    expect(launchImageLibrary).toHaveBeenCalledWith(
+      expect.objectContaining({ mediaType: 'photo', selectionLimit: 1 }),
+    );
   });
 
   it('문서 선택 취소는 오류 대신 null을 반환한다', async () => {

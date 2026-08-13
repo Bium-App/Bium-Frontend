@@ -38,6 +38,8 @@ export default function DeviceManagement({navigation}: RootScreenProps<'DeviceMa
     logoutDevice,
     logoutAllDevices,
   } = useDeviceManagement();
+  const currentDevice = devices.find(device => device.isCurrent);
+  const recentDevices = devices.filter(device => !device.isCurrent);
 
   const renderDeviceIcon = (type: DeviceListItem['type']) => {
     if (type === 'laptop') {
@@ -127,13 +129,45 @@ export default function DeviceManagement({navigation}: RootScreenProps<'DeviceMa
           />
         }
       >
-        <SectionTitle isFirst={true}>로그인 기기</SectionTitle>
+        <SectionTitle isFirst={true}>현재 로그인 기기</SectionTitle>
         <ListCard>
-          {devices.length ? (
-            devices.map((device, index) => (
+          {currentDevice ? (
+            <DeviceRow
+              isLast={true}
+              activeOpacity={1}
+              disabled={true}
+            >
+              <DeviceIconWrapper>
+                {renderDeviceIcon(currentDevice.type)}
+              </DeviceIconWrapper>
+              <DeviceTextCol>
+                <DeviceName>{currentDevice.name}</DeviceName>
+                <DeviceDesc>현재 로그인 기기</DeviceDesc>
+              </DeviceTextCol>
+              <DeviceRightCol>
+                <CurrentBadge>
+                  <CurrentBadgeText>현재 기기</CurrentBadgeText>
+                </CurrentBadge>
+                <TimeText>{currentDevice.time}</TimeText>
+              </DeviceRightCol>
+            </DeviceRow>
+          ) : (
+            <AsyncState
+              isLoading={isLoading}
+              errorMessage={errorMessage}
+              emptyMessage="현재 로그인 기기를 확인할 수 없습니다."
+              onRetry={fetchDevices}
+            />
+          )}
+        </ListCard>
+
+        <SectionTitle isFirst={false}>최근 로그인 기록</SectionTitle>
+        <ListCard>
+          {recentDevices.length ? (
+            recentDevices.map((device, index) => (
               <DeviceRow
                 key={device.id}
-                isLast={index === devices.length - 1}
+                isLast={index === recentDevices.length - 1}
                 activeOpacity={0.7}
                 disabled={isLoading}
                 onPress={() => confirmLogoutDevice(device)}
@@ -143,16 +177,9 @@ export default function DeviceManagement({navigation}: RootScreenProps<'DeviceMa
                 </DeviceIconWrapper>
                 <DeviceTextCol>
                   <DeviceName>{device.name}</DeviceName>
-                  <DeviceDesc>
-                    {device.isCurrent ? '현재 로그인 기기' : '로그인 기기'}
-                  </DeviceDesc>
+                  <DeviceDesc>로그인 기기</DeviceDesc>
                 </DeviceTextCol>
                 <DeviceRightCol>
-                  {device.isCurrent ? (
-                    <CurrentBadge>
-                      <CurrentBadgeText>현재 기기</CurrentBadgeText>
-                    </CurrentBadge>
-                  ) : null}
                   <TimeText>{device.time}</TimeText>
                 </DeviceRightCol>
               </DeviceRow>
@@ -161,7 +188,7 @@ export default function DeviceManagement({navigation}: RootScreenProps<'DeviceMa
             <AsyncState
               isLoading={isLoading}
               errorMessage={errorMessage}
-              emptyMessage="로그인 기기가 없습니다."
+              emptyMessage="최근 로그인 기록이 없습니다."
               onRetry={fetchDevices}
             />
           )}

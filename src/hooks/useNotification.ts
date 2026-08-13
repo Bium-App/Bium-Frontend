@@ -83,7 +83,10 @@ export const useNotification = () => {
     {onMemoReady, onNavigate}: NotificationHandlers = {},
   ): Promise<void> => {
     await markAsRead(notification.id);
-    if (!notification.targetId) {
+    if (
+      notification.targetId === undefined ||
+      notification.targetId === null
+    ) {
       Alert.alert('이동 실패', '알림에 연결된 대상 정보가 없습니다.');
       return;
     }
@@ -95,6 +98,7 @@ export const useNotification = () => {
           id: String(memo.memoId),
           title: memo.title,
           content: memo.content,
+          richContent: memo.richContent,
           status: memo.status,
           expiredAt: memo.expiredAt,
           createdAt: memo.createdAt,

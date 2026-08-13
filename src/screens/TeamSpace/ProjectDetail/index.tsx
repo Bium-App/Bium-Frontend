@@ -7,18 +7,15 @@ import {
   RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Header from '../../../components/Header';
 import AsyncState from '../../../components/AsyncState';
 import DatePicker from 'react-native-date-picker';
 import { useProjectDetail } from '../../../hooks/useProjectDetail';
-import {useTeamManagement} from '../../../hooks/useTeamManagement';
-import {
-  getApiErrorMessage,
-  getErrorMessage,
-} from '../../../utils/apiError';
-import type {RootStackParamList} from '../../../types/navigation';
-import type {TeamMember} from '../../../types/teamSpace';
+import { useTeamManagement } from '../../../hooks/useTeamManagement';
+import { getApiErrorMessage, getErrorMessage } from '../../../utils/apiError';
+import type { RootStackParamList } from '../../../types/navigation';
+import type { TeamMember } from '../../../types/teamSpace';
 
 import MegaphoneIcon from '../../../assets/icons/ic_megaphone.svg';
 import CalendarIcon from '../../../assets/icons/ic_calendar.svg';
@@ -71,7 +68,6 @@ import {
   HeaderActionButton,
   NoticeAddButton,
   SectionMoreButton,
-  SectionMoreText,
   InlineWarningButton,
   InlineWarningText,
   CustomToggle,
@@ -106,7 +102,7 @@ export default function ProjectDetail({
   navigation,
 }: ProjectDetailScreenProps) {
   // 이전 화면에서 전달받은 팀 고유 ID 추출
-  const {projectId, projectName} = route.params;
+  const { projectId, projectName } = route.params;
 
   // 뷰모델 연결
   const {
@@ -124,6 +120,8 @@ export default function ProjectDetail({
     setNoticeContent,
     isPinned,
     setIsPinned,
+    isNoticeNotiEnabled,
+    setIsNoticeNotiEnabled,
     isNoticeTitleFocused,
     setIsNoticeTitleFocused,
     isNoticeContentFocused,
@@ -266,7 +264,7 @@ export default function ProjectDetail({
         style: 'destructive',
         onPress: () =>
           Alert.alert('팀원 내보내기', '이 팀원을 내보내시겠습니까?', [
-            {text: '취소', style: 'cancel'},
+            { text: '취소', style: 'cancel' },
             {
               text: '내보내기',
               style: 'destructive',
@@ -276,17 +274,14 @@ export default function ProjectDetail({
                 } catch (error) {
                   Alert.alert(
                     '내보내기 실패',
-                    getActionErrorMessage(
-                      error,
-                      '팀원을 내보내지 못했습니다.',
-                    ),
+                    getActionErrorMessage(error, '팀원을 내보내지 못했습니다.'),
                   );
                 }
               },
             },
           ]),
       },
-      {text: '취소', style: 'cancel'},
+      { text: '취소', style: 'cancel' },
     ]);
   };
 
@@ -295,7 +290,7 @@ export default function ProjectDetail({
       '팀 삭제',
       '팀의 공지, 할 일, 일정, 파일이 함께 삭제될 수 있습니다. 정말 삭제하시겠습니까?',
       [
-        {text: '취소', style: 'cancel'},
+        { text: '취소', style: 'cancel' },
         {
           text: '팀 삭제',
           style: 'destructive',
@@ -477,14 +472,12 @@ export default function ProjectDetail({
                   }
                   activeOpacity={0.7}
                 >
-                  <SectionMoreText>전체보기</SectionMoreText>
+                  <Icon name="ellipsis-horizontal" size={20} color="#FF8933" />
                 </SectionMoreButton>
               </SectionHeader>
               <ListCard>
                 {filteredTodos.length === 0 ? (
-                  <EmptySectionText>
-                    할 일이 없습니다.
-                  </EmptySectionText>
+                  <EmptySectionText>할 일이 없습니다.</EmptySectionText>
                 ) : (
                   filteredTodos.map((todo, index) => (
                     <TouchableListItem
@@ -532,14 +525,12 @@ export default function ProjectDetail({
                   }
                   activeOpacity={0.7}
                 >
-                  <SectionMoreText>전체보기</SectionMoreText>
+                  <Icon name="ellipsis-horizontal" size={20} color="#FF8933" />
                 </SectionMoreButton>
               </SectionHeader>
               <ListCard>
                 {filteredSchedules.length === 0 ? (
-                  <EmptySectionText>
-                    등록된 일정이 없습니다.
-                  </EmptySectionText>
+                  <EmptySectionText>등록된 일정이 없습니다.</EmptySectionText>
                 ) : (
                   filteredSchedules.map((schedule, index) => (
                     <ListItem
@@ -616,6 +607,20 @@ export default function ProjectDetail({
                   onPress={() => setIsPinned(!isPinned)}
                 >
                   <ToggleCircle isOn={isPinned} />
+                </CustomToggle>
+              </ToggleRow>
+
+              <Divider isSpaced={false} />
+
+              <ToggleRow>
+                <ToggleLabel>알림 발송</ToggleLabel>
+                <CustomToggle
+                  activeOpacity={0.8}
+                  disabled={isLoading}
+                  isOn={isNoticeNotiEnabled}
+                  onPress={() => setIsNoticeNotiEnabled(!isNoticeNotiEnabled)}
+                >
+                  <ToggleCircle isOn={isNoticeNotiEnabled} />
                 </CustomToggle>
               </ToggleRow>
 
@@ -741,7 +746,9 @@ export default function ProjectDetail({
             </ModalHeader>
             <ManagementBody showsVerticalScrollIndicator={false}>
               <TeamSummary>
-                <TeamSummaryTitle>{team?.name ?? '팀스페이스'}</TeamSummaryTitle>
+                <TeamSummaryTitle>
+                  {team?.name ?? '팀스페이스'}
+                </TeamSummaryTitle>
                 <TeamSummaryText>멤버 {members.length}명</TeamSummaryText>
               </TeamSummary>
 

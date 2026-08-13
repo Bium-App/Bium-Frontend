@@ -43,7 +43,10 @@ export const useCurrentUser = () => {
     if (!userId) throw new Error('사용자 정보를 찾을 수 없습니다.');
 
     await updateUserApi({
+      name: profile.name,
       nickname: profile.nickname,
+      email: profile.email,
+      phoneNumber: profile.phoneNumber,
       profileImageUrl: profile.profileImageUrl ?? null,
     });
     await fetchUser();

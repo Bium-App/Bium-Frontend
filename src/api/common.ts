@@ -3,8 +3,8 @@ import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateInquiryRequest,
+  CreateInquiryResponse,
   Inquiry,
-  InquiryMutationResponse,
   Notification,
   SearchResponse,
   ServiceNotice,
@@ -24,8 +24,8 @@ export const getServiceNoticesApi = async (): Promise<ServiceNotice[]> => {
 
 export const createInquiryApi = async (
   inquiry: CreateInquiryRequest,
-): Promise<InquiryMutationResponse> => {
-  const response = await apiClient.post<InquiryMutationResponse>(
+): Promise<CreateInquiryResponse> => {
+  const response = await apiClient.post<CreateInquiryResponse>(
     '/api/inquiries',
     inquiry,
   );

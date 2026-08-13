@@ -1,4 +1,4 @@
-import type {ApiMutationResponse, EntityId} from './api';
+import type { ApiMutationResponse, EntityId } from './api';
 
 export type FileDomain = 'PROFILE' | 'MEMO' | 'TEAM' | 'INQUIRY';
 export type SelectedFileKind = 'image' | 'document';
@@ -24,7 +24,7 @@ export interface PresignedUrlResponse {
   fileUrl: string;
 }
 
-export type UploadBlob = Blob & {close?: () => void};
+export type UploadBlob = Blob & { close?: () => void };
 
 export interface UploadFileRequest {
   domain: FileDomain;
@@ -51,3 +51,7 @@ export interface TeamFile extends CreateTeamFileRequest {
 }
 
 export type FileMutationResponse = ApiMutationResponse & Partial<TeamFile>;
+
+export interface MemoImageMutationResponse extends ApiMutationResponse {
+  imageId: EntityId;
+}

@@ -1,13 +1,32 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import {Modal, StatusBar, Platform, ActivityIndicator} from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Modal,
+  StatusBar,
+  Platform,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+} from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import type {CompositeScreenProps} from '@react-navigation/native';
-import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {
+  RichText,
+  TenTapStartKit,
+  useBridgeState,
+  useEditorBridge,
+  useEditorContent,
+} from '@10play/tentap-editor';
 import Header from '../../components/Header';
-import FilePickerField from '../../components/FilePickerField';
 import { useMemoEditor } from '../../hooks/useMemoEditor'; // 뷰모델 훅 임포트
+import {
+  FontSizeBridge,
+  type FontSizeEditorCommands,
+} from '../../editor/fontSizeBridge';
+import { formatFileSize } from '../../utils/filePicker';
+import type { MemoRichContent } from '../../types/memo';
 import type {
   MainTabParamList,
   RootStackParamList,
@@ -25,7 +44,7 @@ import {
   TitleInput,
   LengthText,
   Divider,
-  ContentInput,
+  RichEditorFrame,
   ContentLengthText,
   ToolbarBox,
   ToolbarRow,
@@ -39,6 +58,18 @@ import {
   ColorPickerWrapper,
   ColorCircle,
   SectionTitle,
+  SectionHeader,
+  SectionSubTitle,
+  ImageUploadBox,
+  UploadTitle,
+  UploadSub,
+  MediaPreviewList,
+  MediaPreviewItem,
+  MediaThumbnail,
+  MediaInfo,
+  MediaName,
+  MediaSize,
+  MediaRemoveButton,
   TimerBox,
   TimerHeaderRow,
   TimerDesc,
@@ -92,7 +123,26 @@ type MemoEditorScreenProps = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 
-type TextAlignment = 'left' | 'justify';
+const getInitialEditorContent = (
+  richContent: MemoRichContent | null | undefined,
+  content: string,
+): object | string => {
+  if (!richContent) return content;
+  return {
+    type: richContent.type,
+    attrs: richContent.attrs,
+    content: richContent.content,
+    marks: richContent.marks,
+    text: richContent.text,
+  };
+};
+
+const styles = StyleSheet.create({
+  richEditor: {
+    minHeight: 100,
+    backgroundColor: '#FFFFFF',
+  },
+});
 
 export default function MemoEditor({
   navigation,
@@ -107,51 +157,132 @@ export default function MemoEditor({
     title,
     setTitle,
     content,
-    setContent,
     timer,
     setTimer,
-    imageFile,
-    isPickingImage,
-    selectImage,
-    removeImage,
+    mediaFiles,
+    isPickingMedia,
+    selectMedia,
+    removeMedia,
     resetForm,
     isLoading,
     handleSave,
   } = useMemoEditor(initialData);
 
+  const editor = useEditorBridge({
+    bridgeExtensions: [...TenTapStartKit, FontSizeBridge],
+    initialContent: getInitialEditorContent(
+      initialData?.richContent,
+      initialData?.content ?? '',
+    ),
+    autofocus: false,
+    avoidIosKeyboard: true,
+    dynamicHeight: false,
+    editable: !isLoading,
+    theme: {
+      webview: {backgroundColor: '#FFFFFF'},
+      webviewContainer: {backgroundColor: '#FFFFFF'},
+    },
+  });
+  const editorState = useBridgeState(editor);
+  const editorText =
+    useEditorContent(editor, {type: 'text', debounceInterval: 100}) ?? content;
+  const richEditor = editor as typeof editor & FontSizeEditorCommands;
+  const initializedMemoRef = useRef<string | null>(null);
+
   // 화면 내부 동작 전용 상태 (툴바 UI 및 모달) - 기존 로직 완벽 유지
   const [fontSize, setFontSize] = useState(14);
-  const [align, setAlign] = useState<TextAlignment>('left');
-  const [format, setFormat] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-  });
   const [isModalVisible, setModalVisible] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
 
   const resetFormatting = useCallback(() => {
     setFontSize(14);
-    setAlign('left');
-    setFormat({bold: false, italic: false, underline: false});
   }, []);
 
   useEffect(() => {
     resetFormatting();
   }, [memoId, resetFormatting]);
 
+  useEffect(() => {
+    if (!editorState.isReady) return;
+    const editorKey = memoId ?? 'new';
+    if (initializedMemoRef.current === editorKey) return;
+    initializedMemoRef.current = editorKey;
+    editor.setPlaceholder('내용 입력...');
+    editor.setContent(
+      getInitialEditorContent(
+        initialData?.richContent,
+        initialData?.content ?? '',
+      ),
+    );
+  }, [
+    editor,
+    editorState.isReady,
+    initialData?.content,
+    initialData?.richContent,
+    memoId,
+  ]);
+
+  const clearRichEditor = useCallback(() => {
+    initializedMemoRef.current = null;
+    if (editorState.isReady) editor.setContent('');
+  }, [editor, editorState.isReady]);
+
   const closeEditor = useCallback(() => {
     resetForm();
     resetFormatting();
-    navigation.setParams({memoData: undefined});
+    clearRichEditor();
+    navigation.setParams({ memoData: undefined });
     navigation.goBack();
-  }, [navigation, resetForm, resetFormatting]);
+  }, [clearRichEditor, navigation, resetForm, resetFormatting]);
 
   const handleSaveSuccess = useCallback(() => {
     resetFormatting();
-    navigation.setParams({memoData: undefined});
+    clearRichEditor();
+    navigation.setParams({ memoData: undefined });
     navigation.goBack();
-  }, [navigation, resetFormatting]);
+  }, [clearRichEditor, navigation, resetFormatting]);
+
+  const saveMemo = useCallback(async () => {
+    if (!editorState.isReady) return;
+    try {
+      const [plainText, document] = await Promise.all([
+        editor.getText(),
+        editor.getJSON(),
+      ]);
+      const richContent = {...document, version: 1} as MemoRichContent;
+      await handleSave(memoId, handleSaveSuccess, {
+        content: plainText,
+        richContent,
+      });
+    } catch {
+      Alert.alert('오류', '편집기 내용을 불러오지 못했습니다.');
+    }
+  }, [editor, editorState.isReady, handleSave, handleSaveSuccess, memoId]);
+
+  const setSelectedFontSize = useCallback(
+    (nextSize: number) => {
+      const boundedSize = Math.min(30, Math.max(10, nextSize));
+      setFontSize(boundedSize);
+      richEditor.setFontSize(boundedSize);
+    },
+    [richEditor],
+  );
+
+  const injectEditorStyles = useCallback(() => {
+    editor.injectCSS(`
+      html, body { margin: 0; padding: 0; background: #ffffff; }
+      .ProseMirror {
+        min-height: 100px;
+        padding: 0;
+        color: #000000;
+        font-size: 14px;
+        line-height: 1.45;
+        outline: none;
+      }
+      .ProseMirror p { margin: 0 0 4px; }
+      .ProseMirror ul, .ProseMirror ol { margin: 0; padding-left: 22px; }
+    `);
+  }, [editor]);
 
   return (
     <Container>
@@ -166,9 +297,7 @@ export default function MemoEditor({
         right={
           // 로딩 중일 때는 터치를 막고, handleSave에 네비게이션 콜백 전달
           <HeaderTextButton
-            onPress={() =>
-              !isLoading && handleSave(memoId, handleSaveSuccess)
-            }
+            onPress={() => !isLoading && editorState.isReady && saveMemo()}
           >
             {isLoading ? (
               <ActivityIndicator color="#FF8933" size="small" />
@@ -195,75 +324,58 @@ export default function MemoEditor({
               <LengthText>{title.length}/50</LengthText>
             </TitleRow>
             <Divider />
-            <ContentInput
-              placeholder="내용 입력..."
-              placeholderTextColor="#AAAAAA"
-              maxLength={2000}
-              multiline={true}
-              scrollEnabled={true}
-              textAlignVertical="top"
-              value={content}
-              onChangeText={setContent}
-              editable={!isLoading} // 저장 중 입력 방지
-              customFontSize={fontSize}
-              bold={format.bold}
-              italic={format.italic}
-              underline={format.underline}
-              align={align}
-            />
-            <ContentLengthText>{content.length}/2000</ContentLengthText>
+            <RichEditorFrame>
+              <RichText
+                editor={editor}
+                onLoad={injectEditorStyles}
+                scrollEnabled={false}
+                style={styles.richEditor}
+              />
+            </RichEditorFrame>
+            <ContentLengthText>{editorText.length}/2000</ContentLengthText>
           </EditorBox>
-
-          <FilePickerField
-            label="메모 이미지"
-            helperText="이미지 1개, 최대 10MB까지 첨부할 수 있습니다."
-            file={imageFile}
-            kind="image"
-            isPicking={isPickingImage}
-            disabled={isLoading}
-            onSelect={selectImage}
-            onRemove={removeImage}
-          />
 
           <ToolbarBox>
             <ToolbarRow>
               <ToolGroup>
-                <ToolText color="#FF8933">
-                  Tt
-                </ToolText>
+                <ToolText color="#FF8933">Tt</ToolText>
               </ToolGroup>
               <ToolGroup>
                 <FontSizeBox>
                   <TouchableOpacity
-                    onPress={() => setFontSize(Math.max(10, fontSize - 1))}
+                    onPress={() => setSelectedFontSize(fontSize - 1)}
                   >
                     <Icon name="remove-outline" size={16} color="#000000" />
                   </TouchableOpacity>
                   <FontSizeText>{fontSize}px</FontSizeText>
                   <TouchableOpacity
-                    onPress={() => setFontSize(Math.min(30, fontSize + 1))}
+                    onPress={() => setSelectedFontSize(fontSize + 1)}
                   >
                     <Icon name="add-outline" size={16} color="#000000" />
                   </TouchableOpacity>
                 </FontSizeBox>
                 <ToolButton
-                  active={align === 'left'}
-                  onPress={() => setAlign('left')}
+                  active={!editorState.isBulletListActive}
+                  onPress={() =>
+                    editorState.isBulletListActive
+                      ? editor.toggleBulletList()
+                      : editor.focus()
+                  }
                 >
                   <Icon
                     name="menu-outline"
                     size={20}
-                    color={align === 'left' ? '#FF8933' : '#000000'}
+                    color={!editorState.isBulletListActive ? '#FF8933' : '#000000'}
                   />
                 </ToolButton>
                 <ToolButton
-                  active={align === 'justify'}
-                  onPress={() => setAlign('justify')}
+                  active={Boolean(editorState.isBulletListActive)}
+                  onPress={() => editor.toggleBulletList()}
                 >
                   <Icon
                     name="list-outline"
                     size={20}
-                    color={align === 'justify' ? '#FF8933' : '#000000'}
+                    color={editorState.isBulletListActive ? '#FF8933' : '#000000'}
                   />
                 </ToolButton>
               </ToolGroup>
@@ -272,39 +384,86 @@ export default function MemoEditor({
             <ToolbarRow $alignStart={true}>
               <FormatGroup>
                 <ToolButton
-                  active={format.bold}
-                  onPress={() => setFormat({ ...format, bold: !format.bold })}
+                  active={Boolean(editorState.isBoldActive)}
+                  onPress={() => editor.toggleBold()}
                 >
                   <ToolText color="#000000" bold>
                     B
                   </ToolText>
                 </ToolButton>
                 <ToolButton
-                  active={format.italic}
-                  onPress={() =>
-                    setFormat({ ...format, italic: !format.italic })
-                  }
+                  active={Boolean(editorState.isItalicActive)}
+                  onPress={() => editor.toggleItalic()}
                 >
                   <ToolText color="#000000" italic>
                     I
                   </ToolText>
                 </ToolButton>
                 <ToolButton
-                  active={format.underline}
-                  onPress={() =>
-                    setFormat({ ...format, underline: !format.underline })
-                  }
+                  active={Boolean(editorState.isUnderlineActive)}
+                  onPress={() => editor.toggleUnderline()}
                 >
                   <ToolText color="#000000" underline>
                     U
                   </ToolText>
                 </ToolButton>
               </FormatGroup>
-              <ColorPickerWrapper>
+              <ColorPickerWrapper
+                onPress={() =>
+                  editorState.activeColor === '#FF8933'
+                    ? editor.unsetColor()
+                    : editor.setColor('#FF8933')
+                }
+              >
                 <ColorCircle />
               </ColorPickerWrapper>
             </ToolbarRow>
           </ToolbarBox>
+
+          <SectionHeader>
+            <Icon name="camera-outline" size={18} color="#FF8933" />
+            <SectionTitle>이미지 추가</SectionTitle>
+            <SectionSubTitle>(선택)</SectionSubTitle>
+          </SectionHeader>
+
+          {mediaFiles.length > 0 ? (
+            <MediaPreviewList>
+              {mediaFiles.map(file => (
+                <MediaPreviewItem key={file.uri}>
+                  <MediaThumbnail source={{ uri: file.uri }} />
+                  <MediaInfo>
+                    <MediaName numberOfLines={1}>{file.name}</MediaName>
+                    <MediaSize>{formatFileSize(file.size)}</MediaSize>
+                  </MediaInfo>
+                  <MediaRemoveButton
+                    accessibilityLabel={`${file.name} 첨부 제거`}
+                    disabled={isLoading}
+                    onPress={() => removeMedia(file.uri)}
+                  >
+                    <Icon name="close-circle" size={22} color="#AAAAAA" />
+                  </MediaRemoveButton>
+                </MediaPreviewItem>
+              ))}
+            </MediaPreviewList>
+          ) : null}
+
+          {mediaFiles.length < 1 ? (
+            <ImageUploadBox
+              activeOpacity={0.7}
+              disabled={isLoading || isPickingMedia}
+              onPress={selectMedia}
+            >
+              {isPickingMedia ? (
+                <ActivityIndicator color="#FF8933" size="small" />
+              ) : (
+                <Icon name="add-outline" size={24} color="#FF8933" />
+              )}
+              <UploadTitle>
+                {mediaFiles.length > 0 ? '이미지 다시 선택' : '이미지 선택'}
+              </UploadTitle>
+              <UploadSub>이미지 1개, 최대 10MB 이하</UploadSub>
+            </ImageUploadBox>
+          ) : null}
 
           {!memoId ? (
             <TimerBox>
@@ -312,7 +471,7 @@ export default function MemoEditor({
                 <TouchableOpacity
                   accessibilityRole="button"
                   accessibilityLabel="소멸 시간 안내 보기"
-                  hitSlop={{top: 8, right: 8, bottom: 8, left: 8}}
+                  hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
                   onPress={() => setModalVisible(true)}
                 >
                   <Icon
@@ -386,18 +545,14 @@ export default function MemoEditor({
                 accessibilityLabel="안내 닫기"
                 onPress={() => setModalVisible(false)}
               >
-                <Icon
-                  name="close-circle-outline"
-                  size={24}
-                  color="#AAAAAA"
-                />
+                <Icon name="close-circle-outline" size={24} color="#AAAAAA" />
               </TouchableOpacity>
             </ModalHeader>
             <ModalFooter>
               <Checkbox
                 checked={doNotShowAgain}
                 accessibilityRole="checkbox"
-                accessibilityState={{checked: doNotShowAgain}}
+                accessibilityState={{ checked: doNotShowAgain }}
                 onPress={() => setDoNotShowAgain(value => !value)}
               >
                 {doNotShowAgain ? (

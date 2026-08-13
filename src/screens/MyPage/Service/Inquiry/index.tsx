@@ -1,6 +1,6 @@
-import React from 'react';
-import type {RootScreenProps} from '../../../../types/navigation';
-import {TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import type { RootScreenProps } from '../../../../types/navigation';
+import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header';
 import IcMegaphone from '../../../../assets/icons/ic_megaphone-outline.svg';
@@ -8,8 +8,9 @@ import IcPersonCircle from '../../../../assets/icons/ic_person-circle-outline.sv
 import IcDocumentText from '../../../../assets/icons/ic_document-text-outline.svg';
 import IcBug from '../../../../assets/icons/ic_bug-outline.svg';
 import IcChatbubble from '../../../../assets/icons/ic_chatbubble-ellipses-outline.svg';
+import IcFolder from '../../../../assets/icons/ic_folder.svg';
 import { useInquiryForm } from '../../../../hooks/useInquiryForm';
-import FilePickerField from '../../../../components/FilePickerField';
+import AttachmentSourceModal from '../../../../components/AttachmentSourceModal';
 
 import {
   Container,
@@ -32,6 +33,9 @@ import {
   ContentInputWrapper,
   ContentInput,
   CharCount,
+  AttachLabel,
+  AttachButton,
+  AttachText,
   SubmitButtonContainer,
   SubmitButton,
   SubmitText,
@@ -66,7 +70,7 @@ const INQUIRY_TYPES = [
   { id: 'etc', title: '기타 문의', desc: '기타 문의 사항', Icon: IcChatbubble },
 ];
 
-export default function Inquiry({navigation}: RootScreenProps<'Inquiry'>) {
+export default function Inquiry({ navigation }: RootScreenProps<'Inquiry'>) {
   const {
     isDropdownOpen,
     setIsDropdownOpen,
@@ -80,10 +84,13 @@ export default function Inquiry({navigation}: RootScreenProps<'Inquiry'>) {
     isLoading,
     isSubmitEnabled,
     handleSelectType,
-    selectAttachment,
+    selectAttachmentImage,
+    selectAttachmentDocument,
+    setAttachmentFile,
     removeAttachment,
     handleSubmit,
   } = useInquiryForm(navigation);
+  const [isAttachmentModalVisible, setAttachmentModalVisible] = useState(false);
 
   const SelectedIcon = selectedType ? selectedType.Icon : null;
 
@@ -203,16 +210,19 @@ export default function Inquiry({navigation}: RootScreenProps<'Inquiry'>) {
             </ContentInputWrapper>
           </InputWrapper>
 
-          <FilePickerField
-            label="첨부 이미지 (선택)"
-            helperText="이미지 1개, 최대 10MB까지 첨부할 수 있습니다."
-            file={attachmentFile}
-            kind="image"
-            isPicking={isPickingAttachment}
-            disabled={isLoading}
-            onSelect={selectAttachment}
-            onRemove={removeAttachment}
-          />
+          <AttachLabel>첨부파일 (선택)</AttachLabel>
+          <AttachButton
+            accessibilityLabel="문의 파일 첨부"
+            activeOpacity={0.8}
+            disabled={isLoading || isPickingAttachment}
+            onPress={() => setAttachmentModalVisible(true)}
+            onLongPress={attachmentFile ? removeAttachment : undefined}
+          >
+            <IcFolder width={22} height={20} color="#000000" />
+            <AttachText numberOfLines={1}>
+              {attachmentFile?.name ?? '파일 첨부하기'}
+            </AttachText>
+          </AttachButton>
         </FormLayer>
       </ScrollContainer>
 
@@ -225,6 +235,15 @@ export default function Inquiry({navigation}: RootScreenProps<'Inquiry'>) {
           <SubmitText>문의하기</SubmitText>
         </SubmitButton>
       </SubmitButtonContainer>
+
+      <AttachmentSourceModal
+        visible={isAttachmentModalVisible}
+        isPicking={isPickingAttachment}
+        onClose={() => setAttachmentModalVisible(false)}
+        onSelectDocument={selectAttachmentDocument}
+        onSelectImage={selectAttachmentImage}
+        onSelectRecent={setAttachmentFile}
+      />
     </Container>
   );
 }

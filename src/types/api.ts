@@ -3,7 +3,7 @@ export type EntityId = number | string;
 export interface ApiErrorBody {
   code?: string;
   message: string;
-  fieldErrors?: Record<string, string>;
+  fieldErrors?: Record<string, string | string[]> | null;
 }
 
 export type ApiMutationResponse = {
@@ -15,12 +15,9 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
-export interface RefreshAccessTokenResponse {
-  accessToken: string;
-  refreshToken?: string;
-}
-
 export interface SessionResponse extends AuthTokens {
   userId: EntityId;
-  deviceId?: EntityId;
+  deviceId: EntityId;
 }
+
+export type RefreshAccessTokenResponse = SessionResponse;

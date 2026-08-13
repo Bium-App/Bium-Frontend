@@ -3,16 +3,19 @@ import type {ApiMutationResponse, EntityId} from './api';
 export interface User {
   userId: EntityId;
   loginId?: string;
-  name?: string;
+  name: string;
   nickname: string;
-  email?: string;
-  phoneNumber?: string | null;
-  profileImageUrl?: string | null;
+  email: string;
+  phoneNumber: string;
+  profileImageUrl: string | null;
   provider?: string;
 }
 
 export interface UpdateUserRequest {
+  name: string;
   nickname: string;
+  email: string;
+  phoneNumber: string;
   profileImageUrl: string | null;
 }
 

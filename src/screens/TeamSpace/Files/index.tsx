@@ -2,30 +2,36 @@ import React, { useState } from 'react';
 import {
   Alert,
   Linking,
+  Share,
   StatusBar,
   ScrollView,
   Modal,
   RefreshControl,
+  Switch,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Header from '../../../components/Header';
 import AsyncState from '../../../components/AsyncState';
-import FilePickerField from '../../../components/FilePickerField';
+import AttachmentSourceModal from '../../../components/AttachmentSourceModal';
 import { useTeamFiles } from '../../../hooks/useTeamFiles';
-import type {TeamFileListItem} from '../../../hooks/useTeamFiles';
+import type { TeamFileListItem } from '../../../hooks/useTeamFiles';
 import { useFileSelection } from '../../../hooks/useFileSelection';
 import {
   getApiErrorMessage,
   getApiResponseMessage,
 } from '../../../utils/apiError';
-import type {RootStackParamList} from '../../../types/navigation';
+import type { RootStackParamList } from '../../../types/navigation';
+import type { SelectedFile } from '../../../types/file';
 
+import PlusIcon from '../../../assets/icons/ic_plus.svg';
 import FolderOutlineIcon from '../../../assets/icons/ic_folder_outline.svg';
 import FileDocIcon from '../../../assets/icons/ic_file.svg';
 import FileImageIcon from '../../../assets/icons/ic_image.svg';
 import DownloadIcon from '../../../assets/icons/ic_download.svg';
 import EditIcon from '../../../assets/icons/ic_edit.svg';
+import FolderMoveIcon from '../../../assets/icons/ic_folder_move.svg';
+import ShareIcon from '../../../assets/icons/ic_share.svg';
 import DeleteIcon from '../../../assets/icons/ic_delete.svg';
 
 import {
@@ -37,6 +43,8 @@ import {
   TabSeparator,
   TabText,
   SectionContainer,
+  SectionHeader,
+  SmallAddButton,
   ListCard,
   TouchableListItem,
   ListItemLeft,
@@ -62,15 +70,19 @@ import {
   ActionModalBody,
   ActionModalLabel,
   ActionModalInput,
+  ActionModalInputDisabled,
+  ActionModalInputDisabledText,
+  ActionModalRow,
+  ActionModalRowText,
   ActionModalDesc,
 } from './Files.styles';
 
-type FileAction = 'rename' | 'delete';
+type FileAction = 'rename' | 'move' | 'share' | 'delete';
 
 type FilesScreenProps = NativeStackScreenProps<RootStackParamList, 'Files'>;
 
-export default function Files({route, navigation}: FilesScreenProps) {
-  const {projectId, projectName} = route.params;
+export default function Files({ route, navigation }: FilesScreenProps) {
+  const { projectId, projectName } = route.params;
   const {
     files,
     isLoading,
@@ -81,24 +93,30 @@ export default function Files({route, navigation}: FilesScreenProps) {
     deleteFile,
     uploadTeamFile,
   } = useTeamFiles(projectId);
-  const {
-    selectedFile: uploadFile,
-    isPicking,
-    selectFile,
-    clearFile,
-  } = useFileSelection({ kind: 'document' });
+  const { isPicking, selectImageFile, selectDocumentFile, clearFile } =
+    useFileSelection({ kind: 'document' });
   const [isPopupVisible, setPopupVisible] = useState(false);
+  const [isAddFileModalVisible, setAddFileModalVisible] = useState(false);
   const [activeModal, setActiveModal] = useState<FileAction | null>(null);
   const [renameInput, setRenameInput] = useState('');
+  const [moveInput, setMoveInput] = useState('');
+  const [shareInput, setShareInput] = useState('');
+  const [isShareToggleOn, setIsShareToggleOn] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFile, setSelectedFile] =
-    useState<TeamFileListItem | null>(null);
+  const [selectedFile, setSelectedFile] = useState<TeamFileListItem | null>(
+    null,
+  );
   const fileList = files.filter(file =>
     file.title.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
       <Icon name="chevron-back" size={26} color="#FF8933" />
+    </HeaderBackButton>
+  );
+  const ellipsisButton = (
+    <HeaderBackButton activeOpacity={0.8}>
+      <Icon name="ellipsis-horizontal" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
   const handleOpenPopup = (item: TeamFileListItem) => {
@@ -111,6 +129,8 @@ export default function Files({route, navigation}: FilesScreenProps) {
   };
   const handleOptionClick = (type: FileAction) => {
     setPopupVisible(false);
+    if (type === 'move') setMoveInput('');
+    if (type === 'share') setShareInput('');
     setActiveModal(type);
   };
   const handleCloseActionModal = () => {
@@ -143,10 +163,13 @@ export default function Files({route, navigation}: FilesScreenProps) {
     }
   };
 
-  const handleUpload = async () => {
-    if (!uploadFile) return;
+  const handleSelectAndUpload = async (
+    picker: () => Promise<SelectedFile | null>,
+  ) => {
+    const file = await picker();
+    if (!file) return;
     try {
-      await uploadTeamFile(uploadFile);
+      await uploadTeamFile(file);
       clearFile();
       Alert.alert('완료', '팀 파일이 업로드되었습니다.');
     } catch (error) {
@@ -157,11 +180,47 @@ export default function Files({route, navigation}: FilesScreenProps) {
     }
   };
 
+  const handleMove = () => {
+    if (!moveInput.trim()) return;
+    Alert.alert(
+      '이동 기능 준비 중',
+      '현재 API 명세에 파일 이동 API가 없어 화면만 복구된 상태입니다.',
+    );
+  };
+
+  const handleShare = async () => {
+    if (!selectedFile?.fileUrl) {
+      Alert.alert('공유 실패', '공유할 파일 주소가 없습니다.');
+      return;
+    }
+    try {
+      await Share.share({
+        title: selectedFile.title,
+        message: [
+          shareInput.trim() ? `${shareInput.trim()}님께 공유합니다.` : '',
+          selectedFile.fileUrl,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      });
+      handleCloseActionModal();
+    } catch (error) {
+      Alert.alert(
+        '공유 실패',
+        getApiErrorMessage(error, '파일을 공유하지 못했습니다.'),
+      );
+    }
+  };
+
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <Header title={projectName ?? '팀 파일'} left={backButton} />
+      <Header
+        title={projectName ?? '팀 파일'}
+        left={backButton}
+        right={ellipsisButton}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -186,7 +245,7 @@ export default function Files({route, navigation}: FilesScreenProps) {
           <TabItem
             isActive={false}
             onPress={() =>
-              navigation.replace('ProjectDetail', {projectId, projectName})
+              navigation.replace('ProjectDetail', { projectId, projectName })
             }
             activeOpacity={0.7}
           >
@@ -196,7 +255,7 @@ export default function Files({route, navigation}: FilesScreenProps) {
           <TabItem
             isActive={false}
             onPress={() =>
-              navigation.replace('ProjectTodo', {projectId, projectName})
+              navigation.replace('ProjectTodo', { projectId, projectName })
             }
             activeOpacity={0.7}
           >
@@ -206,7 +265,7 @@ export default function Files({route, navigation}: FilesScreenProps) {
           <TabItem
             isActive={false}
             onPress={() =>
-              navigation.replace('Schedule', {projectId, projectName})
+              navigation.replace('Schedule', { projectId, projectName })
             }
             activeOpacity={0.7}
           >
@@ -218,18 +277,16 @@ export default function Files({route, navigation}: FilesScreenProps) {
           </TabItem>
         </TabContainer>
         <SectionContainer>
-          <FilePickerField
-            label="팀 파일 업로드"
-            helperText="이미지는 최대 10MB, 문서는 최대 30MB까지 업로드할 수 있습니다."
-            file={uploadFile}
-            kind={uploadFile?.kind ?? 'document'}
-            isPicking={isPicking}
-            isUploading={isUploading}
-            disabled={isLoading}
-            onSelect={selectFile}
-            onRemove={clearFile}
-            onUpload={handleUpload}
-          />
+          <SectionHeader>
+            <SmallAddButton
+              accessibilityLabel="팀 파일 추가"
+              activeOpacity={0.7}
+              disabled={isLoading || isPicking || isUploading}
+              onPress={() => setAddFileModalVisible(true)}
+            >
+              <PlusIcon width={18} height={18} color="#FF8933" />
+            </SmallAddButton>
+          </SectionHeader>
           <ListCard>
             {fileList.length === 0 ? (
               <AsyncState
@@ -300,6 +357,16 @@ export default function Files({route, navigation}: FilesScreenProps) {
           </ListCard>
         </SectionContainer>
       </ScrollView>
+      <AttachmentSourceModal
+        visible={isAddFileModalVisible}
+        isPicking={isPicking}
+        onClose={() => setAddFileModalVisible(false)}
+        onSelectDocument={() => handleSelectAndUpload(selectDocumentFile)}
+        onSelectImage={() => handleSelectAndUpload(selectImageFile)}
+        onSelectRecent={file =>
+          handleSelectAndUpload(() => Promise.resolve(file))
+        }
+      />
       <Modal
         visible={isPopupVisible}
         transparent={true}
@@ -317,15 +384,102 @@ export default function Files({route, navigation}: FilesScreenProps) {
             </PopupOptionBtn>
             <PopupOptionBtn
               activeOpacity={0.7}
+              onPress={() => handleOptionClick('move')}
+            >
+              <FolderMoveIcon width={18} height={18} color="#000000" />
+              <PopupOptionText>이동</PopupOptionText>
+            </PopupOptionBtn>
+            <PopupOptionBtn
+              activeOpacity={0.7}
+              onPress={() => handleOptionClick('share')}
+            >
+              <ShareIcon width={18} height={18} color="#000000" />
+              <PopupOptionText>공유</PopupOptionText>
+            </PopupOptionBtn>
+            <PopupOptionBtn
+              activeOpacity={0.7}
               onPress={() => handleOptionClick('delete')}
               isLast={true}
             >
-              <DeleteIcon width={18} height={18} color="#FF0000" />{' '}
+              <DeleteIcon width={18} height={18} color="#FF0000" />
               {/* FF4D4D-> FF0000 */}
               <PopupOptionText isDanger={true}>삭제</PopupOptionText>
             </PopupOptionBtn>
           </PopupContent>
         </PopupOverlay>
+      </Modal>
+      <Modal
+        visible={activeModal === 'move'}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleCloseActionModal}
+      >
+        <ActionModalOverlay activeOpacity={1} onPress={handleCloseActionModal}>
+          <ActionModalContainer onStartShouldSetResponder={() => true}>
+            <ActionModalHeader>
+              <ActionModalCancelBtn onPress={handleCloseActionModal}>
+                <ActionModalCancelText>취소</ActionModalCancelText>
+              </ActionModalCancelBtn>
+              <ActionModalTitle>파일 이동</ActionModalTitle>
+              <ActionModalSaveBtn onPress={handleMove}>
+                <ActionModalSaveText>저장</ActionModalSaveText>
+              </ActionModalSaveBtn>
+            </ActionModalHeader>
+            <ActionModalBody>
+              <ActionModalLabel isFirst={true}>현재 위치</ActionModalLabel>
+              <ActionModalInputDisabled>
+                <ActionModalInputDisabledText>
+                  {projectName ?? `프로젝트 ${projectId}`} / 파일
+                </ActionModalInputDisabledText>
+              </ActionModalInputDisabled>
+              <ActionModalLabel isFirst={false}>이동할 위치</ActionModalLabel>
+              <ActionModalInput
+                value={moveInput}
+                onChangeText={setMoveInput}
+                placeholder="폴더명을 입력하세요."
+                placeholderTextColor="#AAAAAA"
+              />
+            </ActionModalBody>
+          </ActionModalContainer>
+        </ActionModalOverlay>
+      </Modal>
+      <Modal
+        visible={activeModal === 'share'}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleCloseActionModal}
+      >
+        <ActionModalOverlay activeOpacity={1} onPress={handleCloseActionModal}>
+          <ActionModalContainer onStartShouldSetResponder={() => true}>
+            <ActionModalHeader>
+              <ActionModalCancelBtn onPress={handleCloseActionModal}>
+                <ActionModalCancelText>취소</ActionModalCancelText>
+              </ActionModalCancelBtn>
+              <ActionModalTitle>파일 공유</ActionModalTitle>
+              <ActionModalSaveBtn onPress={handleShare}>
+                <ActionModalSaveText>공유</ActionModalSaveText>
+              </ActionModalSaveBtn>
+            </ActionModalHeader>
+            <ActionModalBody>
+              <ActionModalLabel isFirst={true}>공유할 멤버</ActionModalLabel>
+              <ActionModalInput
+                value={shareInput}
+                onChangeText={setShareInput}
+                placeholder="이름 또는 이메일을 입력하세요."
+                placeholderTextColor="#AAAAAA"
+              />
+              <ActionModalRow>
+                <ActionModalRowText>알림 발송</ActionModalRowText>
+                <Switch
+                  trackColor={{ false: '#E5E5E5', true: '#FF8933' }}
+                  thumbColor="#FFFFFF"
+                  onValueChange={setIsShareToggleOn}
+                  value={isShareToggleOn}
+                />
+              </ActionModalRow>
+            </ActionModalBody>
+          </ActionModalContainer>
+        </ActionModalOverlay>
       </Modal>
       <Modal
         visible={activeModal === 'rename'}

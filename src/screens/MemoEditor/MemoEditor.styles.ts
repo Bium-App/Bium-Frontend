@@ -89,6 +89,12 @@ export const ContentInput = styled.TextInput<{
   padding: 0;
 `;
 
+export const RichEditorFrame = styled.View`
+  min-height: 100px;
+  overflow: hidden;
+  background-color: #ffffff;
+`;
+
 export const ContentLengthText = styled.Text`
   font-size: 12px;
   color: #d0d0d0;
@@ -105,10 +111,10 @@ export const ToolbarBox = styled.View`
   background-color: #ffffff;
 `;
 
-export const ToolbarRow = styled.View<{$alignStart?: boolean}>`
+export const ToolbarRow = styled.View<{ $alignStart?: boolean }>`
   flex-direction: row;
   align-items: center;
-  justify-content: ${({$alignStart}) =>
+  justify-content: ${({ $alignStart }) =>
     $alignStart ? 'flex-start' : 'space-between'};
 `;
 
@@ -148,7 +154,7 @@ export const ToolText = styled.Text<{
     underline ? 'underline' : 'none'};
 `;
 
-export const ToolButton = styled.TouchableOpacity<{active: boolean}>`
+export const ToolButton = styled.TouchableOpacity<{ active: boolean }>`
   padding: 4px 6px;
   background-color: ${({ active }) => (active ? '#FFE8D6' : 'transparent')};
   border-radius: 4px;
@@ -233,6 +239,50 @@ export const UploadSub = styled.Text`
   color: #8a8a8a;
 `;
 
+export const MediaPreviewList = styled.View`
+  gap: 8px;
+  margin-bottom: 10px;
+`;
+
+export const MediaPreviewItem = styled.View`
+  min-height: 64px;
+  flex-direction: row;
+  align-items: center;
+  border-width: 1px;
+  border-color: #e8e8e8;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background-color: #ffffff;
+`;
+
+export const MediaThumbnail = styled.Image`
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  margin-right: 10px;
+`;
+
+export const MediaInfo = styled.View`
+  flex: 1;
+  margin-left: 10px;
+`;
+
+export const MediaName = styled.Text`
+  color: #000000;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+export const MediaSize = styled.Text`
+  color: #9b9a9a;
+  font-size: 11px;
+  margin-top: 4px;
+`;
+
+export const MediaRemoveButton = styled.TouchableOpacity`
+  padding: 6px;
+`;
+
 export const TimerBox = styled.View`
   border-width: 1px;
   border-color: #bbbbbb;
@@ -266,7 +316,7 @@ export const TimerButtonWrapper = styled.View`
   align-items: center;
 `;
 
-export const AnimatedTimerBox = styled(Animated.View)<{$active: boolean}>`
+export const AnimatedTimerBox = styled(Animated.View)<{ $active: boolean }>`
   width: 85px;
   height: 33px;
   border-width: 1px;
@@ -274,7 +324,7 @@ export const AnimatedTimerBox = styled(Animated.View)<{$active: boolean}>`
   border-radius: 4px;
   justify-content: center;
   align-items: center;
-  background-color: ${({$active}) => ($active ? '#ff8933' : '#ffffff')};
+  background-color: ${({ $active }) => ($active ? '#ff8933' : '#ffffff')};
 `;
 
 export const TimerButtonSub = styled.Text`
@@ -284,7 +334,7 @@ export const TimerButtonSub = styled.Text`
   margin-top: 8px;
 `;
 
-export const TimerButtonText = styled.Text<{active: boolean}>`
+export const TimerButtonText = styled.Text<{ active: boolean }>`
   font-size: 15px;
   font-weight: 500;
   color: ${({ active }) => (active ? '#FFFFFF' : '#FF8933')};
@@ -358,7 +408,7 @@ export const ModalFooter = styled.View`
   gap: 8px;
 `;
 
-export const Checkbox = styled.TouchableOpacity<{checked: boolean}>`
+export const Checkbox = styled.TouchableOpacity<{ checked: boolean }>`
   width: 16px;
   height: 16px;
   border-width: 1px;

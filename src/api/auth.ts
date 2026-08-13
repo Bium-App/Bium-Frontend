@@ -10,6 +10,7 @@ import type {
   LogoutType,
   SessionResponse,
   SignUpRequest,
+  SignUpResponse,
   TwoFactorRequest,
   TwoFactorResponse,
   VerifyPasswordResponse,
@@ -23,8 +24,8 @@ export const signUpApi = async ({
   email,
   phoneNumber,
   provider = 'LOCAL',
-}: SignUpRequest): Promise<ApiMutationResponse> => {
-  const response = await apiClient.post<ApiMutationResponse>(
+}: SignUpRequest): Promise<SignUpResponse> => {
+  const response = await apiClient.post<SignUpResponse>(
     '/api/auth/signup',
     {
       loginId,

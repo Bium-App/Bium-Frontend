@@ -34,8 +34,14 @@ import {
 export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>) {
   const {
     user,
+    name,
+    setName,
     nickname,
     setNickname,
+    email,
+    setEmail,
+    phoneNumber,
+    setPhoneNumber,
     profileImage,
     selectProfileImage,
     removeProfileImage,
@@ -112,7 +118,12 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
           <FormContainer>
             <InputGroup>
               <Label>이름</Label>
-              <Input value={user?.name ?? ''} editable={false} />
+              <Input
+                value={name}
+                onChangeText={setName}
+                editable={!isBusy}
+                autoCapitalize="words"
+              />
             </InputGroup>
 
             <InputGroup>
@@ -122,6 +133,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
                 placeholderTextColor="#AAAAAA"
                 value={nickname}
                 onChangeText={setNickname}
+                editable={!isBusy}
               />
             </InputGroup>
 
@@ -136,17 +148,21 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             <InputGroup>
               <Label>이메일</Label>
               <Input
-                value={user?.email ?? ''}
-                editable={false}
+                value={email}
+                onChangeText={setEmail}
+                editable={!isBusy}
                 keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
               />
             </InputGroup>
 
             <InputGroup>
               <Label>휴대폰 번호</Label>
               <Input
-                value={user?.phoneNumber ?? ''}
-                editable={false}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                editable={!isBusy}
                 keyboardType="phone-pad"
               />
             </InputGroup>

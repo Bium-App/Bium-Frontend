@@ -17,6 +17,13 @@ export interface TeamMember {
   role: 'LEADER' | 'MEMBER' | string;
 }
 
+export interface AddTeamMemberResponse extends ApiMutationResponse {
+  teamMemberId: EntityId;
+}
+
+export type TeamMemberMutationResponse = ApiMutationResponse &
+  Partial<TeamMember>;
+
 export interface TeamNoticeRequest {
   title: string;
   content: string;
@@ -56,3 +63,11 @@ export type TeamNoticeMutationResponse = ApiMutationResponse &
   Partial<TeamNotice>;
 
 export type TeamTodoMutationResponse = ApiMutationResponse & Partial<TeamTodo>;
+
+export interface CreateTeamNoticeResponse extends ApiMutationResponse {
+  noticeId: EntityId;
+}
+
+export interface CreateTeamTodoResponse extends ApiMutationResponse {
+  todoId: EntityId;
+}

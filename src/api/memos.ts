@@ -3,6 +3,7 @@ import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateMemoRequest,
+  CreateMemoResponse,
   MemoDetail,
   MemoMutationResponse,
   MemoStatus,
@@ -13,8 +14,8 @@ import type {
 
 export const createMemoApi = async (
   memo: CreateMemoRequest,
-): Promise<MemoMutationResponse> => {
-  const response = await apiClient.post<MemoMutationResponse>(
+): Promise<CreateMemoResponse> => {
+  const response = await apiClient.post<CreateMemoResponse>(
     '/api/memos',
     memo,
   );
@@ -42,11 +43,15 @@ export const getTeamMemosApi = async (
 
 export const updateMemoApi = async (
   memoId: EntityId,
-  {title, content}: UpdateMemoRequest,
+  {title, content, richContent}: UpdateMemoRequest,
 ): Promise<MemoMutationResponse> => {
+  const payload =
+    richContent === undefined
+      ? {title, content}
+      : {title, content, richContent};
   const response = await apiClient.patch<MemoMutationResponse>(
     `/api/memos/${memoId}`,
-    {title, content},
+    payload,
   );
   return response.data;
 };

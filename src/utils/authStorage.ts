@@ -61,6 +61,16 @@ export const updateAccessToken = (accessToken: string): Promise<void> =>
 
 export const updateRefreshToken = saveRefreshToken;
 
+export const updateSessionIdentity = async (
+  userId: SessionResponse['userId'],
+  deviceId: SessionResponse['deviceId'],
+): Promise<void> => {
+  await AsyncStorage.setMany({
+    userId: String(userId),
+    deviceId: String(deviceId),
+  });
+};
+
 export const updateTokens = async ({
   accessToken,
   refreshToken,

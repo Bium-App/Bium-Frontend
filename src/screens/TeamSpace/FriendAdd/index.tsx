@@ -54,7 +54,7 @@ export default function FriendAdd({navigation}: FriendAddScreenProps) {
     isLoading,
     isSearching,
     isSubmitting,
-    initialErrorMessage,
+    recommendationErrorMessage,
     searchErrorMessage,
     fetchInitialData,
     searchFriends,
@@ -123,7 +123,7 @@ export default function FriendAdd({navigation}: FriendAddScreenProps) {
                       <UserOutlineIcon width={17} height={17} color="#FF8933" />
                     </AvatarCircle>
                     <ProfileTextColumn>
-                      <ProfileName>사용자 #{user.id}</ProfileName>
+                      <ProfileName>@{user.handle}</ProfileName>
                     </ProfileTextColumn>
                   </ListItem>
                   <ListItem
@@ -153,14 +153,14 @@ export default function FriendAdd({navigation}: FriendAddScreenProps) {
         )}
 
         <SectionTitle>추천 친구</SectionTitle>
-        {initialErrorMessage && recommendedFriends.length > 0 ? (
-          <WarningText>{initialErrorMessage}</WarningText>
+        {recommendationErrorMessage && recommendedFriends.length > 0 ? (
+          <WarningText>{recommendationErrorMessage}</WarningText>
         ) : null}
         <ListCard>
           {recommendedFriends.length === 0 ? (
             <AsyncState
               isLoading={isLoading}
-              errorMessage={initialErrorMessage}
+              errorMessage={recommendationErrorMessage}
               emptyMessage="추천 친구가 없습니다."
               onRetry={fetchInitialData}
             />
@@ -172,7 +172,7 @@ export default function FriendAdd({navigation}: FriendAddScreenProps) {
                     <UserOutlineIcon width={17} height={17} color="#FF8933" />
                   </AvatarCircle>
                   <ProfileTextColumn>
-                    <ProfileName>사용자 #{user.id}</ProfileName>
+                    <ProfileName>@{user.handle}</ProfileName>
                   </ProfileTextColumn>
                 </ListItem>
                 <ListItem

@@ -65,6 +65,7 @@ export default function Home({navigation}: HomeScreenProps) {
           id: String(memo.memoId),
           title: memo.title,
           content: memo.content,
+          richContent: memo.richContent,
           status: memo.status,
           expiredAt: memo.expiredAt,
           createdAt: memo.createdAt,

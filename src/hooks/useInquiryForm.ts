@@ -1,12 +1,12 @@
-import {useState, type ComponentType} from 'react';
-import {Alert} from 'react-native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {createInquiryApi} from '../api/common';
-import {uploadSelectedFileApi} from '../api/files';
-import {FILE_DOMAINS} from '../utils/filePicker';
-import {getApiResponseMessage} from '../utils/apiError';
-import {useFileSelection} from './useFileSelection';
-import type {RootStackParamList} from '../types/navigation';
+import { useState, type ComponentType } from 'react';
+import { Alert } from 'react-native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { createInquiryApi } from '../api/common';
+import { uploadSelectedFileApi } from '../api/files';
+import { FILE_DOMAINS } from '../utils/filePicker';
+import { getApiResponseMessage } from '../utils/apiError';
+import { useFileSelection } from './useFileSelection';
+import type { RootStackParamList } from '../types/navigation';
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, 'Inquiry'>;
 
@@ -25,17 +25,20 @@ export interface InquiryTypeOption {
 
 export const useInquiryForm = (navigation: Navigation) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedType, setSelectedType] =
-    useState<InquiryTypeOption | null>(null);
+  const [selectedType, setSelectedType] = useState<InquiryTypeOption | null>(
+    null,
+  );
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const {
     selectedFile: attachmentFile,
     isPicking: isPickingAttachment,
-    selectFile: selectAttachment,
+    selectImageFile: selectAttachmentImage,
+    selectDocumentFile: selectAttachmentDocument,
+    setSelectedFile: setAttachmentFile,
     clearFile: removeAttachment,
-  } = useFileSelection({kind: 'image'});
+  } = useFileSelection();
 
   const isSubmitEnabled =
     Boolean(selectedType) &&
@@ -66,7 +69,7 @@ export const useInquiryForm = (navigation: Navigation) => {
         attachmentUrl,
       });
       Alert.alert('문의 접수', '문의가 성공적으로 접수되었습니다.', [
-        {text: '확인', onPress: () => navigation.goBack()},
+        { text: '확인', onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
       Alert.alert(
@@ -91,7 +94,9 @@ export const useInquiryForm = (navigation: Navigation) => {
     isLoading,
     isSubmitEnabled,
     handleSelectType,
-    selectAttachment,
+    selectAttachmentImage,
+    selectAttachmentDocument,
+    setAttachmentFile,
     removeAttachment,
     handleSubmit,
   };

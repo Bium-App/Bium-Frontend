@@ -18,20 +18,23 @@ export const getUserSettingsApi = async (): Promise<UserSettings> => {
 };
 
 export const updateUserApi = async ({
+  name,
   nickname,
+  email,
+  phoneNumber,
   profileImageUrl,
 }: UpdateUserRequest): Promise<UserMutationResponse> => {
   const response = await apiClient.patch<UserMutationResponse>(
     '/api/users/me',
-    {nickname, profileImageUrl},
+    {name, nickname, email, phoneNumber, profileImageUrl},
   );
   return response.data;
 };
 
 export const updateUserSettingsApi = async (
-  settings: UserSettings,
-): Promise<UserSettings> => {
-  const response = await apiClient.patch<UserSettings>(
+  settings: Partial<UserSettings>,
+): Promise<ApiMutationResponse> => {
+  const response = await apiClient.patch<ApiMutationResponse>(
     '/api/users/me/settings',
     settings,
   );

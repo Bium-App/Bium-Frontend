@@ -53,7 +53,7 @@ export const useUserSettings = () => {
     try {
       const userId = await getUserId();
       if (!userId) throw new Error('사용자 정보를 찾을 수 없습니다.');
-      await updateUserSettingsApi(next);
+      await updateUserSettingsApi(patch);
       await storeUserSettings(next);
       return next;
     } catch (error) {

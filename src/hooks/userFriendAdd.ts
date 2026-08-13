@@ -17,6 +17,7 @@ import type {FriendUser} from '../types/friend';
 
 export interface FriendListItem {
   id: string;
+  handle: string;
   name: string;
   profileImageUrl: string | null;
   desc: string;
@@ -24,6 +25,7 @@ export interface FriendListItem {
 
 const mapFriend = (friend: FriendUser): FriendListItem => ({
   id: String(friend.userId),
+  handle: friend.loginId?.trim() || friend.nickname,
   name: friend.nickname,
   profileImageUrl: friend.profileImageUrl ?? null,
   desc:
@@ -42,13 +44,14 @@ export const useFriendAdd = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [initialErrorMessage, setInitialErrorMessage] = useState('');
+  const [recommendationErrorMessage, setRecommendationErrorMessage] =
+    useState('');
   const [searchErrorMessage, setSearchErrorMessage] = useState('');
   const searchRequestIdRef = useRef(0);
 
   const fetchInitialData = useCallback(async (): Promise<void> => {
     setIsLoading(true);
-    setInitialErrorMessage('');
+    setRecommendationErrorMessage('');
     const [recommendedResult, receivedResult] = await Promise.allSettled([
       getRecommendedFriendsApi(),
       getReceivedFriendRequestsApi(),
@@ -56,21 +59,20 @@ export const useFriendAdd = () => {
 
     if (recommendedResult.status === 'fulfilled') {
       setRecommendedFriends(recommendedResult.value.map(mapFriend));
-    }
-    if (receivedResult.status === 'fulfilled') {
-      setRequestCount(receivedResult.value.length);
-    }
-
-    const failedResult = [recommendedResult, receivedResult].find(
-      result => result.status === 'rejected',
-    );
-    if (failedResult?.status === 'rejected') {
-      setInitialErrorMessage(
+    } else {
+      setRecommendationErrorMessage(
         getApiErrorMessage(
-          failedResult.reason,
-          '일부 친구 정보를 불러오지 못했습니다.',
+          recommendedResult.reason,
+          '추천 친구를 불러오지 못했습니다.',
         ),
       );
+    }
+
+    if (receivedResult.status === 'fulfilled') {
+      setRequestCount(receivedResult.value.length);
+    } else {
+      // 요청 목록 실패가 추천 친구 목록까지 오류 상태로 만들지 않도록 분리한다.
+      setRequestCount(0);
     }
     setIsLoading(false);
   }, []);
@@ -157,7 +159,7 @@ export const useFriendAdd = () => {
     isLoading,
     isSearching,
     isSubmitting,
-    initialErrorMessage,
+    recommendationErrorMessage,
     searchErrorMessage,
     fetchInitialData,
     searchFriends,

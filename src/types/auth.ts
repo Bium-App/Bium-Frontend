@@ -16,6 +16,10 @@ export interface SignUpRequest {
   provider?: 'LOCAL' | string;
 }
 
+export interface SignUpResponse {
+  userId: EntityId;
+}
+
 export interface LoginRequest {
   loginId: string;
   password: string;
@@ -50,7 +54,7 @@ export type LogoutType = 'CURRENT' | 'ALL';
 export interface LoginDevice {
   deviceId: EntityId;
   deviceName: string;
-  lastLoginAt?: string | null;
+  lastLoginAt: string | null;
 }
 
 export type {

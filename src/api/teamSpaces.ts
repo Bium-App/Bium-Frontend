@@ -2,8 +2,12 @@ import apiClient from './client';
 import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
+  AddTeamMemberResponse,
+  CreateTeamNoticeResponse,
   CreateTeamTodoRequest,
+  CreateTeamTodoResponse,
   TeamMember,
+  TeamMemberMutationResponse,
   TeamNotice,
   TeamNoticeMutationResponse,
   TeamNoticeRequest,
@@ -46,8 +50,8 @@ export const addTeamMemberApi = async (
   teamSpaceId: EntityId,
   userId: EntityId,
   role = 'MEMBER',
-): Promise<TeamMember> => {
-  const response = await apiClient.post<TeamMember>(
+): Promise<AddTeamMemberResponse> => {
+  const response = await apiClient.post<AddTeamMemberResponse>(
     `/api/team-spaces/${teamSpaceId}/members`,
     {userId: Number(userId), role},
   );
@@ -66,8 +70,8 @@ export const getTeamMembersApi = async (
 export const updateTeamMemberRoleApi = async (
   teamMemberId: EntityId,
   role: string,
-): Promise<TeamMember> => {
-  const response = await apiClient.patch<TeamMember>(
+): Promise<TeamMemberMutationResponse> => {
+  const response = await apiClient.patch<TeamMemberMutationResponse>(
     `/api/team-members/${teamMemberId}`,
     null,
     {params: {role}},
@@ -87,8 +91,8 @@ export const removeTeamMemberApi = async (
 export const createTeamNoticeApi = async (
   teamSpaceId: EntityId,
   notice: TeamNoticeRequest,
-): Promise<TeamNoticeMutationResponse> => {
-  const response = await apiClient.post<TeamNoticeMutationResponse>(
+): Promise<CreateTeamNoticeResponse> => {
+  const response = await apiClient.post<CreateTeamNoticeResponse>(
     `/api/team-spaces/${teamSpaceId}/notices`,
     notice,
   );
@@ -134,8 +138,8 @@ export const deleteTeamNoticeApi = async (
 export const createTeamTodoApi = async (
   teamSpaceId: EntityId,
   todo: CreateTeamTodoRequest,
-): Promise<TeamTodoMutationResponse> => {
-  const response = await apiClient.post<TeamTodoMutationResponse>(
+): Promise<CreateTeamTodoResponse> => {
+  const response = await apiClient.post<CreateTeamTodoResponse>(
     `/api/team-spaces/${teamSpaceId}/todos`,
     todo,
   );

@@ -5,7 +5,7 @@ import {
   pick,
   types,
 } from '@react-native-documents/picker';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import type {
   FileDomain,
   SelectedFile,
@@ -54,7 +54,12 @@ const normalizeFile = (
 });
 
 export const formatFileSize = (size: number | null | undefined): string => {
-  if (!Number.isFinite(size) || size === null || size === undefined || size < 0) {
+  if (
+    !Number.isFinite(size) ||
+    size === null ||
+    size === undefined ||
+    size < 0
+  ) {
     return '크기 정보 없음';
   }
   if (size < 1024) return `${size} B`;
@@ -67,10 +72,9 @@ export const validateSelectedFile = <T extends Partial<SelectedFile>>(
   kind: SelectedFileKind = file?.kind ?? 'document',
 ): T => {
   if (!file?.uri) throw new Error('선택한 파일을 읽을 수 없습니다.');
-  if (kind !== 'image' && file.type?.startsWith('video/')) {
+  if (kind === 'document' && file.type?.startsWith('video/')) {
     throw new Error('동영상 파일은 첨부할 수 없습니다.');
   }
-
   const maxBytes =
     kind === 'image' ? FILE_LIMITS.imageBytes : FILE_LIMITS.documentBytes;
   if (Number.isFinite(file.size) && (file.size ?? 0) > maxBytes) {
@@ -98,6 +102,24 @@ export const pickImageFile = async (): Promise<SelectedFile | null> => {
   return asset ? validateSelectedFile(normalizeFile(asset, 'image')) : null;
 };
 
+export const pickMemoImageFiles = async (): Promise<SelectedFile[]> => {
+  const response = await launchImageLibrary({
+    mediaType: 'photo',
+    selectionLimit: 1,
+    quality: 0.9,
+    assetRepresentationMode: 'compatible',
+  });
+
+  if (response.didCancel) return [];
+  if (response.errorCode) {
+    throw new Error(response.errorMessage ?? '이미지를 선택하지 못했습니다.');
+  }
+
+  return (response.assets ?? []).map(asset =>
+    validateSelectedFile(normalizeFile(asset, 'image'), 'image'),
+  );
+};
+
 export const pickDocumentFile = async (): Promise<SelectedFile | null> => {
   try {
     const [document] = await pick({
@@ -113,7 +135,7 @@ export const pickDocumentFile = async (): Promise<SelectedFile | null> => {
 
     const fileName = document.name ?? fallbackFileName('document');
     const [copyResult] = await keepLocalCopy({
-      files: [{uri: document.uri, fileName}],
+      files: [{ uri: document.uri, fileName }],
       destination: 'cachesDirectory',
     });
     if (copyResult.status !== 'success') {
@@ -127,7 +149,7 @@ export const pickDocumentFile = async (): Promise<SelectedFile | null> => {
       : 'document';
     return validateSelectedFile(
       normalizeFile(
-        {...document, uri: copyResult.localUri, name: fileName},
+        { ...document, uri: copyResult.localUri, name: fileName },
         kind,
       ),
     );

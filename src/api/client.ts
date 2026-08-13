@@ -11,6 +11,7 @@ import {
   getRefreshToken,
   updateAccessToken,
   updateRefreshToken,
+  updateSessionIdentity,
 } from '../utils/authStorage';
 import type {RefreshAccessTokenResponse} from '../types/api';
 import {
@@ -18,6 +19,7 @@ import {
   logApiRequest,
   logApiResponse,
 } from '../utils/apiLogger';
+import {shouldRefreshAccessToken} from '../utils/authRetry';
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -34,14 +36,6 @@ const apiClient = axios.create({
 let refreshRequest: Promise<string> | null = null;
 let didShowSessionExpiredAlert = false;
 
-const isPublicAuthRequest = (url?: string) =>
-  [
-    '/api/auth/login',
-    '/api/auth/signup',
-    '/api/auth/find',
-    '/api/auth/refresh',
-  ].some(path => url?.startsWith(path));
-
 const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) throw new Error('저장된 리프레시 토큰이 없습니다.');
@@ -55,9 +49,15 @@ const refreshAccessToken = async (): Promise<string> => {
     },
   );
 
-  const {accessToken, refreshToken: rotatedRefreshToken} = response.data;
+  const {
+    accessToken,
+    refreshToken: rotatedRefreshToken,
+    userId,
+    deviceId,
+  } = response.data;
   await updateAccessToken(accessToken);
-  if (rotatedRefreshToken) await updateRefreshToken(rotatedRefreshToken);
+  await updateRefreshToken(rotatedRefreshToken);
+  await updateSessionIdentity(userId, deviceId);
   return accessToken;
 };
 
@@ -89,13 +89,14 @@ apiClient.interceptors.response.use(
   },
   async (error: AxiosError) => {
     const originalRequest = error.config as RetryableRequestConfig | undefined;
-    const canRefresh =
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry &&
-      !isPublicAuthRequest(originalRequest.url);
-
-    if (!canRefresh) {
+    if (
+      !originalRequest ||
+      !shouldRefreshAccessToken({
+        status: error.response?.status,
+        url: originalRequest.url,
+        alreadyRetried: originalRequest._retry,
+      })
+    ) {
       logApiError(error);
       return Promise.reject(error);
     }

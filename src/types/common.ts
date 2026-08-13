@@ -53,8 +53,12 @@ export interface Notification {
   type: NotificationType;
   message: string;
   isRead: boolean;
-  targetId?: EntityId | null;
+  targetId: EntityId;
   createdAt?: string;
 }
 
 export type InquiryMutationResponse = ApiMutationResponse & Partial<Inquiry>;
+
+export interface CreateInquiryResponse extends ApiMutationResponse {
+  inquiryId: EntityId;
+}

@@ -3,11 +3,13 @@ import type {CompositeScreenProps} from '@react-navigation/native';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {EntityId} from './api';
+import type {MemoRichContent} from './memo';
 
 export interface MemoEditorData {
   id: string;
   title: string;
   content: string;
+  richContent?: MemoRichContent | null;
   status?: string;
   expiredAt?: string | null;
   createdAt?: string;

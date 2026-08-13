@@ -33,3 +33,7 @@ export interface ScheduleQuery {
 
 export type ScheduleMutationResponse = ApiMutationResponse &
   Partial<ScheduleDetail>;
+
+export interface CreateScheduleResponse extends ApiMutationResponse {
+  scheduleId: EntityId;
+}

@@ -31,7 +31,7 @@ export const TabContainer = styled.View`
   margin: 0 20px 24px;
 `;
 
-export const TabItem = styled.TouchableOpacity<{isActive: boolean}>`
+export const TabItem = styled.TouchableOpacity<{ isActive: boolean }>`
   flex: 1;
   align-items: center;
   justify-content: center;
@@ -48,7 +48,7 @@ export const TabSeparator = styled.View`
   background-color: #d1d5db;
 `;
 
-export const TabText = styled.Text<{isActive: boolean}>`
+export const TabText = styled.Text<{ isActive: boolean }>`
   font-size: 14px;
   font-weight: 400;
   color: ${({ isActive }) => (isActive ? '#FF8933' : '#000000')};
@@ -117,14 +117,14 @@ export const ListCard = styled.View`
   padding: 0 16px;
 `;
 
-export const EmptySectionText = styled.Text<{compact?: boolean}>`
+export const EmptySectionText = styled.Text<{ compact?: boolean }>`
   text-align: center;
   color: #aaaaaa;
-  margin-top: ${({compact}) => (compact ? 20 : 0)}px;
-  padding-vertical: ${({compact}) => (compact ? 0 : 20)}px;
+  margin-top: ${({ compact }) => (compact ? 20 : 0)}px;
+  padding-vertical: ${({ compact }) => (compact ? 0 : 20)}px;
 `;
 
-export const ListItem = styled.View<{isLast: boolean}>`
+export const ListItem = styled.View<{ isLast: boolean }>`
   flex-direction: row;
   align-items: center;
   padding: 16px 0;
@@ -132,7 +132,7 @@ export const ListItem = styled.View<{isLast: boolean}>`
   border-bottom-color: #d1d5db;
 `;
 
-export const TouchableListItem = styled.TouchableOpacity<{isLast: boolean}>`
+export const TouchableListItem = styled.TouchableOpacity<{ isLast: boolean }>`
   flex-direction: row;
   align-items: center;
   padding: 16px 0;
@@ -150,7 +150,7 @@ export const ListItemText = styled.Text`
   color: #000000;
 `;
 
-export const TodoItemText = styled.Text<{isDone: boolean}>`
+export const TodoItemText = styled.Text<{ isDone: boolean }>`
   font-size: 13px;
   text-decoration-line: ${({ isDone }) => (isDone ? 'line-through' : 'none')};
   color: ${({ isDone }) => (isDone ? '#AAAAAA' : '#000000')};
@@ -236,7 +236,7 @@ export const ModalBody = styled.View`
   padding: 24px 20px;
 `;
 
-export const InputLabel = styled.Text<{isFirst: boolean}>`
+export const InputLabel = styled.Text<{ isFirst: boolean }>`
   font-size: 15px;
   font-weight: 500;
   color: #000000;
@@ -244,7 +244,7 @@ export const InputLabel = styled.Text<{isFirst: boolean}>`
   margin-top: ${({ isFirst }) => (isFirst ? 0 : 20)}px;
 `;
 
-export const TitleInput = styled.TextInput<{isFocused: boolean}>`
+export const TitleInput = styled.TextInput<{ isFocused: boolean }>`
   background-color: ${({ isFocused }) => (isFocused ? '#FFE8D6' : '#FFFFFF')};
   border-width: 1px;
   border-color: ${({ isFocused }) => (isFocused ? '#FF8933' : '#E8E8E8')};
@@ -255,7 +255,7 @@ export const TitleInput = styled.TextInput<{isFocused: boolean}>`
   color: #999999;
 `;
 
-export const ContentInput = styled.TextInput<{isFocused: boolean}>`
+export const ContentInput = styled.TextInput<{ isFocused: boolean }>`
   background-color: ${({ isFocused }) => (isFocused ? '#FFE8D6' : '#E8E8E8')};
   border-width: 1px;
   border-color: ${({ isFocused }) => (isFocused ? '#FF8933' : 'transparent')};
@@ -290,12 +290,6 @@ export const SectionMoreButton = styled.TouchableOpacity`
   padding: 4px;
 `;
 
-export const SectionMoreText = styled.Text`
-  color: #ff8933;
-  font-size: 13px;
-  font-weight: 500;
-`;
-
 export const InlineWarningButton = styled.TouchableOpacity`
   margin: 0 20px 20px;
   padding: 12px 14px;
@@ -310,7 +304,7 @@ export const InlineWarningText = styled.Text`
   text-align: center;
 `;
 
-export const Divider = styled.View<{isSpaced: boolean}>`
+export const Divider = styled.View<{ isSpaced: boolean }>`
   height: 1px;
   background-color: #e8e8e8;
   margin-top: ${({ isSpaced }) => (isSpaced ? 24 : 0)}px;
@@ -329,7 +323,7 @@ export const ToggleLabel = styled.Text`
   color: #000000;
 `;
 
-export const CustomToggle = styled.TouchableOpacity<{isOn: boolean}>`
+export const CustomToggle = styled.TouchableOpacity<{ isOn: boolean }>`
   width: 52px;
   height: 30px;
   border-radius: 15px;
@@ -338,7 +332,7 @@ export const CustomToggle = styled.TouchableOpacity<{isOn: boolean}>`
   padding: 2px;
 `;
 
-export const ToggleCircle = styled.View<{isOn: boolean}>`
+export const ToggleCircle = styled.View<{ isOn: boolean }>`
   width: 26px;
   height: 26px;
   border-radius: 13px;
@@ -356,7 +350,7 @@ export const DateRightWrapper = styled.TouchableOpacity`
   align-items: center;
 `;
 
-export const DateActionText = styled.Text<{hasValue?: boolean}>`
+export const DateActionText = styled.Text<{ hasValue?: boolean }>`
   font-size: 14px;
   color: ${({ hasValue }) => (hasValue ? '#FF8933' : '#9C9C9C')};
   margin-left: 6px;
@@ -396,11 +390,11 @@ export const MemberList = styled.View`
   elevation: 1;
 `;
 
-export const MemberItem = styled.TouchableOpacity<{isLast: boolean}>`
+export const MemberItem = styled.TouchableOpacity<{ isLast: boolean }>`
   flex-direction: row;
   align-items: center;
   padding: 14px;
-  border-bottom-width: ${({isLast}) => (isLast ? 0 : 1)}px;
+  border-bottom-width: ${({ isLast }) => (isLast ? 0 : 1)}px;
   border-bottom-color: #e8e8e8;
 `;
 
@@ -436,14 +430,14 @@ export const MemberIdText = styled.Text`
   margin-top: 3px;
 `;
 
-export const RoleBadge = styled.View<{isLeader: boolean}>`
+export const RoleBadge = styled.View<{ isLeader: boolean }>`
   padding: 5px 8px;
   border-radius: 10px;
-  background-color: ${({isLeader}) => (isLeader ? '#FFE8D6' : '#F3F4F6')};
+  background-color: ${({ isLeader }) => (isLeader ? '#FFE8D6' : '#F3F4F6')};
 `;
 
-export const RoleText = styled.Text<{isLeader: boolean}>`
-  color: ${({isLeader}) => (isLeader ? '#FF8933' : '#777777')};
+export const RoleText = styled.Text<{ isLeader: boolean }>`
+  color: ${({ isLeader }) => (isLeader ? '#FF8933' : '#777777')};
   font-size: 11px;
   font-weight: 600;
 `;

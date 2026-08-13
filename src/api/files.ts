@@ -10,6 +10,7 @@ import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateTeamFileRequest,
   FileMutationResponse,
+  MemoImageMutationResponse,
   PresignedUrlRequest,
   PresignedUrlResponse,
   TeamFile,
@@ -129,8 +130,8 @@ export const deleteTeamFileApi = async (
 export const addMemoImageApi = async (
   memoId: EntityId,
   imageUrl: string,
-): Promise<ApiMutationResponse> => {
-  const response = await apiClient.post<ApiMutationResponse>(
+): Promise<MemoImageMutationResponse> => {
+  const response = await apiClient.post<MemoImageMutationResponse>(
     `/api/memos/${memoId}/images`,
     {imageUrl},
   );

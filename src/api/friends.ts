@@ -5,6 +5,7 @@ import type {
   FriendMutationResponse,
   FriendRequest,
   FriendUser,
+  SendFriendRequestResponse,
 } from '../types/friend';
 
 export const searchFriendsApi = async (
@@ -25,8 +26,8 @@ export const getRecommendedFriendsApi = async (): Promise<FriendUser[]> => {
 
 export const sendFriendRequestApi = async (
   receiverId: EntityId,
-): Promise<FriendMutationResponse> => {
-  const response = await apiClient.post<FriendMutationResponse>(
+): Promise<SendFriendRequestResponse> => {
+  const response = await apiClient.post<SendFriendRequestResponse>(
     '/api/friends/requests',
     {receiverId: Number(receiverId)},
   );

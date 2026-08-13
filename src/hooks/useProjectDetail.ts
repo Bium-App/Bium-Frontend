@@ -1,6 +1,6 @@
-import {useCallback, useState} from 'react';
-import {Alert} from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
+import { useCallback, useState } from 'react';
+import { Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import {
   createTeamNoticeApi,
@@ -14,10 +14,10 @@ import {
   updateTeamNoticeApi,
   updateTeamTodoApi,
 } from '../api/teamSpaces';
-import {getTeamSchedulesApi} from '../api/schedules';
-import {getApiErrorMessage, getApiResponseMessage} from '../utils/apiError';
-import type {EntityId} from '../types/api';
-import type {ProjectTodoItem} from './useProjectTodo';
+import { getTeamSchedulesApi } from '../api/schedules';
+import { getApiErrorMessage, getApiResponseMessage } from '../utils/apiError';
+import type { EntityId } from '../types/api';
+import type { ProjectTodoItem } from './useProjectTodo';
 
 export interface DashboardNoticeItem {
   id: string;
@@ -34,7 +34,7 @@ export interface DashboardScheduleItem {
   endAt: string;
 }
 
-const getMonthParams = (): {year: number; month: number} => ({
+const getMonthParams = (): { year: number; month: number } => ({
   year: dayjs().year(),
   month: dayjs().month() + 1,
 });
@@ -51,6 +51,7 @@ export const useProjectDetail = (projectId?: EntityId) => {
   const [noticeTitle, setNoticeTitle] = useState('');
   const [noticeContent, setNoticeContent] = useState('');
   const [isPinned, setIsPinned] = useState(false);
+  const [isNoticeNotiEnabled, setIsNoticeNotiEnabled] = useState(false);
   const [isNoticeTitleFocused, setIsNoticeTitleFocused] = useState(false);
   const [isNoticeContentFocused, setIsNoticeContentFocused] = useState(false);
 
@@ -70,13 +71,14 @@ export const useProjectDetail = (projectId?: EntityId) => {
     if (!projectId) return;
     setIsLoading(true);
     setErrorMessage('');
-    const {year, month} = getMonthParams();
-    const [noticeResult, todoResult, scheduleResult] =
-      await Promise.allSettled([
+    const { year, month } = getMonthParams();
+    const [noticeResult, todoResult, scheduleResult] = await Promise.allSettled(
+      [
         getTeamNoticesApi(projectId),
         getTeamTodosApi(projectId),
         getTeamSchedulesApi(projectId, year, month),
-      ]);
+      ],
+    );
 
     if (noticeResult.status === 'fulfilled') {
       setNotices(
@@ -140,6 +142,7 @@ export const useProjectDetail = (projectId?: EntityId) => {
     setNoticeTitle('');
     setNoticeContent('');
     setIsPinned(false);
+    setIsNoticeNotiEnabled(false);
     setIsNoticeTitleFocused(false);
     setIsNoticeContentFocused(false);
   };
@@ -159,12 +162,12 @@ export const useProjectDetail = (projectId?: EntityId) => {
       setNoticeTitle(detail?.title ?? notice.title);
       setNoticeContent(detail?.content ?? '');
       setIsPinned(detail?.isPinned ?? notice.isPinned);
+      setIsNoticeNotiEnabled(false);
       setNoticeModalVisible(true);
     } catch (error) {
       Alert.alert(
         '오류',
-        getApiResponseMessage(error) ??
-          '공지 상세 내용을 불러오지 못했습니다.',
+        getApiResponseMessage(error) ?? '공지 상세 내용을 불러오지 못했습니다.',
       );
     } finally {
       setIsLoading(false);
@@ -324,6 +327,8 @@ export const useProjectDetail = (projectId?: EntityId) => {
     setNoticeContent,
     isPinned,
     setIsPinned,
+    isNoticeNotiEnabled,
+    setIsNoticeNotiEnabled,
     isNoticeTitleFocused,
     setIsNoticeTitleFocused,
     isNoticeContentFocused,

@@ -3,6 +3,7 @@ import {parseRootArray} from '../utils/apiResponse';
 import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateScheduleRequest,
+  CreateScheduleResponse,
   ScheduleDetail,
   ScheduleMutationResponse,
   ScheduleQuery,
@@ -12,8 +13,8 @@ import type {
 
 export const createScheduleApi = async (
   schedule: CreateScheduleRequest,
-): Promise<ScheduleMutationResponse> => {
-  const response = await apiClient.post<ScheduleMutationResponse>(
+): Promise<CreateScheduleResponse> => {
+  const response = await apiClient.post<CreateScheduleResponse>(
     '/api/schedules',
     schedule,
   );

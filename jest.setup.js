@@ -2,3 +2,5 @@
 jest.mock('react-native-keychain');
 jest.mock('react-native-image-picker');
 jest.mock('@react-native-documents/picker');
+jest.mock('react-native-webview');
+jest.mock('@10play/tentap-editor');

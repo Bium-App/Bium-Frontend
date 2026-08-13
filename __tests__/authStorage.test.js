@@ -12,6 +12,7 @@ import {
   clearSession,
   getRefreshToken,
   storeSession,
+  updateSessionIdentity,
   updateTokens,
 } from '../src/utils/authStorage';
 
@@ -95,6 +96,15 @@ describe('authStorage', () => {
       'next-refresh-token',
       expect.objectContaining(keychainOptions),
     );
+  });
+
+  it('토큰 갱신 응답의 사용자와 현재 기기 식별자를 함께 갱신한다', async () => {
+    await updateSessionIdentity(7, 9);
+
+    expect(AsyncStorage.setMany).toHaveBeenCalledWith({
+      userId: '7',
+      deviceId: '9',
+    });
   });
 
   it('세션 삭제 시 일반 세션과 보안 토큰을 모두 제거한다', async () => {

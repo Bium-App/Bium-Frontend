@@ -1,19 +1,24 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, StatusBar, RefreshControl } from 'react-native';
+import {
+  Alert,
+  StatusBar,
+  RefreshControl,
+  type GestureResponderEvent,
+} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import type {CompositeScreenProps} from '@react-navigation/native';
-import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
-import type {NativeStackScreenProps} from '@react-navigation/native-stack';
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../components/Header';
 import AsyncState from '../../components/AsyncState';
 import { useTimeline } from '../../hooks/useTimeline';
-import type {TimelineMemoItem} from '../../hooks/useTimeline';
+import type { TimelineMemoItem } from '../../hooks/useTimeline';
 import type {
   MainTabParamList,
   RootStackParamList,
 } from '../../types/navigation';
-import {getApiResponseMessage} from '../../utils/apiError';
+import { getApiResponseMessage } from '../../utils/apiError';
 
 import FireIcon from '../../assets/icons/ic_fire.svg';
 import IceIcon from '../../assets/icons/ic_ice.svg';
@@ -61,7 +66,7 @@ type TimelineScreenProps = CompositeScreenProps<
 
 type TimelineTab = 'fire' | 'ice';
 
-export default function Timeline({navigation}: TimelineScreenProps) {
+export default function Timeline({ navigation }: TimelineScreenProps) {
   const [activeTab, setActiveTab] = useState<TimelineTab>('ice');
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
 
@@ -74,6 +79,7 @@ export default function Timeline({navigation}: TimelineScreenProps) {
     errorMessage,
     fetchMemos,
     getMemoDetail,
+    toggleMemoPin,
   } = useTimeline();
   const hasActiveMemos =
     activeTab === 'fire'
@@ -95,6 +101,7 @@ export default function Timeline({navigation}: TimelineScreenProps) {
           id: String(memo.memoId),
           title: memo.title,
           content: memo.content,
+          richContent: memo.richContent,
           status: memo.status,
           expiredAt: memo.expiredAt,
           createdAt: memo.createdAt,
@@ -103,10 +110,28 @@ export default function Timeline({navigation}: TimelineScreenProps) {
     } catch (error) {
       Alert.alert(
         '오류',
-        getApiResponseMessage(error) ??
-          '메모 상세 내용을 불러오지 못했습니다.',
+        getApiResponseMessage(error) ?? '메모 상세 내용을 불러오지 못했습니다.',
       );
     }
+  };
+
+  const handlePinPress = async (item: TimelineMemoItem): Promise<void> => {
+    try {
+      await toggleMemoPin(item.id, item.isPinned);
+    } catch (error) {
+      Alert.alert(
+        '고정 변경 실패',
+        getApiResponseMessage(error) ?? '메모 고정 상태를 변경하지 못했습니다.',
+      );
+    }
+  };
+
+  const stopCardPressAndTogglePin = (
+    event: GestureResponderEvent,
+    item: TimelineMemoItem,
+  ): void => {
+    event.stopPropagation();
+    handlePinPress(item);
   };
 
   // 불 메모 렌더링 로직
@@ -191,11 +216,17 @@ export default function Timeline({navigation}: TimelineScreenProps) {
               </DateRow>
             </TextWrapper>
           </CardLeft>
-          <PinWrapper>
+          <PinWrapper
+            accessibilityRole="button"
+            accessibilityLabel={isPinned ? '메모 고정 해제' : '메모 고정'}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+            onPress={event => stopCardPressAndTogglePin(event, item)}
+          >
             {isPinned ? (
-              <IcePinIcon width={16} height={16} />
+              <IcePinIcon width={20} height={20} />
             ) : (
-              <PinIcon width={16} height={16} color="#7CC4FF" />
+              <PinIcon width={20} height={20} color="#7CC4FF" />
             )}
           </PinWrapper>
         </MemoCard>

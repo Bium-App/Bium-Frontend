@@ -3,6 +3,7 @@ import type {ApiMutationResponse, EntityId} from './api';
 export interface FriendUser {
   userId: EntityId;
   nickname: string;
+  loginId?: string;
   profileImageUrl?: string | null;
   commonProjects?: number;
 }
@@ -19,3 +20,7 @@ export interface FriendRequest {
 
 export type FriendMutationResponse = ApiMutationResponse &
   Partial<FriendRequest>;
+
+export interface SendFriendRequestResponse extends ApiMutationResponse {
+  requestId: EntityId;
+}
