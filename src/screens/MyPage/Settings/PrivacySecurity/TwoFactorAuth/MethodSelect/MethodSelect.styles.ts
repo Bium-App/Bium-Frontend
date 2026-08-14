@@ -90,6 +90,7 @@ export const OptionValueRow = styled.View`
 `;
 
 export const OptionValue = styled.Text`
+  flex: 1;
   font-size: 14px;
   font-weight: 200;
   color: #000000;

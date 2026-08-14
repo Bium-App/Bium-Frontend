@@ -85,13 +85,17 @@ export const verifyPasswordApi = async (
 
 export const twoFactorApi = async ({
   action,
+  method,
   phoneNumber,
+  email,
   code,
 }: TwoFactorRequest): Promise<TwoFactorResponse> => {
   const response = await apiClient.post<TwoFactorResponse>('/api/auth/2fa', {
     action,
-    phoneNumber,
-    code,
+    method,
+    ...(phoneNumber ? {phoneNumber} : {}),
+    ...(email ? {email} : {}),
+    ...(code ? {code} : {}),
   });
   return response.data;
 };

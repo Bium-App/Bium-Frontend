@@ -1,5 +1,6 @@
 import React from 'react';
 import {ActivityIndicator} from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {
   RetryButton,
   RetryText,
@@ -18,14 +19,17 @@ interface AsyncStateProps {
 export default function AsyncState({
   isLoading = false,
   errorMessage,
-  emptyMessage = '표시할 내용이 없습니다.',
+  emptyMessage,
   onRetry,
 }: AsyncStateProps) {
+  const {t} = useTranslation();
+  const resolvedEmptyMessage = emptyMessage ?? t('async_state.empty');
+
   if (isLoading) {
     return (
-      <StateContainer accessibilityLabel="데이터를 불러오는 중">
+      <StateContainer accessibilityLabel={t('async_state.loading_label')}>
         <ActivityIndicator size="large" color="#FF8933" />
-        <StateDescription>불러오는 중...</StateDescription>
+        <StateDescription>{t('async_state.loading')}</StateDescription>
       </StateContainer>
     );
   }
@@ -33,7 +37,7 @@ export default function AsyncState({
   return (
     <StateContainer>
       <StateTitle>
-        {errorMessage ? '불러오지 못했습니다.' : emptyMessage}
+        {errorMessage ? t('async_state.failed') : resolvedEmptyMessage}
       </StateTitle>
       {errorMessage ? <StateDescription>{errorMessage}</StateDescription> : null}
       {errorMessage && onRetry ? (
@@ -41,7 +45,7 @@ export default function AsyncState({
           accessibilityRole="button"
           activeOpacity={0.8}
           onPress={onRetry}>
-          <RetryText>다시 시도</RetryText>
+          <RetryText>{t('async_state.retry')}</RetryText>
         </RetryButton>
       ) : null}
     </StateContainer>

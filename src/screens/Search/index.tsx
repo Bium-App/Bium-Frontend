@@ -3,6 +3,7 @@ import type {RootScreenProps} from '../../types/navigation';
 import {TouchableOpacity, FlatList, Alert} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import { useSearch } from '../../hooks/useSearch';
 import type {SearchResultItem} from '../../hooks/useSearch';
 import AsyncState from '../../components/AsyncState';
@@ -38,6 +39,7 @@ import {
 } from './Search.styles';
 
 export default function Search({navigation}: RootScreenProps<'Search'>) {
+  const {t} = useTranslation();
   const insets = useSafeAreaInsets();
 
   const {
@@ -83,9 +85,9 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
         });
       } catch (error) {
         Alert.alert(
-          '오류',
+          t('common.error'),
           getApiResponseMessage(error) ??
-            '메모 상세 내용을 불러오지 못했습니다.',
+            t('home.memo_detail_failed'),
         );
       }
       return;
@@ -93,8 +95,8 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
 
     if (!item.teamSpaceId) {
       Alert.alert(
-        '상세 이동 준비 중',
-        '검색 결과에서 이동할 팀 정보를 확인할 수 없습니다.',
+        t('search.detail_pending'),
+        t('search.missing_team'),
       );
       return;
     }
@@ -132,11 +134,11 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
           onPress={() => navigation.goBack()}
           activeOpacity={0.7}
         >
-          <Icon name="chevron-back-outline" size={24} color="#AAAAAA" />
+          <Icon name="chevron-back-outline" size={24} color="#FF8933" />
         </TouchableOpacity>
         <SearchInputContainer>
           <Icon name="search-outline" size={28} color="#FF8933" />
-          <SearchLabel>검색</SearchLabel>
+          <SearchLabel>{t('search.title')}</SearchLabel>
           <VerticalDivider />
           <SearchInput
             placeholder=""
@@ -161,7 +163,7 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
               onRetry={() => handleSearchSubmit(keyword)}
             />
           ) : searchResults.length === 0 ? (
-            <EmptyResultText>검색 결과가 없습니다.</EmptyResultText>
+            <EmptyResultText>{t('state.no_search_results')}</EmptyResultText>
           ) : (
             <FlatList
               data={searchResults}
@@ -175,12 +177,12 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
         <>
           <SectionContainer>
             <SectionHeader>
-              <SectionTitle>최근검색</SectionTitle>
+              <SectionTitle>{t('search.recent')}</SectionTitle>
               <TouchableOpacity
                 onPress={deleteAllRecentSearches}
                 activeOpacity={0.7}
               >
-                <DeleteAllText>전체삭제</DeleteAllText>
+                <DeleteAllText>{t('search.delete_all')}</DeleteAllText>
               </TouchableOpacity>
             </SectionHeader>
             <ChipContainer>
@@ -205,7 +207,7 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
 
           <RecommendSectionContainer>
             <RecommendSectionHeader>
-              <SectionTitle>추천 검색어</SectionTitle>
+              <SectionTitle>{t('search.recommended')}</SectionTitle>
             </RecommendSectionHeader>
             <ChipContainer>
               {recommendedSearches.map((text, index) => (

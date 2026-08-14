@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type {RootScreenProps} from '../../../../types/navigation';
 import {TouchableOpacity, Alert, RefreshControl} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../../../components/Header'; // 💡 항상 공통 컴포넌트로 분리해서 사용하는 헤더
 import AsyncState from '../../../../components/AsyncState';
 import IcFire from '../../../../assets/icons/ic_fire.svg';
@@ -33,6 +34,7 @@ import {
 } from './Trash.styles';
 
 export default function Trash({navigation}: RootScreenProps<'Trash'>) {
+  const {t} = useTranslation();
   // 뷰모델에서 서버 데이터와 통신 함수 가져오기
   const { 
     trashItems, isLoading, errorMessage, fetchTrashMemos,
@@ -67,11 +69,11 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
   const handleAction = (type: 'restore' | 'delete') => {
     if (selectedIds.length === 0) return;
     
-    const actionName = type === 'restore' ? '복구' : '영구 삭제';
-    Alert.alert("확인", `선택한 ${selectedIds.length}개의 항목을 ${actionName}하시겠습니까?`, [
-      { text: "취소" },
+    const actionName = type === 'restore' ? t('trash.restore') : t('trash.permanent_delete');
+    Alert.alert(t('common.confirm'), t('trash.confirm_action', {count: selectedIds.length, action: actionName}), [
+      { text: t('trash.cancel') },
       { 
-        text: "확인", 
+        text: t('common.confirm'), 
         onPress: () => {
           // 확인 버튼 누르면 뷰모델의 API 호출 함수 실행 후 목록 새로고침
           const onSuccess = () => {
@@ -99,7 +101,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="휴지통"
+        title={t('my_page.trash')}
         right={
           <TouchableOpacity 
             onPress={() => {
@@ -108,7 +110,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
             }}
           >
             <HeaderEditText>
-              {isEditMode ? '취소' : '편집'}
+              {isEditMode ? t('trash.cancel') : t('trash.edit')}
             </HeaderEditText>
           </TouchableOpacity>
         }
@@ -124,10 +126,10 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
               size={20}    /* 24 -> 20 */
               color={selectedIds.length === trashItems.length && trashItems.length > 0 ? "#FF8933" : "#9B9B9B"}  /* C7C7CC - >9B9B9B */
             />
-            <SelectText>전체</SelectText>
+            <SelectText>{t('trash.all')}</SelectText>
           </SelectAllButton>
           <SelectedCountText>
-            {selectedIds.length}개 선택됨
+            {t('trash.selected_count', {count: selectedIds.length})}
           </SelectedCountText>
         </SelectAllBar>
       )}
@@ -142,7 +144,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
           <AsyncState
             isLoading={isLoading}
             errorMessage={errorMessage}
-            emptyMessage="휴지통이 비어 있습니다."
+            emptyMessage={t('trash.empty')}
             onRetry={fetchTrashMemos}
           />
         ) : null}
@@ -196,7 +198,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
             disabled={selectedIds.length === 0 || isLoading} 
             $disabled={selectedIds.length === 0}
           >
-            <RestoreText>복구({selectedIds.length})</RestoreText>
+            <RestoreText>{t('trash.restore_count', {count: selectedIds.length})}</RestoreText>
           </RestoreButton>
           
           <DeleteButton 
@@ -204,7 +206,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
             disabled={selectedIds.length === 0 || isLoading}
             $disabled={selectedIds.length === 0}
           >
-            <DeleteText>삭제({selectedIds.length})</DeleteText>
+            <DeleteText>{t('trash.delete_count', {count: selectedIds.length})}</DeleteText>
           </DeleteButton>
         </BottomBar>
       )}

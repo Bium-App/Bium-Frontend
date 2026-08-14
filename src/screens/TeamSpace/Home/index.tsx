@@ -5,6 +5,7 @@ import type {CompositeScreenProps} from '@react-navigation/native';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../../components/Header'; 
 import AsyncState from '../../../components/AsyncState';
 import { useTeamSpaceHome } from '../../../hooks/useTeamSpaceHome'; // 추가된 뷰모델
@@ -48,6 +49,7 @@ type TeamSpaceHomeScreenProps = CompositeScreenProps<
 export default function TeamSpaceHome({
   navigation,
 }: TeamSpaceHomeScreenProps) {
+  const {t} = useTranslation();
   const { teams, isLoading, errorMessage, fetchTeams } = useTeamSpaceHome();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -82,12 +84,12 @@ export default function TeamSpaceHome({
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      <Header title="팀스페이스" />
+      <Header title={t('team.title')} />
 
       <SearchContainer>
         <Icon name="search-outline" size={20} color="#000000" />
         <SearchInput
-          placeholder="검색"
+          placeholder={t('common.search')}
           placeholderTextColor="#000000"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -97,17 +99,17 @@ export default function TeamSpaceHome({
       <ActionRow>
         <FilterTab activeOpacity={0.8}>
           {/* 전체 개수를 서버에서 받아온 팀 배열의 길이(teams.length)로 동적 반영 */}
-          <FilterTabText>전체 ({teams.length})</FilterTabText>
+          <FilterTabText>{t('team.all_count', {count: teams.length})}</FilterTabText>
         </FilterTab>
 
         <ActionButtonGroup>
           <ActionButton activeOpacity={0.7} onPress={handleTeamCreate}>
             <PlusIcon width={15} height={15} color="#FF8933"/>
-            <ActionButtonText>팀 생성</ActionButtonText>
+            <ActionButtonText>{t('team.create')}</ActionButtonText>
           </ActionButton>
           <ActionButton activeOpacity={0.7} onPress={handleFriendAdd}>
             <PeopleAddIcon width={21} height={21} />
-            <ActionButtonText>친구추가</ActionButtonText>
+            <ActionButtonText>{t('team.add_friend')}</ActionButtonText>
           </ActionButton>
         </ActionButtonGroup>
       </ActionRow>
@@ -125,8 +127,8 @@ export default function TeamSpaceHome({
             errorMessage={errorMessage}
             emptyMessage={
               searchQuery.trim()
-                ? '검색 결과가 없습니다.'
-                : '참여 중인 팀이 없습니다.'
+                ? t('team.no_search_results')
+                : t('team.no_teams')
             }
             onRetry={fetchTeams}
           />
@@ -148,7 +150,7 @@ export default function TeamSpaceHome({
               <ProjectDesc>{project.desc}</ProjectDesc>
               <MemberRow>
                 <Icon name="person-outline" size={12} color="#AAAAAA" />
-                <MemberText>멤버 {project.members}명</MemberText>
+                <MemberText>{t('team.member_count', {count: project.members})}</MemberText>
               </MemberRow>
             </ProjectInfo>
             <PeopleGroupIcon width={48} height={48} />

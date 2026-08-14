@@ -2,6 +2,7 @@ import React from 'react';
 import type {RootScreenProps} from '../../types/navigation';
 import { Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../components/Header';
 import { useFindId } from '../../hooks/useFindId';
 
@@ -20,12 +21,13 @@ import {
 } from './FindId.styles';
 
 export default function FindId({navigation}: RootScreenProps<'FindId'>) {
+  const {t} = useTranslation();
   const { email, setEmail, isLoading, findLoginId } = useFindId();
 
   const handleSubmit = () => {
     findLoginId(loginId => {
-      Alert.alert('아이디 찾기 완료', `회원님의 아이디는 ${loginId}입니다.`, [
-        { text: '로그인', onPress: () => navigation.navigate('Login') },
+      Alert.alert(t('auth.find_id_complete'), t('auth.found_id', {loginId}), [
+        { text: t('common.login'), onPress: () => navigation.navigate('Login') },
       ]);
     });
   };
@@ -34,16 +36,16 @@ export default function FindId({navigation}: RootScreenProps<'FindId'>) {
       <Header
         left={
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="chevron-back-outline" size={24} color="#AAAAAA" />
+            <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
       />
       <HeaderDivider />
       <ScrollContent>
-        <TitleText>아이디를 잊으셨나요?</TitleText>
+        <TitleText>{t('auth.forgot_id')}</TitleText>
         <InputWrapper>
           <InputField
-            placeholder="이메일"
+            placeholder={t('common.email')}
             placeholderTextColor="#AAAAAA"
             value={email}
             onChangeText={setEmail}
@@ -52,15 +54,15 @@ export default function FindId({navigation}: RootScreenProps<'FindId'>) {
           />
         </InputWrapper>
         <SubmitButton disabled={isLoading} onPress={handleSubmit}>
-          <SubmitButtonText>아이디 찾기</SubmitButtonText>
+          <SubmitButtonText>{t('auth.find_id')}</SubmitButtonText>
         </SubmitButton>
         <LinksRow>
           <TouchableOpacity onPress={() => navigation.navigate('FindPassword')}>
-            <LinkText>비밀번호 찾기</LinkText>
+            <LinkText>{t('auth.find_password')}</LinkText>
           </TouchableOpacity>
           <LinkDivider>|</LinkDivider>
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <LinkText>로그인</LinkText>
+            <LinkText>{t('common.login')}</LinkText>
           </TouchableOpacity>
         </LinksRow>
       </ScrollContent>

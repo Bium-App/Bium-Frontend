@@ -1,6 +1,7 @@
 import React from 'react';
 import type {RootScreenProps} from '../../../../../../types/navigation';
 import { Alert } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import dayjs from 'dayjs';
 
 import Header from '../../../../../../components/Header';
@@ -34,11 +35,15 @@ import {
 
 export default function Success({route, navigation}: RootScreenProps<'Success'>) {
   const { saveSettings } = useUserSettings();
-  const phoneNumber = route.params?.phoneNumber ?? '';
+  const {method, destination} = route.params;
 
   const handleConfirm = async () => {
     try {
-      await saveSettings({ use2fa: true });
+      await saveSettings({
+        use2fa: true,
+        twoFactorMethod: method,
+        twoFactorDestination: destination,
+      });
       navigation.navigate('MainTabs', {
         screen: 'MyPage',
       });
@@ -78,17 +83,25 @@ export default function Success({route, navigation}: RootScreenProps<'Success'>)
                   </IconContainer>
                   <LabelText>인증방식</LabelText>
                 </LabelWrapper>
-                <ValueText>휴대폰 인증</ValueText>
+                <ValueText>
+                  {method === 'EMAIL' ? '이메일 인증' : '휴대폰 인증'}
+                </ValueText>
               </SummaryRow>
 
               <SummaryRow>
                 <LabelWrapper>
                   <IconContainer>
-                    <IcDevicePhone width={15} height={25} />
+                    {method === 'EMAIL' ? (
+                      <Icon name="mail-outline" size={21} color="#BBBBBB" />
+                    ) : (
+                      <IcDevicePhone width={15} height={25} />
+                    )}
                   </IconContainer>
-                  <LabelText>등록된번호</LabelText>
+                  <LabelText>
+                    {method === 'EMAIL' ? '등록 이메일' : '등록된 번호'}
+                  </LabelText>
                 </LabelWrapper>
-                <ValueText>{phoneNumber || '등록 완료'}</ValueText>
+                <ValueText>{destination || '등록 완료'}</ValueText>
               </SummaryRow>
 
               <SummaryRow>

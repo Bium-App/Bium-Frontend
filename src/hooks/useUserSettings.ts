@@ -5,6 +5,7 @@ import {getUserId} from '../utils/authStorage';
 import {
   DEFAULT_USER_SETTINGS,
   getStoredUserSettings,
+  normalizeUserSettings,
   storeUserSettings,
 } from '../utils/userSettingsStorage';
 import type {UserSettings} from '../types/user';
@@ -20,9 +21,13 @@ export const useUserSettings = () => {
     setIsLoading(true);
     try {
       const userId = await getUserId();
+      const stored = await getStoredUserSettings();
       const loaded: UserSettings = userId
-        ? {...DEFAULT_USER_SETTINGS, ...(await getUserSettingsApi())}
-        : await getStoredUserSettings();
+        ? normalizeUserSettings({
+            ...(await getUserSettingsApi()),
+            language: stored.language,
+          })
+        : stored;
       settingsRef.current = loaded;
       setSettings(loaded);
       await storeUserSettings(loaded);
@@ -43,6 +48,7 @@ export const useUserSettings = () => {
 
   const saveSettings = async (
     patch: Partial<UserSettings>,
+    options: {rollbackOnError?: boolean} = {},
   ): Promise<UserSettings> => {
     const previous = settingsRef.current;
     const next = {...previous, ...patch};
@@ -57,8 +63,12 @@ export const useUserSettings = () => {
       await storeUserSettings(next);
       return next;
     } catch (error) {
-      settingsRef.current = previous;
-      setSettings(previous);
+      if (options.rollbackOnError !== false) {
+        settingsRef.current = previous;
+        setSettings(previous);
+      } else {
+        await storeUserSettings(next);
+      }
       throw error;
     } finally {
       setIsLoading(false);

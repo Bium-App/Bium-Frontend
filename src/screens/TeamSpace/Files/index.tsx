@@ -111,7 +111,7 @@ export default function Files({ route, navigation }: FilesScreenProps) {
   );
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
-      <Icon name="chevron-back" size={26} color="#FF8933" />
+      <Icon name="chevron-back" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
   const ellipsisButton = (

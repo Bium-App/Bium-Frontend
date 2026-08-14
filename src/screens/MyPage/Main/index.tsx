@@ -2,6 +2,7 @@ import React from 'react';
 import type {MyPageTabScreenProps} from '../../../types/navigation';
 import {ActivityIndicator, ScrollView} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import { useCurrentUser } from '../../../hooks/useCurrentUser';
 import AsyncState from '../../../components/AsyncState';
 import {
@@ -20,6 +21,7 @@ import {
 } from './MyPageMain.styles';
 
 export default function MyPageMain({navigation}: MyPageTabScreenProps) {
+  const {t} = useTranslation();
   const {user, isLoading, errorMessage, fetchUser} = useCurrentUser();
 
   return (
@@ -41,23 +43,23 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
               onRetry={fetchUser}
             />
           ) : (
-            <UserName>{user?.nickname || '사용자'}</UserName>
+            <UserName>{user?.nickname || t('common.user')}</UserName>
           )}
           <EditProfileButton
             activeOpacity={0.7}
             onPress={() => navigation.navigate('EditProfile')}
           >
-            <EditProfileText>내 정보 수정</EditProfileText>
+            <EditProfileText>{t('my_page.edit_profile')}</EditProfileText>
           </EditProfileButton>
         </ProfileSection>
 
         <Card>
-          <CardTitle>설정</CardTitle>
+          <CardTitle>{t('my_page.settings')}</CardTitle>
           <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Language')}
           >
-            <MenuText>언어 및 지역</MenuText>
+            <MenuText>{t('language_region')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
@@ -65,7 +67,7 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
             activeOpacity={0.7}
             onPress={() => navigation.navigate('SettingNotification')}
           >
-            <MenuText>알림</MenuText>
+            <MenuText>{t('common.notification')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
@@ -73,7 +75,7 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Privacy')}
           >
-            <MenuText>개인정보 및 보안</MenuText>
+            <MenuText>{t('my_page.privacy_security')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
@@ -81,18 +83,18 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Trash')}
           >
-            <MenuText>휴지통</MenuText>
+            <MenuText>{t('my_page.trash')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
         </Card>
 
         <Card>
-          <CardTitle>서비스</CardTitle>
+          <CardTitle>{t('my_page.service')}</CardTitle>
           <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Notice')}
           >
-            <MenuText>공지사항</MenuText>
+            <MenuText>{t('my_page.notices')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
@@ -100,18 +102,18 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
             activeOpacity={0.7}
             onPress={() => navigation.navigate('CustomerCenter')}
           >
-            <MenuText>고객센터</MenuText>
+            <MenuText>{t('my_page.customer_center')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
         </Card>
 
         <Card>
-          <CardTitle>계정</CardTitle>
+          <CardTitle>{t('my_page.account')}</CardTitle>
           <MenuRow
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Logout')}
           >
-            <MenuText>로그아웃</MenuText>
+            <MenuText>{t('my_page.logout')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
 
@@ -119,7 +121,7 @@ export default function MyPageMain({navigation}: MyPageTabScreenProps) {
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Withdrawal')}
           >
-            <MenuText>탈퇴하기</MenuText>
+            <MenuText>{t('my_page.withdrawal')}</MenuText>
             <Icon name="chevron-forward" size={16} color="#FF8933" />
           </MenuRow>
         </Card>

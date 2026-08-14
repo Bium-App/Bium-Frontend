@@ -13,17 +13,9 @@ export interface TimelineMemoItem {
   isPinned: boolean;
   time: string;
   date: string;
-  remainingTime: string | null;
+  createdAt: string | null;
+  expiredAt: string | null;
 }
-
-const getRemainingTime = (expiredAt?: string | null): string => {
-  if (!expiredAt) return '00:00';
-  const seconds = dayjs(expiredAt).diff(dayjs(), 'second');
-  if (seconds <= 0) return '00:00';
-  return `${String(Math.floor(seconds / 3600)).padStart(2, '0')}:${String(
-    Math.floor((seconds % 3600) / 60),
-  ).padStart(2, '0')}`;
-};
 
 export const useTimeline = () => {
   const [fireMemos, setFireMemos] = useState<TimelineMemoItem[]>([]);
@@ -54,8 +46,8 @@ export const useTimeline = () => {
         date: memo.createdAt
           ? dayjs(memo.createdAt).format('M월 D일 저장')
           : '',
-        remainingTime:
-          memo.status === 'FIRE' ? getRemainingTime(memo.expiredAt) : null,
+        createdAt: memo.createdAt ?? null,
+        expiredAt: memo.expiredAt ?? null,
       }));
       const iceMemos = mapped.filter(memo => memo.status === 'ICE');
       setFireMemos(mapped.filter(memo => memo.status === 'FIRE'));

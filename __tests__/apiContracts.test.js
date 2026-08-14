@@ -129,7 +129,17 @@ test('8/13 v1.3 인증·기기 계약을 사용한다', async () => {
 
   await findAccountApi({ type: 'PW', email: 'user@example.com' });
   await verifyPasswordApi('pw');
-  await twoFactorApi({ action: 'VERIFY', phoneNumber: '010', code: '123456' });
+  await twoFactorApi({
+    action: 'VERIFY',
+    method: 'PHONE',
+    phoneNumber: '010',
+    code: '123456',
+  });
+  await twoFactorApi({
+    action: 'SEND',
+    method: 'EMAIL',
+    email: 'user@example.com',
+  });
   await logoutApi('ALL');
   await getDevicesApi();
   await logoutDeviceApi(3);
@@ -148,8 +158,14 @@ test('8/13 v1.3 인증·기기 계약을 사용한다', async () => {
   });
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/2fa', {
     action: 'VERIFY',
+    method: 'PHONE',
     phoneNumber: '010',
     code: '123456',
+  });
+  expect(apiClient.post).toHaveBeenCalledWith('/api/auth/2fa', {
+    action: 'SEND',
+    method: 'EMAIL',
+    email: 'user@example.com',
   });
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/logout', null, {
     params: { type: 'ALL' },

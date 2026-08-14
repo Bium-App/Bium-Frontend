@@ -9,6 +9,7 @@ import timezone from 'dayjs/plugin/timezone';
 import Header from '../../../../components/Header';
 import { useUserSettings } from '../../../../hooks/useUserSettings';
 import {getApiResponseMessage} from '../../../../utils/apiError';
+import {storeUserSettings} from '../../../../utils/userSettingsStorage';
 
 import {
   Container,
@@ -48,6 +49,10 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
   const [isTimezoneModalVisible, setTimezoneModalVisible] = useState(false);
   const [isDateModalVisible, setDateModalVisible] = useState(false);
 
+  const currentLanguage = selectedLanguage || 'ko-KR';
+  const currentTimezone = selectedTimezone || 'Asia/Seoul';
+  const currentFormatType = selectedFormatType || 'YYYY-MM-DD';
+
   // 선택된 지역에 맞춰 실제 날짜를 계산해 주는 함수
   const getFormattedDate = (
     ianaTimezone: string,
@@ -65,9 +70,9 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
   };
 
   useEffect(() => {
-    setSelectedLanguage(settings.language);
-    setSelectedTimezone(settings.timezone);
-    setSelectedFormatType(settings.dateFormat);
+    setSelectedLanguage(settings.language || 'ko-KR');
+    setSelectedTimezone(settings.timezone || 'Asia/Seoul');
+    setSelectedFormatType(settings.dateFormat || 'YYYY-MM-DD');
   }, [settings]);
 
   const timezoneOptions = [
@@ -77,28 +82,37 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
   ];
 
   const timezoneLabel =
-    timezoneOptions.find(option => option.value === selectedTimezone)?.label ??
-    selectedTimezone;
+    timezoneOptions.find(option => option.value === currentTimezone)?.label ??
+    currentTimezone;
 
   // 텍스트가 아닌 '형식 규칙' 자체를 관리합니다
   const formatTypes = ['YYYY-MM-DD', 'YYYY.MM.DD', 'MM/DD/YYYY', 'DD-MM-YYYY'];
 
   const handleSave = async () => {
-    try {
-      await saveSettings({
-        language: selectedLanguage,
-        timezone: selectedTimezone,
-        dateFormat: selectedFormatType,
-      });
-      await i18n.changeLanguage(selectedLanguage.split('-')[0]);
+    const patch = {
+      language: currentLanguage,
+      timezone: currentTimezone,
+      dateFormat: currentFormatType,
+    };
 
-      Alert.alert('알림', '설정이 성공적으로 저장되었습니다.', [
-        { text: '확인', onPress: () => navigation.goBack() },
+    await storeUserSettings({...settings, ...patch});
+    await i18n.changeLanguage(currentLanguage.split('-')[0]);
+
+    try {
+      await saveSettings(patch, {rollbackOnError: false});
+
+      Alert.alert(t('language_screen.saved_title'), t('language_screen.saved_message'), [
+        { text: t('common.confirm'), onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
+      setSelectedLanguage(currentLanguage);
+      setSelectedTimezone(currentTimezone);
+      setSelectedFormatType(currentFormatType);
       Alert.alert(
-        '오류',
-        getApiResponseMessage(error) ?? '설정 저장에 실패했습니다.',
+        t('language_screen.saved_locally_title'),
+        getApiResponseMessage(error)
+          ? `${t('language_screen.saved_locally_message')}\n\n${getApiResponseMessage(error)}`
+          : t('language_screen.saved_locally_message'),
       );
     }
   };
@@ -126,7 +140,7 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
               onPress={() => setSelectedLanguage('ko-KR')}
             >
               <RowText>{t('korean')}</RowText>
-              {selectedLanguage.startsWith('ko') ? (
+              {currentLanguage.startsWith('ko') ? (
                 <Icon name="checkmark-circle" size={24} color="#FF8933" />
               ) : (
                 <Icon name="ellipse-outline" size={24} color="#EAEAEA" />
@@ -138,7 +152,7 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
               onPress={() => setSelectedLanguage('en-US')}
             >
               <RowText>{t('english')}</RowText>
-              {selectedLanguage.startsWith('en') ? (
+              {currentLanguage.startsWith('en') ? (
                 <Icon name="checkmark-circle" size={24} color="#FF8933" />
               ) : (
                 <Icon name="ellipse-outline" size={24} color="#EAEAEA" />
@@ -170,7 +184,7 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
               <RightContainer>
                 {/* 💡 선택된 시간대와 형식을 계산해서 실제 날짜를 출력합니다 */}
                 <SubText>
-                  {getFormattedDate(selectedTimezone, selectedFormatType)}
+                  {getFormattedDate(currentTimezone, currentFormatType)}
                 </SubText>
                 <Icon name="chevron-forward" size={16} color="#FF8933" />
               </RightContainer>
@@ -201,7 +215,7 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
           onPress={() => setTimezoneModalVisible(false)}
         >
           <ModalContent>
-            <ModalTitle>시간대 선택</ModalTitle>
+            <ModalTitle>{t('language_screen.select_timezone')}</ModalTitle>
             {timezoneOptions.map(option => (
               <ModalOption
                 key={option.value}
@@ -210,10 +224,10 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
                   setTimezoneModalVisible(false);
                 }}
               >
-                <ModalOptionText isSelected={selectedTimezone === option.value}>
+                <ModalOptionText isSelected={currentTimezone === option.value}>
                   {option.label}
                 </ModalOptionText>
-                {selectedTimezone === option.value && (
+                {currentTimezone === option.value && (
                   <Icon name="checkmark" size={20} color="#FF8933" />
                 )}
               </ModalOption>
@@ -234,9 +248,9 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
           onPress={() => setDateModalVisible(false)}
         >
           <ModalContent>
-            <ModalTitle>날짜 형식 선택</ModalTitle>
+            <ModalTitle>{t('language_screen.select_date_format')}</ModalTitle>
             {formatTypes.map((type, index) => {
-              const displayDate = getFormattedDate(selectedTimezone, type);
+              const displayDate = getFormattedDate(currentTimezone, type);
 
               return (
                 <ModalOption
@@ -246,10 +260,10 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
                     setDateModalVisible(false);
                   }}
                 >
-                  <ModalOptionText isSelected={selectedFormatType === type}>
+                  <ModalOptionText isSelected={currentFormatType === type}>
                     {displayDate}
                   </ModalOptionText>
-                  {selectedFormatType === type && (
+                  {currentFormatType === type && (
                     <Icon name="checkmark" size={20} color="#FF8933" />
                   )}
                 </ModalOption>

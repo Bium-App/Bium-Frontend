@@ -98,16 +98,27 @@ export default function Management({navigation}: RootScreenProps<'Management'>) 
               </RadioOuter>
 
               <MethodTextContent>
-                <MethodTitle>휴대폰 인증</MethodTitle>
+                <MethodTitle>
+                  {settings.twoFactorMethod === 'EMAIL'
+                    ? '이메일 인증'
+                    : '휴대폰 인증'}
+                </MethodTitle>
                 <MethodValueRow>
                   <MethodValue>
-                    {user?.phoneNumber || '등록된 번호 없음'}
+                    {settings.twoFactorDestination ||
+                      (settings.twoFactorMethod === 'EMAIL'
+                        ? user?.email || '등록된 이메일 없음'
+                        : user?.phoneNumber || '등록된 번호 없음')}
                   </MethodValue>
                 </MethodValueRow>
               </MethodTextContent>
 
               <IconContainer>
-                <IcDevicePhone width={19} height={31} />
+                {settings.twoFactorMethod === 'EMAIL' ? (
+                  <Icon name="mail-outline" size={24} color="#000000" />
+                ) : (
+                  <IcDevicePhone width={19} height={31} />
+                )}
               </IconContainer>
             </MethodItem>
           </MethodsCard>

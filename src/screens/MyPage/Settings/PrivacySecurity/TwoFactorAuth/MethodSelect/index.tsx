@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useState} from 'react';
 import type {RootScreenProps} from '../../../../../../types/navigation';
 import { Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -7,6 +7,7 @@ import IcMobile from '../../../../../../assets/icons/ic_device_phone.svg';
 import { useCurrentUser } from '../../../../../../hooks/useCurrentUser';
 import { useTwoFactorAuth } from '../../../../../../hooks/useTwoFactorAuth';
 import {getApiResponseMessage} from '../../../../../../utils/apiError';
+import type {TwoFactorMethod} from '../../../../../../types/auth';
 
 import {
   Container,
@@ -17,12 +18,13 @@ import {
   SectionLabel,
   OptionsCard,
   OptionItem,
+  Divider,
   RadioOuter,
   RadioInner,
   OptionTextContent,
   OptionTitle,
   OptionValueRow,
-  OptionValueInput,
+  OptionValue,
   RightIconWrapper,
   InfoBox,
   InfoText,
@@ -32,24 +34,37 @@ import {
 
 export default function MethodSelect({navigation}: RootScreenProps<'MethodSelect'>) {
   const [isLoading, setIsLoading] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const { user } = useCurrentUser();
-  const { setupPhone } = useTwoFactorAuth();
-
-  useEffect(() => {
-    if (user?.phoneNumber) setPhoneNumber(user.phoneNumber);
-  }, [user?.phoneNumber]);
+  const [selectedMethod, setSelectedMethod] =
+    useState<TwoFactorMethod>('PHONE');
+  const {user, isLoading: isUserLoading} = useCurrentUser();
+  const { setupMethod } = useTwoFactorAuth();
+  const phoneNumber = user?.phoneNumber?.trim() ?? '';
+  const email = user?.email?.trim() ?? '';
 
   const handleNext = async () => {
-    if (!phoneNumber.trim()) {
-      Alert.alert('알림', '2단계 인증에 사용할 휴대폰 번호를 입력해주세요.');
+    const destination = selectedMethod === 'EMAIL' ? email : phoneNumber;
+    if (!destination) {
+      Alert.alert(
+        '알림',
+        selectedMethod === 'EMAIL'
+          ? '2단계 인증에 사용할 이메일을 입력해주세요.'
+          : '2단계 인증에 사용할 휴대폰 번호를 입력해주세요.',
+      );
+      return;
+    }
+    if (
+      selectedMethod === 'EMAIL' &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destination)
+    ) {
+      Alert.alert('알림', '올바른 이메일 형식을 입력해주세요.');
       return;
     }
     setIsLoading(true);
     try {
-      await setupPhone(phoneNumber.trim());
+      await setupMethod(selectedMethod, destination);
       navigation.navigate('VerifyCode', {
-        phoneNumber: phoneNumber.trim(),
+        method: selectedMethod,
+        destination,
       });
     } catch (error) {
       Alert.alert(
@@ -84,26 +99,55 @@ export default function MethodSelect({navigation}: RootScreenProps<'MethodSelect
             <SectionLabel>인증 방법</SectionLabel>
 
             <OptionsCard>
-              <OptionItem activeOpacity={1}>
-                <RadioOuter isSelected={true}>
+              <OptionItem
+                activeOpacity={0.8}
+                onPress={() => setSelectedMethod('PHONE')}
+              >
+                <RadioOuter isSelected={selectedMethod === 'PHONE'}>
                   <RadioInner />
                 </RadioOuter>
 
                 <OptionTextContent>
                   <OptionTitle>휴대폰 인증</OptionTitle>
                   <OptionValueRow>
-                    <OptionValueInput
-                      value={phoneNumber}
-                      onChangeText={setPhoneNumber}
-                      placeholder="010-0000-0000"
-                      placeholderTextColor="#AAAAAA"
-                      keyboardType="phone-pad"
-                    />
+                    <OptionValue>
+                      {phoneNumber ||
+                        (isUserLoading
+                          ? '사용자 정보 불러오는 중...'
+                          : '등록된 휴대폰 번호 없음')}
+                    </OptionValue>
                   </OptionValueRow>
                 </OptionTextContent>
 
                 <RightIconWrapper>
                   <IcMobile width={19} height={31} />
+                </RightIconWrapper>
+              </OptionItem>
+
+              <Divider />
+
+              <OptionItem
+                activeOpacity={0.8}
+                onPress={() => setSelectedMethod('EMAIL')}
+              >
+                <RadioOuter isSelected={selectedMethod === 'EMAIL'}>
+                  <RadioInner />
+                </RadioOuter>
+
+                <OptionTextContent>
+                  <OptionTitle>이메일 인증</OptionTitle>
+                  <OptionValueRow>
+                    <OptionValue>
+                      {email ||
+                        (isUserLoading
+                          ? '사용자 정보 불러오는 중...'
+                          : '등록된 이메일 없음')}
+                    </OptionValue>
+                  </OptionValueRow>
+                </OptionTextContent>
+
+                <RightIconWrapper>
+                  <Icon name="mail-outline" size={24} color="#000000" />
                 </RightIconWrapper>
               </OptionItem>
             </OptionsCard>
@@ -115,14 +159,14 @@ export default function MethodSelect({navigation}: RootScreenProps<'MethodSelect
                 color="#FF8933"
               />
               <InfoText>
-                현재 명세에서 지원하는 2단계 인증 수단은 휴대폰입니다.
+                휴대폰 문자 또는 이메일로 인증번호를 받을 수 있습니다.
               </InfoText>
             </InfoBox>
           </TopContentWrapper>
 
           <SubmitButton
             activeOpacity={0.8}
-            disabled={isLoading}
+            disabled={isLoading || isUserLoading}
             onPress={handleNext}
           >
             <SubmitButtonText>다음</SubmitButtonText>

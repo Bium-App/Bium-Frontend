@@ -5,6 +5,7 @@ import type {CompositeScreenProps} from '@react-navigation/native';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../components/Header';
 import MemoCard from '../../components/MemoCard';
 import AsyncState from '../../components/AsyncState';
@@ -39,6 +40,7 @@ type HomeScreenProps = CompositeScreenProps<
 >;
 
 export default function Home({navigation}: HomeScreenProps) {
+  const {t} = useTranslation();
   const [showTooltip, setShowTooltip] = useState(true);
   const {
     memoSections,
@@ -73,18 +75,18 @@ export default function Home({navigation}: HomeScreenProps) {
       });
     } catch (error) {
       Alert.alert(
-        '오류',
+        t('common.error'),
         getApiResponseMessage(error) ??
-          '메모 상세 내용을 불러오지 못했습니다.',
+          t('home.memo_detail_failed'),
       );
     }
   };
 
   const confirmTrash = (item: HomeMemoItem) => {
-    Alert.alert('휴지통 이동', `'${item.MTitle}' 메모를 이동하시겠습니까?`, [
-      { text: '취소', style: 'cancel' },
+    Alert.alert(t('home.move_to_trash'), t('home.move_to_trash_confirm', {title: item.MTitle}), [
+      { text: t('home.cancel'), style: 'cancel' },
       {
-        text: '이동',
+        text: t('home.move'),
         style: 'destructive',
         onPress: () => moveMemoToTrash(item.id),
       },
@@ -92,18 +94,18 @@ export default function Home({navigation}: HomeScreenProps) {
   };
 
   const openMemoMenu = (item: HomeMemoItem) => {
-    Alert.alert('메모 관리', item.MTitle, [
+    Alert.alert(t('home.manage_memo'), item.MTitle, [
       {
-        text: item.Status === 'ICE' ? 'FIRE로 변경' : 'ICE로 보관',
+        text: item.Status === 'ICE' ? t('home.change_to_fire') : t('home.store_as_ice'),
         onPress: () =>
           changeMemoStatus(item.id, item.Status === 'ICE' ? 'FIRE' : 'ICE'),
       },
       {
-        text: '휴지통으로 이동',
+        text: t('home.move_to_trash_action'),
         style: 'destructive',
         onPress: () => confirmTrash(item),
       },
-      { text: '취소', style: 'cancel' },
+      { text: t('home.cancel'), style: 'cancel' },
     ]);
   };
 
@@ -123,11 +125,11 @@ export default function Home({navigation}: HomeScreenProps) {
           <TooltipTextWrapper>
             <TooltipRow>
               <Icon name="arrow-back-outline" size={14} color="#FF8933" />
-              <TooltipText>왼쪽 : 얼음 (보관)</TooltipText>
+              <TooltipText>{t('home.tooltip_ice')}</TooltipText>
             </TooltipRow>
             <TooltipRow>
               <Icon name="arrow-forward-outline" size={14} color="#FF8933" />
-              <TooltipText>오른쪽 : 상단 고정 (얼음 메모만 가능)</TooltipText>
+              <TooltipText>{t('home.tooltip_pin')}</TooltipText>
             </TooltipRow>
           </TooltipTextWrapper>
         </TooltipLeft>
@@ -141,7 +143,7 @@ export default function Home({navigation}: HomeScreenProps) {
   return (
     <Container>
       <Header
-        title="홈"
+        title={t('home.title')}
         right={
           <RightIconContainer>
             <TouchableOpacity
@@ -179,7 +181,7 @@ export default function Home({navigation}: HomeScreenProps) {
           <AsyncState
             isLoading={isLoading}
             errorMessage={errorMessage}
-            emptyMessage="저장된 메모가 없습니다."
+            emptyMessage={t('state.no_memos')}
             onRetry={fetchMemos}
           />
         }

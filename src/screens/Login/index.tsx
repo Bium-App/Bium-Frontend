@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import type {RootScreenProps} from '../../types/navigation';
 import { Animated, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../components/Header';
 import { useLogin } from '../../hooks/useLogin';
 
@@ -21,6 +22,7 @@ import {
 } from './Login.styles';
 
 export default function Login({navigation}: RootScreenProps<'Login'>) {
+  const {t} = useTranslation();
   const { loginId, setLoginId, password, setPassword, isLoading, handleLoginSubmit } = useLogin();
   const fillAnimation = useRef(new Animated.Value(0)).current;
   const pressAnimation = useRef(new Animated.Value(1)).current;
@@ -63,16 +65,16 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
       <Header
         left={
           <TouchableOpacity onPress={() => navigation.navigate('Splash')}>
-            <Icon name="chevron-back-outline" size={24} color="#AAAAAA" />
+            <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
       />
       <HeaderDivider />
       <ScrollContent>
-        <GreetingText>메모 점화하기</GreetingText>
+        <GreetingText>{t('auth.ignite_memo')}</GreetingText>
         <InputWrapper>
           <Input
-            placeholder="아이디"
+            placeholder={t('auth.login_id')}
             placeholderTextColor="#AAAAAA"
             value={loginId}
             onChangeText={setLoginId}
@@ -82,7 +84,7 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
         </InputWrapper>
         <InputWrapper>
           <Input
-            placeholder="비밀번호"
+            placeholder={t('auth.password')}
             placeholderTextColor="#AAAAAA"
             value={password}
             onChangeText={setPassword}
@@ -93,21 +95,21 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
         <AnimatedButtonContainer style={{ backgroundColor }}>
           <LoginButtonTouch onPress={handleLogin} disabled={isLoading} activeOpacity={1}>
             <AnimatedButtonText style={{ color: textColor, transform: [{ scale: pressAnimation }] }}>
-              {isLoading ? '로그인 중...' : '로그인'}
+              {isLoading ? t('auth.logging_in') : t('common.login')}
             </AnimatedButtonText>
           </LoginButtonTouch>
         </AnimatedButtonContainer>
         <LinksRow>
           <TouchableOpacity onPress={() => navigation.navigate('FindId')}>
-            <LinkText>아이디 찾기</LinkText>
+            <LinkText>{t('auth.find_id')}</LinkText>
           </TouchableOpacity>
           <LinkDivider> | </LinkDivider>
           <TouchableOpacity onPress={() => navigation.navigate('FindPassword')}>
-            <LinkText>비밀번호 찾기</LinkText>
+            <LinkText>{t('auth.find_password')}</LinkText>
           </TouchableOpacity>
           <LinkDivider> | </LinkDivider>
           <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <LinkText>회원가입</LinkText>
+            <LinkText>{t('auth.sign_up')}</LinkText>
           </TouchableOpacity>
         </LinksRow>
       </ScrollContent>

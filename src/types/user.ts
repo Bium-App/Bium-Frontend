@@ -1,4 +1,5 @@
 import type {ApiMutationResponse, EntityId} from './api';
+import type {TwoFactorMethod} from './auth';
 
 export interface User {
   userId: EntityId;
@@ -24,6 +25,8 @@ export interface UserSettings {
   dateFormat: string;
   language: string;
   use2fa: boolean;
+  twoFactorMethod: TwoFactorMethod;
+  twoFactorDestination: string;
   allowPush: boolean;
   allowEvent: boolean;
 }

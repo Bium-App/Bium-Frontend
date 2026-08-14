@@ -40,10 +40,13 @@ export interface VerifyPasswordResponse extends ApiMutationResponse {
 }
 
 export type TwoFactorAction = 'SETUP' | 'SEND' | 'VERIFY';
+export type TwoFactorMethod = 'PHONE' | 'EMAIL';
 
 export interface TwoFactorRequest {
   action: TwoFactorAction;
+  method: TwoFactorMethod;
   phoneNumber?: string;
+  email?: string;
   code?: string;
 }
 

@@ -53,6 +53,11 @@ export const AnimatedIconWrapper = styled(Animated.View)`
   height: 280px;
 `;
 
+export const OnboardingImage = styled.Image`
+  width: 250px;
+  height: 250px;
+`;
+
 export const ParticleWrapper = styled(Animated.View)`
   position: absolute;
   width: 100%;

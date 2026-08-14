@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import type {RootScreenProps} from '../../types/navigation';
 import { StatusBar } from 'react-native';
+import {useTranslation} from 'react-i18next';
 import {
   clearSession,
   getRefreshToken,
@@ -14,6 +15,7 @@ import { Container, LogoWrapper, SubTitleText } from './StartScreen.styles';
 export default function StartScreen({
   navigation,
 }: RootScreenProps<'StartScreen'>) {
+  const {t} = useTranslation();
   useEffect(() => {
     let isMounted = true;
 
@@ -48,7 +50,7 @@ export default function StartScreen({
       <LogoWrapper>
         <Logo width={120} height={120} />
       </LogoWrapper>
-      <SubTitleText>기록에도 온도가 있으니까</SubTitleText>
+      <SubTitleText>{t('splash.slogan')}</SubTitleText>
     </Container>
   );
 }

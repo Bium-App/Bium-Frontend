@@ -1,6 +1,7 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Header from '../../../components/Header';
 import { useTeamCreate } from '../../../hooks/useTeamCreate';
@@ -35,6 +36,7 @@ type TeamCreateScreenProps = NativeStackScreenProps<
 >;
 
 export default function TeamCreate({navigation}: TeamCreateScreenProps) {
+  const {t} = useTranslation();
   // 뷰모델 연결 및 상태, 함수 추출
   const {
     teamName,
@@ -80,20 +82,20 @@ export default function TeamCreate({navigation}: TeamCreateScreenProps) {
 
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
-      <Icon name="chevron-back" size={26} color="#FF8933" />
+      <Icon name="chevron-back" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
 
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Header title="팀 생성" left={backButton} />
+      <Header title={t('team.create_team')} left={backButton} />
       <ScrollContent showsVerticalScrollIndicator={false}>
         <ContentInner>
-          <SectionLabel isFirst={true}>팀 이름</SectionLabel>
+          <SectionLabel isFirst={true}>{t('team.team_name')}</SectionLabel>
           <InputBox>
             <StyledTextInput
-              placeholder="팀 이름을 입력하세요"
+              placeholder={t('team.team_name_placeholder')}
               placeholderTextColor="#AAAAAA"
               value={teamName}
               onChangeText={setTeamName}
@@ -101,23 +103,23 @@ export default function TeamCreate({navigation}: TeamCreateScreenProps) {
             />
           </InputBox>
           <SubTextRow>
-            <SubText>팀 이름은 나중에 변경 할 수 있어요</SubText>
+            <SubText>{t('team.team_name_helper')}</SubText>
             <CharCountText>{teamName.length}/20</CharCountText>
           </SubTextRow>
-          <SectionLabel isFirst={false}>팀 멤버 추가</SectionLabel>
+          <SectionLabel isFirst={false}>{t('team.add_members')}</SectionLabel>
           <InputBox>
             <StyledTextInput
-              placeholder="닉네임으로 검색"
+              placeholder={t('team.search_nickname')}
               placeholderTextColor="#AAAAAA"
               value={searchMember}
               onChangeText={setSearchMember}
             />
           </InputBox>
           {searchMember.trim() ? searchResults.map(renderMember) : null}
-          <SectionLabel isFirst={false}>추천 친구</SectionLabel>
+          <SectionLabel isFirst={false}>{t('team.recommended_friends')}</SectionLabel>
           {recommendedMembers.map(renderMember)}
           <SectionLabel isFirst={false}>
-            추가된 멤버 ({selectedMembers.length})
+            {t('team.added_members', {count: selectedMembers.length})}
           </SectionLabel>
           {selectedMembers.map(renderMember)}
         </ContentInner>
@@ -129,7 +131,7 @@ export default function TeamCreate({navigation}: TeamCreateScreenProps) {
           onPress={handleCreateTeam}
           disabled={isLoading}
         >
-          <SubmitBtnText>팀 생성하기</SubmitBtnText>
+          <SubmitBtnText>{t('team.create_team_action')}</SubmitBtnText>
         </SubmitBtn>
       </BottomFixedArea>
     </Container>

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import type {RootScreenProps} from '../../types/navigation';
 import { TouchableOpacity, RefreshControl } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 
 import FireIcon from '../../assets/icons/ic_fire.svg';
 import IceIcon from '../../assets/icons/ic_ice.svg';
@@ -26,6 +27,7 @@ import {
 export default function Notification({
   navigation,
 }: RootScreenProps<'Notification'>) {
+  const {t} = useTranslation();
   const {
     notifications,
     isLoading,
@@ -65,13 +67,13 @@ export default function Notification({
   return (
     <Container>
       <Header
-        title="알림"
+        title={t('common.notification')}
         left={
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
-            <Icon name="chevron-back-outline" size={24} color="#AAAAAA" />
+            <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
       />
@@ -90,7 +92,7 @@ export default function Notification({
           <AsyncState
             isLoading={isLoading}
             errorMessage={errorMessage}
-            emptyMessage="새로운 알림이 없습니다."
+            emptyMessage={t('state.no_notifications')}
             onRetry={fetchNotifications}
           />
         ) : null}

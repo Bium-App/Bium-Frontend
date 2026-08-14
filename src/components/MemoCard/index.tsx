@@ -1,6 +1,7 @@
 import React from 'react';
 import {Swipeable} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 
 import FireIcon from '../../assets/icons/ic_fire.svg';
 import IceIcon from '../../assets/icons/ic_ice.svg';
@@ -46,6 +47,7 @@ export default function MemoCard({
   onPin,
   onStatusChange,
 }: MemoCardProps) {
+  const {t} = useTranslation();
   const renderLeftActions = () => (
     <ActionBackground
       color="#EAF3FF"
@@ -95,7 +97,7 @@ export default function MemoCard({
           <TitleText>{item.MTitle}</TitleText>
           <ContentText>{item.MContent}</ContentText>
           {item.Status === 'FIRE' && item.remainingTime ? (
-            <ExpireText>소멸 예정 : {item.remainingTime}</ExpireText>
+            <ExpireText>{t('memo_card.expires_in', {time: item.remainingTime})}</ExpireText>
           ) : null}
         </ContentWrapper>
         <RightWrapper>

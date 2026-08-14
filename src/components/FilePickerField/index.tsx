@@ -1,6 +1,7 @@
 import React from 'react';
 import {ActivityIndicator} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import {formatFileSize} from '../../utils/filePicker';
 import type {SelectedFile, SelectedFileKind} from '../../types/file';
 import {
@@ -41,12 +42,14 @@ export default function FilePickerField({
   onSelect,
   onRemove,
   onUpload,
-  uploadLabel = '업로드',
+  uploadLabel,
   isPicking = false,
   isUploading = false,
   disabled = false,
 }: FilePickerFieldProps) {
+  const {t} = useTranslation();
   const isBusy = isPicking || isUploading;
+  const resolvedUploadLabel = uploadLabel ?? t('common.upload');
 
   return (
     <Container>
@@ -63,7 +66,7 @@ export default function FilePickerField({
             <FileSize>{formatFileSize(file.size)}</FileSize>
           </FileInfo>
           <RemoveButton
-            accessibilityLabel="선택 파일 제거"
+            accessibilityLabel={t('attachment.remove_selected')}
             disabled={disabled || isBusy}
             onPress={onRemove}>
             <Icon name="close-circle" size={22} color="#AAAAAA" />
@@ -84,7 +87,7 @@ export default function FilePickerField({
             />
           )}
           <SelectText>
-            {kind === 'image' ? '이미지 선택' : '파일 선택'}
+            {kind === 'image' ? t('common.image_select') : t('common.file_select')}
           </SelectText>
         </SelectButton>
       )}
@@ -97,7 +100,7 @@ export default function FilePickerField({
           {isUploading ? (
             <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
-            <ActionText>{uploadLabel}</ActionText>
+            <ActionText>{resolvedUploadLabel}</ActionText>
           )}
         </ActionButton>
       ) : null}

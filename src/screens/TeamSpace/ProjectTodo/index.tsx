@@ -6,6 +6,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import Header from '../../../components/Header';
 import AsyncState from '../../../components/AsyncState';
@@ -43,6 +44,7 @@ export default function ProjectTodo({
   route,
   navigation,
 }: ProjectTodoScreenProps) {
+  const {t} = useTranslation();
   // 라우터 파라미터에서 프로젝트 식별자 추출
   const {projectId, projectName} = route.params;
 
@@ -60,24 +62,24 @@ export default function ProjectTodo({
   } = useProjectTodo(projectId);
 
   const openTodoMenu = (todo: ProjectTodoItem) => {
-    Alert.alert('할일 관리', todo.title, [
+    Alert.alert(t('team.manage_todo'), todo.title, [
       {
-        text: '수정',
+        text: t('team.edit'),
         onPress: () =>
           navigation.navigate('AddTodo', { projectId, todoData: todo }),
       },
       {
-        text: '삭제',
+        text: t('team.delete'),
         style: 'destructive',
         onPress: () => handleDeleteTodo(todo.id),
       },
-      { text: '취소', style: 'cancel' },
+      { text: t('home.cancel'), style: 'cancel' },
     ]);
   };
 
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
-      <Icon name="chevron-back" size={26} color="#FF8933" />
+      <Icon name="chevron-back" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
 
@@ -85,7 +87,7 @@ export default function ProjectTodo({
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <Header title={projectName ?? '팀 할 일'} left={backButton} />
+      <Header title={projectName ?? t('team.team_todo')} left={backButton} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -100,7 +102,7 @@ export default function ProjectTodo({
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
           <SearchInput
-            placeholder="검색"
+            placeholder={t('common.search')}
             placeholderTextColor="#000000"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -115,12 +117,12 @@ export default function ProjectTodo({
             }
             activeOpacity={0.7}
           >
-            <TabText isActive={false}>홈</TabText>
+            <TabText isActive={false}>{t('team.home')}</TabText>
           </TabItem>
           <TabSeparator />
 
           <TabItem isActive={true} activeOpacity={1}>
-            <TabText isActive={true}>할일</TabText>
+            <TabText isActive={true}>{t('team.todo')}</TabText>
           </TabItem>
           <TabSeparator />
 
@@ -131,7 +133,7 @@ export default function ProjectTodo({
             }
             activeOpacity={0.7}
           >
-            <TabText isActive={false}>일정</TabText>
+            <TabText isActive={false}>{t('team.schedule')}</TabText>
           </TabItem>
           <TabSeparator />
 
@@ -142,13 +144,13 @@ export default function ProjectTodo({
             }
             activeOpacity={0.7}
           >
-            <TabText isActive={false}>파일</TabText>
+            <TabText isActive={false}>{t('team.files')}</TabText>
           </TabItem>
         </TabContainer>
 
         <SectionContainer>
           <SectionHeader>
-            <SectionTitle>할일 체크리스트</SectionTitle>
+            <SectionTitle>{t('team.checklist')}</SectionTitle>
           </SectionHeader>
 
           <ListCard>
@@ -161,8 +163,8 @@ export default function ProjectTodo({
             ) : todos.length === 0 ? (
               <EmptyTodoText>
                 {searchQuery.trim() && hasTodos
-                  ? '검색된 할 일이 없습니다.'
-                  : '등록된 할 일이 없습니다.'}
+                  ? t('team.no_filtered_todos')
+                  : t('team.no_todos')}
               </EmptyTodoText>
             ) : (
               todos.map((todo, index) => (
@@ -191,7 +193,7 @@ export default function ProjectTodo({
             onPress={() => navigation.navigate('AddTodo', { projectId })}
           >
             <Icon name="add" size={20} color="#FFFFFF" />
-            <AddTodoText>새로운 할 일 추가</AddTodoText>
+            <AddTodoText>{t('team.add_todo')}</AddTodoText>
           </AddTodoButton>
         </SectionContainer>
       </ScrollView>

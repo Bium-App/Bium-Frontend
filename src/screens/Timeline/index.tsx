@@ -10,8 +10,10 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../components/Header';
 import AsyncState from '../../components/AsyncState';
+import BurningTimer from '../../components/BurningTimer';
 import { useTimeline } from '../../hooks/useTimeline';
 import type { TimelineMemoItem } from '../../hooks/useTimeline';
 import type {
@@ -52,10 +54,6 @@ import {
   DateRow,
   DateText,
   CardRight,
-  TimerRing,
-  TimerDot,
-  TimerValue,
-  TimerLabel,
   PinWrapper,
 } from './Timeline.styles';
 
@@ -67,6 +65,7 @@ type TimelineScreenProps = CompositeScreenProps<
 type TimelineTab = 'fire' | 'ice';
 
 export default function Timeline({ navigation }: TimelineScreenProps) {
+  const {t} = useTranslation();
   const [activeTab, setActiveTab] = useState<TimelineTab>('ice');
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
 
@@ -109,8 +108,8 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
       });
     } catch (error) {
       Alert.alert(
-        '오류',
-        getApiResponseMessage(error) ?? '메모 상세 내용을 불러오지 못했습니다.',
+        t('common.error'),
+        getApiResponseMessage(error) ?? t('home.memo_detail_failed'),
       );
     }
   };
@@ -120,8 +119,8 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
       await toggleMemoPin(item.id, item.isPinned);
     } catch (error) {
       Alert.alert(
-        '고정 변경 실패',
-        getApiResponseMessage(error) ?? '메모 고정 상태를 변경하지 못했습니다.',
+        t('timeline.pin_failed'),
+        getApiResponseMessage(error) ?? t('timeline.pin_failed_message'),
       );
     }
   };
@@ -163,13 +162,13 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
                 <CardDesc>{item.desc}</CardDesc>
               </TextWrapper>
             </CardLeft>
-            {item.remainingTime ? (
+            {item.expiredAt ? (
               <CardRight>
-                <TimerRing>
-                  <TimerValue>{item.remainingTime}</TimerValue>
-                  <TimerLabel>남음</TimerLabel>
-                  <TimerDot />
-                </TimerRing>
+                <BurningTimer
+                  createdAt={item.createdAt}
+                  expiredAt={item.expiredAt}
+                  label={t('timeline.remaining')}
+                />
               </CardRight>
             ) : null}
           </MemoCard>
@@ -218,7 +217,7 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
           </CardLeft>
           <PinWrapper
             accessibilityRole="button"
-            accessibilityLabel={isPinned ? '메모 고정 해제' : '메모 고정'}
+            accessibilityLabel={isPinned ? t('timeline.unpin') : t('timeline.pin')}
             activeOpacity={0.7}
             hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
             onPress={event => stopCardPressAndTogglePin(event, item)}
@@ -238,7 +237,7 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Header
-        title="타임라인"
+        title={t('timeline.title')}
         right={
           <HeaderIconRow>
             <IconButton onPress={() => navigation.navigate('Notification')}>
@@ -258,7 +257,7 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
           onPress={() => setActiveTab('fire')}
         >
           <TabText active={activeTab === 'fire'} tabType="fire">
-            불 메모
+            {t('timeline.fire_memo')}
           </TabText>
         </TabButton>
         <TabButton
@@ -267,7 +266,7 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
           onPress={() => setActiveTab('ice')}
         >
           <TabText active={activeTab === 'ice'} tabType="ice">
-            얼음 메모
+            {t('timeline.ice_memo')}
           </TabText>
         </TabButton>
       </TabContainer>
@@ -288,8 +287,8 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
             errorMessage={errorMessage}
             emptyMessage={
               activeTab === 'fire'
-                ? '저장된 불 메모가 없습니다.'
-                : '저장된 얼음 메모가 없습니다.'
+                ? t('state.no_fire_memos')
+                : t('state.no_ice_memos')
             }
             onRetry={fetchMemos}
           />
@@ -301,7 +300,7 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
               activeOpacity={0.7}
               onPress={() => setIsPinnedExpanded(!isPinnedExpanded)}
             >
-              <SectionTitle>고정된 메모</SectionTitle>
+              <SectionTitle>{t('timeline.pinned_memos')}</SectionTitle>
               <Icon
                 name={isPinnedExpanded ? 'chevron-up' : 'chevron-down'}
                 size={17}
@@ -314,7 +313,7 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
                 renderIceItem(item, index, icePinnedMemos.length, true),
               )}
             <SectionHeaderRow activeOpacity={1}>
-              <SectionTitle>메모</SectionTitle>
+              <SectionTitle>{t('timeline.memos')}</SectionTitle>
             </SectionHeaderRow>
             {iceRegularMemos.map((item, index) =>
               renderIceItem(item, index, iceRegularMemos.length, false),

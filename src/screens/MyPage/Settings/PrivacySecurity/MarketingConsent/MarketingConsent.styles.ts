@@ -53,6 +53,11 @@ export const IllustrationWrapper = styled.View`
   pointer-events: none; 
 `;
 
+export const BannerImage = styled.Image`
+  width: 100%;
+  height: 100%;
+`;
+
 export const AllConsentCard = styled.View`
   flex-direction: row; 
   justify-content: space-between; 

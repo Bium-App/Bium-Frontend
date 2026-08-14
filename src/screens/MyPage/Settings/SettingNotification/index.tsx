@@ -2,6 +2,7 @@ import React from 'react';
 import type {RootScreenProps} from '../../../../types/navigation';
 import { Alert, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../../../components/Header';
 import { useUserSettings } from '../../../../hooks/useUserSettings';
 import type {UserSettings} from '../../../../types/user';
@@ -17,6 +18,7 @@ import {
 } from './SettingNotification.styles';
 
 export default function SettingNotification({navigation}: RootScreenProps<'SettingNotification'>) {
+  const {t} = useTranslation();
   const { settings, isLoading, saveSettings } = useUserSettings();
   const isAllEnabled = settings.allowEvent && settings.allowPush;
 
@@ -25,8 +27,8 @@ export default function SettingNotification({navigation}: RootScreenProps<'Setti
       await saveSettings(patch);
     } catch (error) {
       Alert.alert(
-        '오류',
-        getApiResponseMessage(error) ?? '알림 설정 저장에 실패했습니다.',
+        t('common.error'),
+        getApiResponseMessage(error) ?? t('notification_settings.save_failed'),
       );
     }
   };
@@ -42,12 +44,12 @@ export default function SettingNotification({navigation}: RootScreenProps<'Setti
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="알림"
+        title={t('common.notification')}
       />
 
       <Content>
         <RowItem>
-          <RowText>모든 알림 받기</RowText>
+          <RowText>{t('notification_settings.all')}</RowText>
           <CustomToggle
             activeOpacity={0.8}
             disabled={isLoading}
@@ -64,7 +66,7 @@ export default function SettingNotification({navigation}: RootScreenProps<'Setti
         </RowItem>
 
         <RowItem>
-          <RowText>이벤트/혜택 알림</RowText>
+          <RowText>{t('notification_settings.event')}</RowText>
           <CustomToggle
             activeOpacity={0.8}
             disabled={isLoading}
@@ -76,7 +78,7 @@ export default function SettingNotification({navigation}: RootScreenProps<'Setti
         </RowItem>
 
         <RowItem>
-          <RowText>푸시알림</RowText>
+          <RowText>{t('notification_settings.push')}</RowText>
           <CustomToggle
             activeOpacity={0.8}
             disabled={isLoading}

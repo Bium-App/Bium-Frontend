@@ -7,6 +7,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import Header from '../../../components/Header';
@@ -49,6 +50,7 @@ type ScheduleScreenProps = NativeStackScreenProps<
 >;
 
 export default function Schedule({route, navigation}: ScheduleScreenProps) {
+  const {t, i18n} = useTranslation();
   const {projectId, projectName} = route.params;
   const {schedules, isLoading, errorMessage, fetchSchedules, getScheduleDetail} =
     useTeamSchedules(projectId);
@@ -75,22 +77,22 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
       });
     } catch (error) {
       Alert.alert(
-        '오류',
-        getApiResponseMessage(error) ?? '일정 상세를 불러오지 못했습니다.',
+        t('common.error'),
+        getApiResponseMessage(error) ?? t('team.schedule_detail_failed'),
       );
     }
   };
 
   const backButton = (
     <HeaderBackButton onPress={() => navigation.goBack()} activeOpacity={0.8}>
-      <Icon name="chevron-back" size={26} color="#FF8933" />
+      <Icon name="chevron-back" size={24} color="#FF8933" />
     </HeaderBackButton>
   );
 
   return (
     <Container>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Header title={projectName ?? '팀 일정'} left={backButton} />
+      <Header title={projectName ?? t('team.team_schedule')} left={backButton} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -104,7 +106,7 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
         <SearchContainer>
           <Icon name="search-outline" size={20} color="#000000" />
           <SearchInput
-            placeholder="검색"
+            placeholder={t('common.search')}
             placeholderTextColor="#000000"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -118,7 +120,7 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
             }
             activeOpacity={0.7}
           >
-            <TabText isActive={false}>홈</TabText>
+            <TabText isActive={false}>{t('team.home')}</TabText>
           </TabItem>
           <TabSeparator />
           <TabItem
@@ -128,11 +130,11 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
             }
             activeOpacity={0.7}
           >
-            <TabText isActive={false}>할일</TabText>
+            <TabText isActive={false}>{t('team.todo')}</TabText>
           </TabItem>
           <TabSeparator />
           <TabItem isActive={true} activeOpacity={1}>
-            <TabText isActive={true}>일정</TabText>
+            <TabText isActive={true}>{t('team.schedule')}</TabText>
           </TabItem>
           <TabSeparator />
           <TabItem
@@ -142,13 +144,13 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
             }
             activeOpacity={0.7}
           >
-            <TabText isActive={false}>파일</TabText>
+            <TabText isActive={false}>{t('team.files')}</TabText>
           </TabItem>
         </TabContainer>
 
         <SectionContainer>
           <SectionHeader>
-            <SectionTitle>이번 달 일정</SectionTitle>
+            <SectionTitle>{t('team.this_month')}</SectionTitle>
             <SmallAddButton
               activeOpacity={0.7}
               onPress={() => navigation.navigate('AddSchedule', { projectId })}
@@ -169,14 +171,14 @@ export default function Schedule({route, navigation}: ScheduleScreenProps) {
           ) : !groupedSchedules.length ? (
             <EmptyScheduleText>
               {searchQuery.trim() && schedules.length > 0
-                ? '검색된 일정이 없습니다.'
-                : '등록된 일정이 없습니다.'}
+                ? t('team.no_filtered_schedules')
+                : t('team.no_schedules')}
             </EmptyScheduleText>
           ) : null}
 
           {groupedSchedules.map(([dateKey, items]) => (
             <React.Fragment key={dateKey}>
-              <DateHeader>{dayjs(dateKey).format('M월 D일')}</DateHeader>
+              <DateHeader>{dayjs(dateKey).format(i18n.language.startsWith('en') ? 'MMM D' : 'M월 D일')}</DateHeader>
               <ListCard>
                 {items.map((item, index) => (
                   <TouchableListItem

@@ -32,7 +32,7 @@ export default function VerifyCode({route, navigation}: RootScreenProps<'VerifyC
   const [remainingSeconds, setRemainingSeconds] = useState(
     CODE_EXPIRES_IN_SECONDS,
   );
-  const { phoneNumber } = route.params ?? {};
+  const {method, destination} = route.params;
   const { sendCode, verifyCode } = useTwoFactorAuth();
 
   useEffect(() => {
@@ -59,8 +59,8 @@ export default function VerifyCode({route, navigation}: RootScreenProps<'VerifyC
     }
     setIsLoading(true);
     try {
-      await verifyCode(phoneNumber, code.trim());
-      navigation.replace('Success', { phoneNumber });
+      await verifyCode(method, destination, code.trim());
+      navigation.replace('Success', {method, destination});
     } catch (error) {
       Alert.alert(
         '인증 실패',
@@ -72,10 +72,10 @@ export default function VerifyCode({route, navigation}: RootScreenProps<'VerifyC
   };
 
   const handleResend = async () => {
-    if (!phoneNumber || isLoading) return;
+    if (!destination || isLoading) return;
     setIsLoading(true);
     try {
-      await sendCode(phoneNumber);
+      await sendCode(method, destination);
       setRemainingSeconds(CODE_EXPIRES_IN_SECONDS);
       Alert.alert('완료', '인증번호를 다시 전송했습니다.');
     } catch (error) {
@@ -106,7 +106,8 @@ export default function VerifyCode({route, navigation}: RootScreenProps<'VerifyC
         <ContentWrapper>
           <TopContentWrapper>
             <TitleText>
-              문자로 전송된 인증번호{'\n'}6자리를 입력해주세요.
+              {method === 'EMAIL' ? '이메일' : '문자'}로 전송된 인증번호
+              {'\n'}6자리를 입력해주세요.
             </TitleText>
 
             <VerificationRow>

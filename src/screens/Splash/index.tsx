@@ -6,15 +6,14 @@ import {
   Dimensions,
   Easing,
   FlatList,
+  type ImageSourcePropType,
   type ViewToken,
 } from 'react-native';
 import type {FunctionComponent} from 'react';
 import type {SvgProps} from 'react-native-svg';
+import {useTranslation} from 'react-i18next';
 
 import Logo from '../../assets/icons/logo.svg';
-import OnboardingFire from '../../assets/icons/onboarding_fire.svg';
-import OnboardingIce from '../../assets/icons/onboarding_ice.svg';
-import OnboardingTeam from '../../assets/icons/onboarding_team.svg';
 
 import FireGradation from '../../assets/icons/Fire_gradation.svg';
 import IceGradation from '../../assets/icons/Ice_gradation.svg';
@@ -27,6 +26,7 @@ import {
   ListContainer,
   SlideContainer,
   AnimatedIconWrapper,
+  OnboardingImage,
   ParticleWrapper,
   AnimatedTitleText,
   AnimatedSubTitleText,
@@ -41,44 +41,46 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface SplashItem {
   id: string;
-  title: string;
+  titleKey: string;
   titleColor: string;
-  subtitle: string;
-  Icon: FunctionComponent<SvgProps>;
+  subtitleKey: string;
+  Icon?: FunctionComponent<SvgProps>;
+  imageSource?: ImageSourcePropType;
 }
 
 const SPLASH_DATA: SplashItem[] = [
   {
     id: '1',
-    title: '비움',
+    titleKey: 'splash.app_name',
     titleColor: '#FF8933', 
-    subtitle: '당신의 기록은\n어떤 온도인가요?',
+    subtitleKey: 'splash.intro_question',
     Icon: Logo,
   },
   {
     id: '2',
-    title: '불 메모',
+    titleKey: 'splash.fire_title',
     titleColor: '#FF8933', 
-    subtitle: '시간이 지나면\n메모가 사라집니다.',
-    Icon: OnboardingFire,
+    subtitleKey: 'splash.fire_subtitle',
+    imageSource: require('../../assets/icons/onboarding_fire.png'),
   },
   {
     id: '3',
-    title: '얼음 메모',
+    titleKey: 'splash.ice_title',
     titleColor: '#7CC4FF', 
-    subtitle: '중요한 기록은\n얼려서 보관하세요.',
-    Icon: OnboardingIce,
+    subtitleKey: 'splash.ice_subtitle',
+    imageSource: require('../../assets/icons/onboarding_ice.png'),
   },
   {
     id: '4',
-    title: '팀스페이스',
+    titleKey: 'splash.team_title',
     titleColor: '#000000', 
-    subtitle: '함께 쓰고\n함께 기록하세요.',
-    Icon: OnboardingTeam,
+    subtitleKey: 'splash.team_subtitle',
+    imageSource: require('../../assets/icons/onboarding_team.png'),
   }
 ];
 
 export default function Splash({navigation}: RootScreenProps<'Splash'>) {
+  const {t} = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList<SplashItem>>(null);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -181,7 +183,7 @@ export default function Splash({navigation}: RootScreenProps<'Splash'>) {
   };
 
   const renderItem = ({item}: {item: SplashItem}) => {
-    const { Icon } = item;
+    const {Icon, imageSource} = item;
 
     const fireTranslateY = fireAnim.interpolate({
       inputRange: [0, 0.5, 1],
@@ -233,7 +235,14 @@ export default function Splash({navigation}: RootScreenProps<'Splash'>) {
             </ParticleWrapper>
           )}
 
-          <Icon width={250} height={250} preserveAspectRatio="xMidYMid meet" />
+          {imageSource ? (
+            <OnboardingImage
+              source={imageSource}
+              resizeMode="contain"
+            />
+          ) : Icon ? (
+            <Icon width={250} height={250} preserveAspectRatio="xMidYMid meet" />
+          ) : null}
         </AnimatedIconWrapper>
         
         <AnimatedTitleText
@@ -243,7 +252,7 @@ export default function Splash({navigation}: RootScreenProps<'Splash'>) {
             color: item.titleColor
           }}
         >
-          {item.title}
+          {t(item.titleKey)}
         </AnimatedTitleText>
         
         <AnimatedSubTitleText
@@ -252,7 +261,7 @@ export default function Splash({navigation}: RootScreenProps<'Splash'>) {
             transform: [{ translateY: contentAnim.textY }]
           }}
         >
-          {item.subtitle}
+          {t(item.subtitleKey)}
         </AnimatedSubTitleText>
       </SlideContainer>
     );
@@ -264,7 +273,7 @@ export default function Splash({navigation}: RootScreenProps<'Splash'>) {
       
       <TopBar>
         <SkipButton onPress={() => navigation.navigate('Login')}>
-          <SkipText>로그인</SkipText>
+          <SkipText>{t('common.login')}</SkipText>
         </SkipButton>
       </TopBar>
       
@@ -320,7 +329,7 @@ export default function Splash({navigation}: RootScreenProps<'Splash'>) {
         </DotRow>
         
         <StartButton onPress={handleNext}>
-          <StartButtonText>오늘부터 메모앱 시작하기</StartButtonText>
+          <StartButtonText>{t('splash.start')}</StartButtonText>
         </StartButton>
       </BottomContainer>
     </Container>

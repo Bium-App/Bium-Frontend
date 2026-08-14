@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import { useRecentFiles } from '../../hooks/useRecentFiles';
 import { formatFileSize } from '../../utils/filePicker';
 import type { SelectedFile } from '../../types/file';
@@ -45,6 +46,7 @@ export default function AttachmentSourceModal({
   onSelectImage,
   onSelectRecent,
 }: AttachmentSourceModalProps) {
+  const {t} = useTranslation();
   const { recentFiles } = useRecentFiles(visible);
   const openPicker = (picker: () => unknown) => {
     onClose();
@@ -61,9 +63,9 @@ export default function AttachmentSourceModal({
       <Overlay onPress={onClose}>
         <Container onStartShouldSetResponder={() => true}>
           <Header>
-            <Title>파일 추가</Title>
+            <Title>{t('attachment.add_file')}</Title>
             <CloseButton
-              accessibilityLabel="파일 추가 창 닫기"
+              accessibilityLabel={t('attachment.close')}
               disabled={isPicking}
               onPress={onClose}
             >
@@ -72,49 +74,49 @@ export default function AttachmentSourceModal({
           </Header>
 
           <Body>
-            <SectionLabel>파일</SectionLabel>
+            <SectionLabel>{t('common.file')}</SectionLabel>
             <SearchBox>
               <Icon name="search-outline" size={20} color="#000000" />
-              <SearchText>검색</SearchText>
+              <SearchText>{t('common.search')}</SearchText>
             </SearchBox>
 
-            <SectionLabel spaced={true}>추가 방식</SectionLabel>
+            <SectionLabel spaced={true}>{t('attachment.method')}</SectionLabel>
             <MethodRow>
               <MethodButton
                 disabled={isPicking}
                 onPress={() => openPicker(onSelectDocument)}
               >
                 <Icon name="phone-portrait-outline" size={27} color="#FF8933" />
-                <MethodText>기기</MethodText>
+                <MethodText>{t('attachment.device')}</MethodText>
               </MethodButton>
               <MethodButton
                 disabled={isPicking}
                 onPress={() => openPicker(onSelectImage)}
               >
                 <Icon name="images-outline" size={27} color="#FF8933" />
-                <MethodText>앨범</MethodText>
+                <MethodText>{t('attachment.album')}</MethodText>
               </MethodButton>
               <MethodButton
                 disabled={isPicking}
                 onPress={() => openPicker(onSelectDocument)}
               >
                 <Icon name="musical-note-outline" size={27} color="#FF8933" />
-                <MethodText>오디오</MethodText>
+                <MethodText>{t('attachment.audio')}</MethodText>
               </MethodButton>
               <MethodButton
                 disabled={isPicking}
                 onPress={() => openPicker(onSelectDocument)}
               >
                 <Icon name="cloud-outline" size={27} color="#FF8933" />
-                <MethodText>클라우드</MethodText>
+                <MethodText>{t('attachment.cloud')}</MethodText>
               </MethodButton>
             </MethodRow>
 
-            <SectionLabel spaced={true}>최근 파일</SectionLabel>
+            <SectionLabel spaced={true}>{t('attachment.recent')}</SectionLabel>
             <RecentBox>
               {recentFiles.length === 0 ? (
                 <RecentEmptyText>
-                  최근에 선택한 파일이 없습니다.
+                  {t('attachment.recent_empty')}
                 </RecentEmptyText>
               ) : (
                 <RecentScroll
@@ -146,7 +148,7 @@ export default function AttachmentSourceModal({
                         </RecentFileSize>
                       </RecentFileInfo>
                       <RecentAddButton
-                        accessibilityLabel={`${file.name} 최근 파일 선택`}
+                        accessibilityLabel={t('attachment.select_recent', {name: file.name})}
                         disabled={isPicking || !onSelectRecent}
                         onPress={() =>
                           onSelectRecent &&

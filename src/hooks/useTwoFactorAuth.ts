@@ -1,5 +1,14 @@
 import {twoFactorApi, verifyPasswordApi} from '../api/auth';
 import {updateTokens} from '../utils/authStorage';
+import type {TwoFactorMethod, TwoFactorRequest} from '../types/auth';
+
+const getDestinationPayload = (
+  method: TwoFactorMethod,
+  destination: string,
+): Pick<TwoFactorRequest, 'phoneNumber' | 'email'> =>
+  method === 'EMAIL'
+    ? {email: destination}
+    : {phoneNumber: destination};
 
 export const useTwoFactorAuth = () => {
   const verifyCurrentPassword = async (password: string): Promise<boolean> => {
@@ -7,18 +16,31 @@ export const useTwoFactorAuth = () => {
     return result.isMatched;
   };
 
-  const setupPhone = async (phoneNumber: string) => {
-    await twoFactorApi({action: 'SETUP', phoneNumber});
-    return twoFactorApi({action: 'SEND', phoneNumber});
+  const setupMethod = async (
+    method: TwoFactorMethod,
+    destination: string,
+  ) => {
+    const destinationPayload = getDestinationPayload(method, destination);
+    await twoFactorApi({action: 'SETUP', method, ...destinationPayload});
+    return twoFactorApi({action: 'SEND', method, ...destinationPayload});
   };
 
-  const sendCode = (phoneNumber: string) =>
-    twoFactorApi({action: 'SEND', phoneNumber});
+  const sendCode = (method: TwoFactorMethod, destination: string) =>
+    twoFactorApi({
+      action: 'SEND',
+      method,
+      ...getDestinationPayload(method, destination),
+    });
 
-  const verifyCode = async (phoneNumber: string, code: string) => {
+  const verifyCode = async (
+    method: TwoFactorMethod,
+    destination: string,
+    code: string,
+  ) => {
     const tokens = await twoFactorApi({
       action: 'VERIFY',
-      phoneNumber,
+      method,
+      ...getDestinationPayload(method, destination),
       code,
     });
     if (tokens.accessToken && tokens.refreshToken) {
@@ -30,5 +52,5 @@ export const useTwoFactorAuth = () => {
     return tokens;
   };
 
-  return {verifyCurrentPassword, setupPhone, sendCode, verifyCode};
+  return {verifyCurrentPassword, setupMethod, sendCode, verifyCode};
 };

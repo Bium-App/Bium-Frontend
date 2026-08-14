@@ -2,6 +2,7 @@ import React from 'react';
 import type {RootScreenProps} from '../../../../types/navigation';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../../../components/Header';
 import { useUserSettings } from '../../../../hooks/useUserSettings';
 
@@ -14,17 +15,18 @@ import {
 
 // 📋 기존 메뉴 리스트 (1번 메뉴의 targetScreen은 상황에 따라 바뀌어야 하므로 삭제했습니다)
 const MENU_LIST = [
-  { id: 1, title: '2단계 인증 설정' }, // 💡 목적지를 동적으로 결정할 예정!
-  { id: 2, title: '로그인 기기 관리', targetScreen: 'DeviceManagement' },
-  { id: 3, title: '서비스 개선 제안', targetScreen: 'ServiceSuggestion' },
-  { id: 4, title: '개인정보 처리방침', targetScreen: 'PrivacyPolicy' },
-  { id: 5, title: '마케팅 정보 수신 동의', targetScreen: 'MarketingConsent' },
-  { id: 6, title: '필수 권한 설정', targetScreen: 'PermissionSetup' },
+  { id: 1, titleKey: 'my_page.two_factor' }, // 💡 목적지를 동적으로 결정할 예정!
+  { id: 2, titleKey: 'my_page.devices', targetScreen: 'DeviceManagement' },
+  { id: 3, titleKey: 'my_page.suggestion', targetScreen: 'ServiceSuggestion' },
+  { id: 4, titleKey: 'my_page.privacy_policy', targetScreen: 'PrivacyPolicy' },
+  { id: 5, titleKey: 'my_page.marketing', targetScreen: 'MarketingConsent' },
+  { id: 6, titleKey: 'my_page.permissions', targetScreen: 'PermissionSetup' },
 ] as const;
 
 type PrivacyMenuItem = (typeof MENU_LIST)[number];
 
 export default function PrivacySecurity({navigation}: RootScreenProps<'Privacy'>) {
+  const {t} = useTranslation();
   const { settings } = useUserSettings();
 
   const handlePressMenu = (menuItem: PrivacyMenuItem) => {
@@ -53,7 +55,7 @@ export default function PrivacySecurity({navigation}: RootScreenProps<'Privacy'>
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="개인정보 및 보안"
+        title={t('my_page.privacy_security')}
       />
 
       <ScrollContainer showsVerticalScrollIndicator={false}>
@@ -63,7 +65,7 @@ export default function PrivacySecurity({navigation}: RootScreenProps<'Privacy'>
             activeOpacity={0.7}
             onPress={() => handlePressMenu(menu)}
           >
-            <MenuText>{menu.title}</MenuText>
+            <MenuText>{t(menu.titleKey)}</MenuText>
             <Icon name="chevron-forward" size={22} color="#000000" />
           </MenuCard>
         ))}

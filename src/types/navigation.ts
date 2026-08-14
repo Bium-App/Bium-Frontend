@@ -4,6 +4,7 @@ import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {EntityId} from './api';
 import type {MemoRichContent} from './memo';
+import type {TwoFactorMethod} from './auth';
 
 export interface MemoEditorData {
   id: string;
@@ -77,8 +78,8 @@ export type RootStackParamList = {
   TwoFactorIntro: undefined;
   PasswordCheck: undefined;
   MethodSelect: undefined;
-  VerifyCode: {phoneNumber: string};
-  Success: {phoneNumber: string};
+  VerifyCode: {method: TwoFactorMethod; destination: string};
+  Success: {method: TwoFactorMethod; destination: string};
   Management: undefined;
   DeviceManagement: undefined;
   ServiceSuggestion: undefined;

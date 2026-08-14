@@ -12,6 +12,7 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import {
   RichText,
   TenTapStartKit,
@@ -157,6 +158,7 @@ export default function MemoEditor({
   navigation,
   route,
 }: MemoEditorScreenProps) {
+  const {t} = useTranslation();
   // 이전 화면(홈/타임라인)에서 메모를 눌러 들어왔다면 route.params에 데이터가 들어있음
   const initialData = route?.params?.memoData;
   const memoId = initialData?.id;
@@ -216,7 +218,6 @@ export default function MemoEditor({
     const editorKey = memoId ?? 'new';
     if (initializedMemoRef.current === editorKey) return;
     initializedMemoRef.current = editorKey;
-    editor.setPlaceholder('내용 입력...');
     editor.setContent(
       getInitialEditorContent(
         initialData?.richContent,
@@ -267,9 +268,9 @@ export default function MemoEditor({
         richContent,
       });
     } catch {
-      Alert.alert('오류', '편집기 내용을 불러오지 못했습니다.');
+      Alert.alert(t('common.error'), t('memo_editor.editor_failed'));
     }
-  }, [editor, editorState.isReady, handleSave, handleSaveSuccess, memoId]);
+  }, [editor, editorState.isReady, handleSave, handleSaveSuccess, memoId, t]);
 
   const setSelectedFontSize = useCallback(
     (nextSize: number) => {
@@ -293,8 +294,11 @@ export default function MemoEditor({
       }
       .ProseMirror p { margin: 0 0 4px; }
       .ProseMirror ul, .ProseMirror ol { margin: 0; padding-left: 22px; }
+      .ProseMirror .is-editor-empty:first-child::before {
+        content: '${t('memo_editor.content_placeholder')}' !important;
+      }
     `);
-  }, [editor]);
+  }, [editor, t]);
 
   return (
     <Container>
@@ -302,10 +306,10 @@ export default function MemoEditor({
       <Header
         left={
           <HeaderTextButton onPress={closeEditor}>
-            <HeaderLeftText>취소</HeaderLeftText>
+            <HeaderLeftText>{t('memo_editor.cancel')}</HeaderLeftText>
           </HeaderTextButton>
         }
-        title={memoId ? '메모 수정' : '새 메모'}
+        title={memoId ? t('memo_editor.edit_title') : t('memo_editor.new_title')}
         right={
           // 로딩 중일 때는 터치를 막고, handleSave에 네비게이션 콜백 전달
           <HeaderTextButton
@@ -314,7 +318,7 @@ export default function MemoEditor({
             {isLoading ? (
               <ActivityIndicator color="#FF8933" size="small" />
             ) : (
-              <HeaderRightText>저장</HeaderRightText>
+              <HeaderRightText>{t('save')}</HeaderRightText>
             )}
           </HeaderTextButton>
         }
@@ -326,7 +330,7 @@ export default function MemoEditor({
           <EditorBox>
             <TitleRow>
               <TitleInput
-                placeholder="제목 입력"
+                placeholder={t('memo_editor.title_placeholder')}
                 placeholderTextColor="#000000"
                 maxLength={50}
                 value={title}
@@ -434,8 +438,8 @@ export default function MemoEditor({
 
           <SectionHeader>
             <Icon name="camera-outline" size={18} color="#FF8933" />
-            <SectionTitle>이미지 추가</SectionTitle>
-            <SectionSubTitle>(선택)</SectionSubTitle>
+            <SectionTitle>{t('memo_editor.add_image')}</SectionTitle>
+            <SectionSubTitle>{t('memo_editor.optional')}</SectionSubTitle>
           </SectionHeader>
 
           {mediaFiles.length > 0 ? (
@@ -448,7 +452,7 @@ export default function MemoEditor({
                     <MediaSize>{formatFileSize(file.size)}</MediaSize>
                   </MediaInfo>
                   <MediaRemoveButton
-                    accessibilityLabel={`${file.name} 첨부 제거`}
+                    accessibilityLabel={t('memo_editor.remove_attachment', {name: file.name})}
                     disabled={isLoading}
                     onPress={() => removeMedia(file.uri)}
                   >
@@ -471,9 +475,9 @@ export default function MemoEditor({
                 <Icon name="add-outline" size={24} color="#FF8933" />
               )}
               <UploadTitle>
-                {mediaFiles.length > 0 ? '이미지 다시 선택' : '이미지 선택'}
+                {mediaFiles.length > 0 ? t('memo_editor.reselect_image') : t('memo_editor.select_image')}
               </UploadTitle>
-              <UploadSub>이미지 1개, 최대 10MB 이하</UploadSub>
+              <UploadSub>{t('memo_editor.image_limit')}</UploadSub>
             </ImageUploadBox>
           ) : null}
 
@@ -482,7 +486,7 @@ export default function MemoEditor({
               <TimerHeaderRow>
                 <TouchableOpacity
                   accessibilityRole="button"
-                  accessibilityLabel="소멸 시간 안내 보기"
+                  accessibilityLabel={t('memo_editor.timer_info')}
                   hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
                   onPress={() => setModalVisible(true)}
                 >
@@ -492,16 +496,16 @@ export default function MemoEditor({
                     color="#FF8933"
                   />
                 </TouchableOpacity>
-                <SectionTitle>소멸 시간 설정</SectionTitle>
+                <SectionTitle>{t('memo_editor.timer_title')}</SectionTitle>
               </TimerHeaderRow>
               <TimerDesc>
-                설정한 시간이 지나면 FIRE 메모가 자동으로 소멸합니다.
+                {t('memo_editor.timer_description')}
               </TimerDesc>
               <TimerButtonRow>
                 {[
-                  ['6h', '6시간 후'],
-                  ['12h', '12시간 후'],
-                  ['24h', '24시간 후'],
+                  ['6h', t('memo_editor.after_6h')],
+                  ['12h', t('memo_editor.after_12h')],
+                  ['24h', t('memo_editor.after_24h')],
                 ].map(([value, label]) => (
                   <TimerButton
                     key={value}
@@ -518,10 +522,10 @@ export default function MemoEditor({
             <TimerBox>
               <TimerHeaderRow>
                 <Icon name="timer-outline" size={18} color="#FF8933" />
-                <SectionTitle>소멸 시간이 설정된 메모입니다.</SectionTitle>
+                <SectionTitle>{t('memo_editor.timer_set')}</SectionTitle>
               </TimerHeaderRow>
               <TimerDesc>
-                현재 명세에서는 메모 수정 시 소멸 시간을 변경할 수 없습니다.
+                {t('memo_editor.timer_edit_unavailable')}
               </TimerDesc>
             </TimerBox>
           ) : null}
@@ -542,19 +546,20 @@ export default function MemoEditor({
               </ModalFireIcon>
               <ModalTitleWrapper>
                 <ModalText>
-                  <ModalHighlight>불 메모</ModalHighlight>는 설정한 시간이
-                  지나면 {'\n'}
-                  <ModalHighlight>자동으로</ModalHighlight> 사라져요.
+                  <ModalHighlight>{t('memo_editor.fire_memo')}</ModalHighlight>
+                  {t('memo_editor.disappears_prefix')}{'\n'}
+                  <ModalHighlight>{t('memo_editor.automatically')}</ModalHighlight>
+                  {t('memo_editor.disappears_suffix')}
                 </ModalText>
                 <ModalSubText>
-                  중요한 내용은 {'\n'}
-                  <ModalBlueHighlight>'얼음'</ModalBlueHighlight>으로
-                  보관해보세요!
+                  {t('memo_editor.important_prefix')}{'\n'}
+                  <ModalBlueHighlight>{t('memo_editor.ice')}</ModalBlueHighlight>
+                  {t('memo_editor.preserve_suffix')}
                 </ModalSubText>
               </ModalTitleWrapper>
               <TouchableOpacity
                 accessibilityRole="button"
-                accessibilityLabel="안내 닫기"
+                accessibilityLabel={t('memo_editor.close_info')}
                 onPress={() => setModalVisible(false)}
               >
                 <Icon name="close-circle-outline" size={24} color="#AAAAAA" />
@@ -574,7 +579,7 @@ export default function MemoEditor({
               <TouchableOpacity
                 onPress={() => setDoNotShowAgain(value => !value)}
               >
-                <CheckboxLabel>다시 보지 않기</CheckboxLabel>
+                <CheckboxLabel>{t('memo_editor.do_not_show_again')}</CheckboxLabel>
               </TouchableOpacity>
             </ModalFooter>
           </ModalContainer>

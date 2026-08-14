@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../../components/Header';
 import AsyncState from '../../../components/AsyncState';
 import {useEditProfile} from '../../../hooks/useEditProfile';
@@ -32,6 +33,7 @@ import {
 } from './EditProfile.styles';
 
 export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>) {
+  const {t} = useTranslation();
   const {
     user,
     name,
@@ -65,7 +67,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="내 정보 수정"
+        title={t('my_page.edit_profile')}
       />
 
       <KeyboardContainer
@@ -85,7 +87,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
                 )}
               </ProfileImageWrapper>
               <BadgeWrapper
-                accessibilityLabel="프로필 이미지 선택"
+                accessibilityLabel={t('profile.select_image')}
                 disabled={isBusy}
                 onPress={selectProfileImage}
               >
@@ -96,20 +98,20 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
                 )}
               </BadgeWrapper>
             </ProfileImageArea>
-            <ProfileHint>이미지 최대 10MB</ProfileHint>
+            <ProfileHint>{t('profile.image_limit')}</ProfileHint>
             <ProfileActionRow>
               <ProfileActionButton
                 disabled={isBusy}
                 onPress={selectProfileImage}
               >
-                <ProfileActionText>사진 변경</ProfileActionText>
+                <ProfileActionText>{t('profile.change_photo')}</ProfileActionText>
               </ProfileActionButton>
               {profileImage ? (
                 <ProfileActionButton
                   disabled={isBusy}
                   onPress={removeProfileImage}
                 >
-                  <ProfileActionText muted={true}>선택 취소</ProfileActionText>
+                  <ProfileActionText muted={true}>{t('profile.cancel_selection')}</ProfileActionText>
                 </ProfileActionButton>
               ) : null}
             </ProfileActionRow>
@@ -117,7 +119,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
 
           <FormContainer>
             <InputGroup>
-              <Label>이름</Label>
+              <Label>{t('auth.name')}</Label>
               <Input
                 value={name}
                 onChangeText={setName}
@@ -127,9 +129,9 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             </InputGroup>
 
             <InputGroup>
-              <Label>닉네임</Label>
+              <Label>{t('auth.nickname')}</Label>
               <Input
-                placeholder="사용자"
+                placeholder={t('common.user')}
                 placeholderTextColor="#AAAAAA"
                 value={nickname}
                 onChangeText={setNickname}
@@ -138,7 +140,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             </InputGroup>
 
             <InputGroup>
-              <Label>사용자 번호</Label>
+              <Label>{t('profile.user_number')}</Label>
               <Input
                 value={user?.userId ? String(user.userId) : ''}
                 editable={false}
@@ -146,7 +148,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             </InputGroup>
 
             <InputGroup>
-              <Label>이메일</Label>
+              <Label>{t('common.email')}</Label>
               <Input
                 value={email}
                 onChangeText={setEmail}
@@ -158,7 +160,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             </InputGroup>
 
             <InputGroup>
-              <Label>휴대폰 번호</Label>
+              <Label>{t('auth.phone_number')}</Label>
               <Input
                 value={phoneNumber}
                 onChangeText={setPhoneNumber}
@@ -175,7 +177,7 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
               {isSubmitting ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
-                <SubmitText>확인</SubmitText>
+                <SubmitText>{t('common.confirm')}</SubmitText>
               )}
             </SubmitButton>
           </FormContainer>

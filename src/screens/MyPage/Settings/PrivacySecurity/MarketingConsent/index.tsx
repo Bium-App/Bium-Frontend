@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type {RootScreenProps} from '../../../../../types/navigation';
-import { TouchableOpacity, Alert } from 'react-native'; // 💡 기본 Switch는 걷어내고 제거했습니다.
+import {TouchableOpacity, Alert} from 'react-native'; // 💡 기본 Switch는 걷어내고 제거했습니다.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 // 💡 프로젝트 규칙: 헤더는 항상 공통 컴포넌트로 분리 사용
 import Header from '../../../../../components/Header';
-import ImgMegaphone from '../../../../../assets/icons/img_megaphone.svg';
 import IcGift from '../../../../../assets/icons/ic_gift.svg';
 import IcBell from '../../../../../assets/icons/ic_bell.svg';
 import IcTipBulb from '../../../../../assets/icons/ic_tip_bulb.svg';
@@ -25,6 +24,7 @@ import {
   BannerSubText,
   HighlightText,
   IllustrationWrapper,
+  BannerImage,
   AllConsentCard,
   AllConsentText,
   Section,
@@ -161,7 +161,10 @@ export default function MarketingConsent({navigation}: RootScreenProps<'Marketin
             </BannerSubText>
           </TopBannerTextCol>
           <IllustrationWrapper>
-            <ImgMegaphone width="100%" height="100%" />
+            <BannerImage
+              source={require('../../../../../assets/icons/img_megaphone.png')}
+              resizeMode="contain"
+            />
           </IllustrationWrapper>
         </TopBanner>
 

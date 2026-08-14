@@ -2,6 +2,7 @@ import React from 'react';
 import type {RootScreenProps} from '../../../../types/navigation';
 import { TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useTranslation} from 'react-i18next';
 import Header from '../../../../components/Header';
 import IcLogout from '../../../../assets/icons/ic_logout.svg';
 import { useLogout } from '../../../../hooks/useLogout';
@@ -20,6 +21,7 @@ import {
 } from './Logout.styles';
 
 export default function Logout({navigation}: RootScreenProps<'Logout'>) {
+  const {t} = useTranslation();
   const { isLoading, handleLogout } = useLogout(navigation);
 
   return (
@@ -33,7 +35,7 @@ export default function Logout({navigation}: RootScreenProps<'Logout'>) {
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="로그아웃"
+        title={t('my_page.logout')}
       />
 
       <Content>
@@ -45,10 +47,9 @@ export default function Logout({navigation}: RootScreenProps<'Logout'>) {
           <IcLogout width={81} height={95} color="#FF8933" />
         </IconBackground>
 
-        <Title>로그아웃하시겠어요?</Title>
+        <Title>{t('logout_screen.question')}</Title>
         <Description>
-          로그아웃 시 모든 데이터는 저장되며{'\n'}
-          다음 로그인 시 기기에서 계속 이용할 수 있습니다.
+          {t('logout_screen.description')}
         </Description>
       </Content>
 
@@ -58,14 +59,14 @@ export default function Logout({navigation}: RootScreenProps<'Logout'>) {
           disabled={isLoading}
           onPress={handleLogout}
         >
-          <PrimaryButtonText>로그아웃</PrimaryButtonText>
+          <PrimaryButtonText>{t('my_page.logout')}</PrimaryButtonText>
         </PrimaryButton>
 
         <SecondaryButton
           activeOpacity={0.8}
           onPress={() => navigation.goBack()}
         >
-          <SecondaryButtonText>취소</SecondaryButtonText>
+          <SecondaryButtonText>{t('home.cancel')}</SecondaryButtonText>
         </SecondaryButton>
       </ButtonContainer>
     </Container>
