@@ -173,13 +173,13 @@ S3 확인 항목:
 프론트 구성:
 
 - `@10play/tentap-editor 1.0.1`
-- Tiptap/ProseMirror JSON 객체
+- Tiptap/ProseMirror JSON을 직렬화한 문자열
 - `content`: 검색·목록용 평문
-- `richContent`: 서식 보존용 JSON 객체
+- `richContent`: 서식 보존용 JSON 직렬화 문자열
 
 백엔드에서 서식 기능을 지원하려면 다음이 필요하다.
 
-- Memo 테이블에 `rich_content` JSON 계열 컬럼 추가
+- Memo 테이블에 `rich_content` TEXT 계열 컬럼 추가
 - `POST /api/memos`에 `richContent` 추가
 - `PATCH /api/memos/{memoId}`에 `richContent` 추가
 - `GET /api/memos/{memoId}` 응답에 `richContent` 추가

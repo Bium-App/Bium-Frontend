@@ -80,7 +80,7 @@
 
 FIRE 메모 생성 시 `expiredAt`을 ISO 8601 날짜로 보낸다. 목록에는 본문이 없으므로 편집 화면 진입 전 상세 API를 다시 호출한다. PIN은 `true/false` 문자열로 전송한다. 수정 Body에는 만료 필드가 없으므로 기존 메모의 만료 시간 변경은 노출하지 않는다.
 
-서식 편집 기능은 이전 합의에 따라 `content` 평문과 Tiptap/ProseMirror JSON인 `richContent`를 함께 보낼 수 있게 유지했다. 단, `richContent`는 8/13 v1.3 명세와 ERD에는 아직 없으므로 백엔드 필드가 배포되기 전까지 확장 계약으로 관리한다.
+서식 편집 기능은 Notion 합의안에 따라 `content` 평문과 Tiptap/ProseMirror JSON을 직렬화한 문자열인 `richContent`를 함께 보낸다. 상세 조회 시 `richContent` 문자열을 파싱해 서식을 복원하며, 기존 메모의 `null`은 평문 `content`로 표시한다. `richContent`는 8/13 v1.3 명세와 ERD에는 아직 없으므로 백엔드 필드가 배포되기 전까지 확장 계약으로 관리한다.
 
 ### 친구
 

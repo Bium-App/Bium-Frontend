@@ -3,7 +3,8 @@ import type {JSONContent} from '@tiptap/core';
 
 export type MemoStatus = 'FIRE' | 'ICE';
 
-export type MemoRichContent = JSONContent & {version: 1};
+export type MemoRichDocument = JSONContent & {version: 1};
+export type MemoRichContent = string;
 
 export interface MemoSummary {
   memoId: EntityId;

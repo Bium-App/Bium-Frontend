@@ -26,7 +26,10 @@ import {
   type FontSizeEditorCommands,
 } from '../../editor/fontSizeBridge';
 import { formatFileSize } from '../../utils/filePicker';
-import type { MemoRichContent } from '../../types/memo';
+import type {
+  MemoRichContent,
+  MemoRichDocument,
+} from '../../types/memo';
 import type {
   MainTabParamList,
   RootStackParamList,
@@ -128,13 +131,19 @@ const getInitialEditorContent = (
   content: string,
 ): object | string => {
   if (!richContent) return content;
-  return {
-    type: richContent.type,
-    attrs: richContent.attrs,
-    content: richContent.content,
-    marks: richContent.marks,
-    text: richContent.text,
-  };
+  try {
+    const document = JSON.parse(richContent) as MemoRichDocument;
+    if (!document || document.type !== 'doc') return content;
+    return {
+      type: document.type,
+      attrs: document.attrs,
+      content: document.content,
+      marks: document.marks,
+      text: document.text,
+    };
+  } catch {
+    return content;
+  }
 };
 
 const styles = StyleSheet.create({
@@ -249,7 +258,10 @@ export default function MemoEditor({
         editor.getText(),
         editor.getJSON(),
       ]);
-      const richContent = {...document, version: 1} as MemoRichContent;
+      const richContent = JSON.stringify({
+        ...document,
+        version: 1,
+      } satisfies MemoRichDocument);
       await handleSave(memoId, handleSaveSuccess, {
         content: plainText,
         richContent,

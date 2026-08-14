@@ -189,17 +189,32 @@ test('사용자 API는 토큰 기반 me 경로를 사용한다', async () => {
 });
 
 test('메모와 휴지통 API는 8/13 v1.3 경로와 문자열 PIN을 사용한다', async () => {
+  const richContent = JSON.stringify({
+    version: 1,
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [{ type: 'text', text: '내용', marks: [{ type: 'bold' }] }],
+      },
+    ],
+  });
   await createMemoApi({
     teamSpaceId: null,
     title: '제목',
     content: '내용',
+    richContent,
     expiredAt: '2026-07-24T10:00:00',
     status: 'FIRE',
   });
   await getUserMemosApi();
   await getMemoApi(1);
   await getTeamMemosApi(9);
-  await updateMemoApi(1, {title: '수정 제목', content: '수정 내용'});
+  await updateMemoApi(1, {
+    title: '수정 제목',
+    content: '수정 내용',
+    richContent,
+  });
   await updateMemoStatusApi(1, 'ICE');
   await updateMemoPinApi(1, true);
   await getTrashMemosApi();
@@ -211,6 +226,7 @@ test('메모와 휴지통 API는 8/13 v1.3 경로와 문자열 PIN을 사용한�
     teamSpaceId: null,
     title: '제목',
     content: '내용',
+    richContent,
     expiredAt: '2026-07-24T10:00:00',
     status: 'FIRE',
   });
@@ -225,6 +241,7 @@ test('메모와 휴지통 API는 8/13 v1.3 경로와 문자열 PIN을 사용한�
   expect(apiClient.patch).toHaveBeenCalledWith('/api/memos/1', {
     title: '수정 제목',
     content: '수정 내용',
+    richContent,
   });
   expect(apiClient.delete).toHaveBeenCalledWith('/api/memos/3');
   expect(apiClient.patch).toHaveBeenCalledWith('/api/memos/1/status', null, {
