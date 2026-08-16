@@ -1,0 +1,559 @@
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import {
+  Modal,
+  StatusBar,
+  Platform,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+} from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import type { CompositeScreenProps } from '@react-navigation/native';
+import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useTranslation } from 'react-i18next';
+import {
+  RichText,
+  useBridgeState,
+  useEditorBridge,
+  useEditorContent,
+} from '@10play/tentap-editor';
+import Header from '../../components/Header';
+import { useMemoEditor } from '../../hooks/useMemoEditor'; // 뷰모델 훅 임포트
+import { editorHtml } from '../../editor/generated/editorHtml';
+import { MEMO_EDITOR_EXTENSIONS } from '../../editor/memoEditorExtensions';
+import { formatFileSize } from '../../utils/filePicker';
+import type { MemoRichContent, MemoRichDocument } from '../../types/memo';
+import type {
+  MainTabParamList,
+  RootStackParamList,
+} from '../../types/navigation';
+
+import {
+  Container,
+  KeyboardContainer,
+  HeaderTextButton,
+  HeaderLeftText,
+  HeaderRightText,
+  ContentContainer,
+  EditorBox,
+  TitleRow,
+  TitleInput,
+  LengthText,
+  Divider,
+  RichEditorFrame,
+  ContentLengthText,
+  ToolbarBox,
+  ToolbarRow,
+  FormatGroup,
+  ToolButton,
+  ToolText,
+  ColorPickerWrapper,
+  ColorCircle,
+  SectionTitle,
+  SectionHeader,
+  SectionSubTitle,
+  ImageUploadBox,
+  UploadTitle,
+  UploadSub,
+  MediaPreviewList,
+  MediaPreviewItem,
+  MediaThumbnail,
+  MediaInfo,
+  MediaName,
+  MediaSize,
+  MediaRemoveButton,
+  TimerBox,
+  TimerHeaderRow,
+  TimerDesc,
+  TimerButtonRow,
+  TimerButtonWrapper,
+  AnimatedTimerBox,
+  TimerButtonSub,
+  TimerButtonText,
+  ModalOverlay,
+  ModalContainer,
+  ModalHeader,
+  ModalFireIcon,
+  ModalTitleWrapper,
+  ModalText,
+  ModalHighlight,
+  ModalSubText,
+  ModalBlueHighlight,
+  ModalFooter,
+  Checkbox,
+  CheckboxLabel,
+} from './MemoEditor.styles';
+
+interface TimerButtonProps {
+  active: boolean;
+  onPress: () => void;
+  title: string;
+  subTitle: string;
+  disabled?: boolean;
+}
+
+const TimerButton = ({
+  active,
+  onPress,
+  title,
+  subTitle,
+  disabled,
+}: TimerButtonProps) => (
+  <TimerButtonWrapper>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} disabled={disabled}>
+      <AnimatedTimerBox $active={active}>
+        <TimerButtonText active={active}>{title}</TimerButtonText>
+      </AnimatedTimerBox>
+    </TouchableOpacity>
+    <TimerButtonSub>{subTitle}</TimerButtonSub>
+  </TimerButtonWrapper>
+);
+
+// route 프로퍼티를 추가하여, 리스트에서 클릭해 들어왔을 때 데이터를 받을 수 있도록 처리
+type MemoEditorScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, 'MemoEditor'>,
+  NativeStackScreenProps<RootStackParamList>
+>;
+
+const normalizeRemovedFormatting = (
+  nodes: MemoRichDocument['content'],
+): MemoRichDocument['content'] =>
+  nodes?.flatMap(node => {
+    const normalizedContent = normalizeRemovedFormatting(node.content);
+
+    if (node.type === 'bulletList' || node.type === 'listItem') {
+      return normalizedContent ?? [];
+    }
+
+    const normalizedMarks = node.marks
+      ?.map(mark => {
+        if (mark.type !== 'textStyle' || !mark.attrs?.fontSize) return mark;
+        const remainingAttrs = { ...mark.attrs };
+        delete remainingAttrs.fontSize;
+        return Object.keys(remainingAttrs).length
+          ? { ...mark, attrs: remainingAttrs }
+          : null;
+      })
+      .filter(mark => mark !== null);
+
+    return [
+      {
+        ...node,
+        content: normalizedContent,
+        marks: normalizedMarks,
+      },
+    ];
+  });
+
+const getInitialEditorContent = (
+  richContent: MemoRichContent | null | undefined,
+  content: string,
+): object | string => {
+  if (!richContent) return content;
+  try {
+    const document = JSON.parse(richContent) as MemoRichDocument;
+    if (!document || document.type !== 'doc') return content;
+    return {
+      type: document.type,
+      attrs: document.attrs,
+      content: normalizeRemovedFormatting(document.content),
+      marks: document.marks,
+      text: document.text,
+    };
+  } catch {
+    return content;
+  }
+};
+
+const styles = StyleSheet.create({
+  richEditor: {
+    minHeight: 100,
+    backgroundColor: '#FFFFFF',
+  },
+});
+
+const MEMO_EDITOR_THEME = {
+  webview: { backgroundColor: '#FFFFFF' },
+  webviewContainer: { backgroundColor: '#FFFFFF' },
+};
+
+export default function MemoEditor({
+  navigation,
+  route,
+}: MemoEditorScreenProps) {
+  const { t } = useTranslation();
+  // 이전 화면(홈/타임라인)에서 메모를 눌러 들어왔다면 route.params에 데이터가 들어있음
+  const initialData = route?.params?.memoData;
+  const memoId = initialData?.id;
+
+  // 서버 통신 및 폼 데이터를 뷰모델 훅에서 관리
+  const {
+    title,
+    setTitle,
+    content,
+    timer,
+    setTimer,
+    mediaFiles,
+    isPickingMedia,
+    selectMedia,
+    removeMedia,
+    resetForm,
+    isLoading,
+    handleSave,
+  } = useMemoEditor(initialData);
+
+  const initialEditorContent = useMemo(
+    () =>
+      getInitialEditorContent(
+        initialData?.richContent,
+        initialData?.content ?? '',
+      ),
+    [initialData?.content, initialData?.richContent],
+  );
+
+  const editor = useEditorBridge({
+    bridgeExtensions: MEMO_EDITOR_EXTENSIONS,
+    customSource: editorHtml,
+    initialContent: initialEditorContent,
+    autofocus: false,
+    avoidIosKeyboard: true,
+    dynamicHeight: false,
+    editable: !isLoading,
+    theme: MEMO_EDITOR_THEME,
+  });
+  const editorState = useBridgeState(editor);
+  const editorText =
+    useEditorContent(editor, { type: 'text', debounceInterval: 100 }) ??
+    content;
+  const initializedMemoRef = useRef<string | null>(null);
+
+  // 화면 내부 동작 전용 상태 (모달)
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [doNotShowAgain, setDoNotShowAgain] = useState(false);
+
+  useEffect(() => {
+    if (!editorState.isReady) return;
+    const editorKey = memoId ?? 'new';
+    if (initializedMemoRef.current === editorKey) return;
+    initializedMemoRef.current = editorKey;
+    editor.setContent(initialEditorContent);
+  }, [editor, editorState.isReady, initialEditorContent, memoId]);
+
+  const clearRichEditor = useCallback(() => {
+    initializedMemoRef.current = null;
+    if (editorState.isReady) editor.setContent('');
+  }, [editor, editorState.isReady]);
+
+  const closeEditor = useCallback(() => {
+    resetForm();
+    clearRichEditor();
+    navigation.setParams({ memoData: undefined });
+    navigation.goBack();
+  }, [clearRichEditor, navigation, resetForm]);
+
+  const handleSaveSuccess = useCallback(() => {
+    clearRichEditor();
+    navigation.setParams({ memoData: undefined });
+    navigation.goBack();
+  }, [clearRichEditor, navigation]);
+
+  const saveMemo = useCallback(async () => {
+    if (!editorState.isReady) return;
+    try {
+      const [plainText, document] = await Promise.all([
+        editor.getText(),
+        editor.getJSON(),
+      ]);
+      const richContent = JSON.stringify({
+        ...document,
+        version: 1,
+      } satisfies MemoRichDocument);
+      await handleSave(memoId, handleSaveSuccess, {
+        content: plainText,
+        richContent,
+      });
+    } catch {
+      Alert.alert(t('common.error'), t('memo_editor.editor_failed'));
+    }
+  }, [editor, editorState.isReady, handleSave, handleSaveSuccess, memoId, t]);
+
+  const injectEditorStyles = useCallback(() => {
+    editor.injectCSS(`
+      html, body { margin: 0; padding: 0; background: #ffffff; }
+      .ProseMirror {
+        min-height: 100px;
+        padding: 0;
+        color: #000000;
+        font-size: 14px;
+        line-height: 1.45;
+        outline: none;
+      }
+      .ProseMirror p { margin: 0 0 4px; }
+      .ProseMirror ul, .ProseMirror ol { margin: 0; padding-left: 22px; }
+      .ProseMirror .is-editor-empty:first-child::before {
+        content: '${t('memo_editor.content_placeholder')}' !important;
+      }
+    `);
+  }, [editor, t]);
+
+  return (
+    <Container>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <Header
+        left={
+          <HeaderTextButton onPress={closeEditor}>
+            <HeaderLeftText>{t('memo_editor.cancel')}</HeaderLeftText>
+          </HeaderTextButton>
+        }
+        title={
+          memoId ? t('memo_editor.edit_title') : t('memo_editor.new_title')
+        }
+        right={
+          // 로딩 중일 때는 터치를 막고, handleSave에 네비게이션 콜백 전달
+          <HeaderTextButton
+            onPress={() => !isLoading && editorState.isReady && saveMemo()}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#FF8933" size="small" />
+            ) : (
+              <HeaderRightText>{t('save')}</HeaderRightText>
+            )}
+          </HeaderTextButton>
+        }
+      />
+      <KeyboardContainer
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ContentContainer showsVerticalScrollIndicator={false}>
+          <EditorBox>
+            <TitleRow>
+              <TitleInput
+                placeholder={t('memo_editor.title_placeholder')}
+                placeholderTextColor="#000000"
+                maxLength={50}
+                value={title}
+                onChangeText={setTitle}
+                editable={!isLoading} // 저장 중 입력 방지
+              />
+              <LengthText>{title.length}/50</LengthText>
+            </TitleRow>
+            <Divider />
+            <RichEditorFrame>
+              <RichText
+                editor={editor}
+                onLoad={injectEditorStyles}
+                scrollEnabled={false}
+                style={styles.richEditor}
+              />
+            </RichEditorFrame>
+            <ContentLengthText>{editorText.length}/2000</ContentLengthText>
+          </EditorBox>
+
+          <ToolbarBox>
+            <ToolbarRow $alignStart={true}>
+              <FormatGroup>
+                <ToolButton
+                  active={Boolean(editorState.isBoldActive)}
+                  onPress={() => editor.toggleBold()}
+                >
+                  <ToolText color="#000000" bold>
+                    B
+                  </ToolText>
+                </ToolButton>
+                <ToolButton
+                  active={Boolean(editorState.isItalicActive)}
+                  onPress={() => editor.toggleItalic()}
+                >
+                  <ToolText color="#000000" italic>
+                    I
+                  </ToolText>
+                </ToolButton>
+                <ToolButton
+                  active={Boolean(editorState.isUnderlineActive)}
+                  onPress={() => editor.toggleUnderline()}
+                >
+                  <ToolText color="#000000" underline>
+                    U
+                  </ToolText>
+                </ToolButton>
+              </FormatGroup>
+              <ColorPickerWrapper
+                onPress={() =>
+                  editorState.activeColor === '#FF8933'
+                    ? editor.unsetColor()
+                    : editor.setColor('#FF8933')
+                }
+              >
+                <ColorCircle />
+              </ColorPickerWrapper>
+            </ToolbarRow>
+          </ToolbarBox>
+
+          <SectionHeader>
+            <Icon name="camera-outline" size={18} color="#FF8933" />
+            <SectionTitle>{t('memo_editor.add_image')}</SectionTitle>
+            <SectionSubTitle>{t('memo_editor.optional')}</SectionSubTitle>
+          </SectionHeader>
+
+          {mediaFiles.length > 0 ? (
+            <MediaPreviewList>
+              {mediaFiles.map(file => (
+                <MediaPreviewItem key={file.uri}>
+                  <MediaThumbnail source={{ uri: file.uri }} />
+                  <MediaInfo>
+                    <MediaName numberOfLines={1}>{file.name}</MediaName>
+                    <MediaSize>{formatFileSize(file.size)}</MediaSize>
+                  </MediaInfo>
+                  <MediaRemoveButton
+                    accessibilityLabel={t('memo_editor.remove_attachment', {
+                      name: file.name,
+                    })}
+                    disabled={isLoading}
+                    onPress={() => removeMedia(file.uri)}
+                  >
+                    <Icon name="close-circle" size={22} color="#AAAAAA" />
+                  </MediaRemoveButton>
+                </MediaPreviewItem>
+              ))}
+            </MediaPreviewList>
+          ) : null}
+
+          {mediaFiles.length < 1 ? (
+            <ImageUploadBox
+              activeOpacity={0.7}
+              disabled={isLoading || isPickingMedia}
+              onPress={selectMedia}
+            >
+              {isPickingMedia ? (
+                <ActivityIndicator color="#FF8933" size="small" />
+              ) : (
+                <Icon name="add-outline" size={24} color="#FF8933" />
+              )}
+              <UploadTitle>
+                {mediaFiles.length > 0
+                  ? t('memo_editor.reselect_image')
+                  : t('memo_editor.select_image')}
+              </UploadTitle>
+              <UploadSub>{t('memo_editor.image_limit')}</UploadSub>
+            </ImageUploadBox>
+          ) : null}
+
+          {!memoId ? (
+            <TimerBox>
+              <TimerHeaderRow>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={t('memo_editor.timer_info')}
+                  hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                  onPress={() => setModalVisible(true)}
+                >
+                  <Icon
+                    name="information-circle-outline"
+                    size={18}
+                    color="#FF8933"
+                  />
+                </TouchableOpacity>
+                <SectionTitle>{t('memo_editor.timer_title')}</SectionTitle>
+              </TimerHeaderRow>
+              <TimerDesc>{t('memo_editor.timer_description')}</TimerDesc>
+              <TimerButtonRow>
+                {[
+                  ['6h', t('memo_editor.after_6h')],
+                  ['12h', t('memo_editor.after_12h')],
+                  ['24h', t('memo_editor.after_24h')],
+                ].map(([value, label]) => (
+                  <TimerButton
+                    key={value}
+                    active={timer === value}
+                    disabled={isLoading}
+                    onPress={() => setTimer(value)}
+                    title={value}
+                    subTitle={label}
+                  />
+                ))}
+              </TimerButtonRow>
+            </TimerBox>
+          ) : initialData?.expiredAt ? (
+            <TimerBox>
+              <TimerHeaderRow>
+                <Icon name="timer-outline" size={18} color="#FF8933" />
+                <SectionTitle>{t('memo_editor.timer_set')}</SectionTitle>
+              </TimerHeaderRow>
+              <TimerDesc>{t('memo_editor.timer_edit_unavailable')}</TimerDesc>
+            </TimerBox>
+          ) : null}
+        </ContentContainer>
+      </KeyboardContainer>
+
+      <Modal
+        transparent
+        visible={isModalVisible}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalHeader>
+              <ModalFireIcon>
+                <Icon name="flame" size={24} color="#FF8933" />
+              </ModalFireIcon>
+              <ModalTitleWrapper>
+                <ModalText>
+                  <ModalHighlight>{t('memo_editor.fire_memo')}</ModalHighlight>
+                  {t('memo_editor.disappears_prefix')}
+                  {'\n'}
+                  <ModalHighlight>
+                    {t('memo_editor.automatically')}
+                  </ModalHighlight>
+                  {t('memo_editor.disappears_suffix')}
+                </ModalText>
+                <ModalSubText>
+                  {t('memo_editor.important_prefix')}
+                  {'\n'}
+                  <ModalBlueHighlight>
+                    {t('memo_editor.ice')}
+                  </ModalBlueHighlight>
+                  {t('memo_editor.preserve_suffix')}
+                </ModalSubText>
+              </ModalTitleWrapper>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={t('memo_editor.close_info')}
+                onPress={() => setModalVisible(false)}
+              >
+                <Icon name="close-circle-outline" size={24} color="#AAAAAA" />
+              </TouchableOpacity>
+            </ModalHeader>
+            <ModalFooter>
+              <Checkbox
+                checked={doNotShowAgain}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: doNotShowAgain }}
+                onPress={() => setDoNotShowAgain(value => !value)}
+              >
+                {doNotShowAgain ? (
+                  <Icon name="checkmark" size={14} color="#FFFFFF" />
+                ) : null}
+              </Checkbox>
+              <TouchableOpacity
+                onPress={() => setDoNotShowAgain(value => !value)}
+              >
+                <CheckboxLabel>
+                  {t('memo_editor.do_not_show_again')}
+                </CheckboxLabel>
+              </TouchableOpacity>
+            </ModalFooter>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
+    </Container>
+  );
+}
