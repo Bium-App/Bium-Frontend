@@ -26,6 +26,8 @@ export const HeaderRightText = styled.Text`
 `;
 
 export const ContentContainer = styled.ScrollView.attrs({
+  keyboardShouldPersistTaps: 'always',
+  keyboardDismissMode: 'none',
   contentContainerStyle: {
     padding: 12,
     paddingHorizontal: 16,
@@ -71,24 +73,6 @@ export const Divider = styled.View`
   margin-vertical: 8px;
 `;
 
-export const ContentInput = styled.TextInput<{
-  customFontSize?: number;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  align?: 'left' | 'center' | 'right' | 'justify';
-}>`
-  height: 100px;
-  font-size: ${({ customFontSize }) => customFontSize || 14}px;
-  font-weight: ${({ bold }) => (bold ? 'bold' : 'normal')};
-  font-style: ${({ italic }) => (italic ? 'italic' : 'normal')};
-  text-decoration-line: ${({ underline }) =>
-    underline ? 'underline' : 'none'};
-  text-align: ${({ align }) => align || 'left'};
-  color: #000000;
-  padding: 0;
-`;
-
 export const RichEditorFrame = styled.View`
   min-height: 100px;
   overflow: hidden;
@@ -116,18 +100,6 @@ export const ToolbarRow = styled.View<{ $alignStart?: boolean }>`
   align-items: center;
   justify-content: ${({ $alignStart }) =>
     $alignStart ? 'flex-start' : 'space-between'};
-`;
-
-export const ToolbarRowDivider = styled.View`
-  height: 1px;
-  background-color: #dbdbdb;
-  margin-vertical: 8px;
-`;
-
-export const ToolGroup = styled.View`
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
 `;
 
 export const FormatGroup = styled.View`
@@ -160,23 +132,6 @@ export const ToolButton = styled.TouchableOpacity<{ active: boolean }>`
   border-radius: 4px;
   justify-content: center;
   align-items: center;
-`;
-
-export const FontSizeBox = styled.View`
-  flex-direction: row;
-  align-items: center;
-  border-width: 1px;
-  border-color: #bbbbbb;
-  border-radius: 16px;
-  padding-horizontal: 10px;
-  padding-vertical: 2px;
-  gap: 12px;
-  background-color: #ffffff;
-`;
-
-export const FontSizeText = styled.Text`
-  font-size: 14px;
-  color: #000000;
 `;
 
 export const ColorPickerWrapper = styled.TouchableOpacity`

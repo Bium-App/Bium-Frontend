@@ -12,7 +12,8 @@ import {
 import {getUserId} from '../utils/authStorage';
 import {getApiErrorMessage, getApiResponseMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
-import type {MemoStatus} from '../types/memo';
+import type {MemoStatus, MemoSummary} from '../types/memo';
+import {isExpiredFireMemo} from '../utils/memoExpiration';
 
 dayjs.locale('ko');
 
@@ -24,6 +25,7 @@ export interface HomeMemoItem {
   time: string;
   isPinned: boolean;
   remainingTime: string | null;
+  expiredAt: string | null;
 }
 
 export interface MemoSection {
@@ -67,7 +69,19 @@ export const useHome = () => {
       if (!userId) return;
 
       const memos = await getUserMemosApi();
-      const mapped: HomeMemoItem[] = memos.map(memo => ({
+      const expiredMemos = memos.filter(memo => isExpiredFireMemo(memo));
+      const activeMemos = memos.filter(memo => !isExpiredFireMemo(memo));
+
+      if (expiredMemos.length) {
+        const results = await Promise.allSettled(
+          expiredMemos.map(memo => moveMemoToTrashApi(memo.memoId)),
+        );
+        if (__DEV__ && results.some(result => result.status === 'rejected')) {
+          console.warn('[Memo expiration] Failed to move expired memo to trash');
+        }
+      }
+
+      const mapped: HomeMemoItem[] = activeMemos.map((memo: MemoSummary) => ({
         id: String(memo.memoId),
         MTitle: memo.title,
         MContent: memo.content ?? '',
@@ -76,6 +90,7 @@ export const useHome = () => {
         isPinned: memo.isPinned,
         remainingTime:
           memo.status === 'FIRE' ? getRemainingTime(memo.expiredAt) : null,
+        expiredAt: memo.expiredAt ?? null,
       }));
       const pinned = mapped.filter(memo => memo.isPinned);
       const regular = mapped.filter(memo => !memo.isPinned);

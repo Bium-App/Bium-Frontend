@@ -1,9 +1,15 @@
 import { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
-import { getMemoApi, getUserMemosApi, updateMemoPinApi } from '../api/memos';
+import {
+  getMemoApi,
+  getUserMemosApi,
+  moveMemoToTrashApi,
+  updateMemoPinApi,
+} from '../api/memos';
 import { getUserId } from '../utils/authStorage';
 import { getApiErrorMessage } from '../utils/apiError';
 import type { MemoStatus } from '../types/memo';
+import {isExpiredFireMemo} from '../utils/memoExpiration';
 
 export interface TimelineMemoItem {
   id: string;
@@ -36,7 +42,19 @@ export const useTimeline = () => {
         return;
       }
       const memos = await getUserMemosApi();
-      const mapped: TimelineMemoItem[] = memos.map(memo => ({
+      const expiredMemos = memos.filter(memo => isExpiredFireMemo(memo));
+      const activeMemos = memos.filter(memo => !isExpiredFireMemo(memo));
+
+      if (expiredMemos.length) {
+        const results = await Promise.allSettled(
+          expiredMemos.map(memo => moveMemoToTrashApi(memo.memoId)),
+        );
+        if (__DEV__ && results.some(result => result.status === 'rejected')) {
+          console.warn('[Memo expiration] Failed to move expired memo to trash');
+        }
+      }
+
+      const mapped: TimelineMemoItem[] = activeMemos.map(memo => ({
         id: String(memo.memoId),
         title: memo.title,
         desc: memo.content ?? '',

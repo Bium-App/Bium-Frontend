@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Modal,
   StatusBar,
@@ -12,25 +18,19 @@ import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {useTranslation} from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   RichText,
-  TenTapStartKit,
   useBridgeState,
   useEditorBridge,
   useEditorContent,
 } from '@10play/tentap-editor';
 import Header from '../../components/Header';
 import { useMemoEditor } from '../../hooks/useMemoEditor'; // 뷰모델 훅 임포트
-import {
-  FontSizeBridge,
-  type FontSizeEditorCommands,
-} from '../../editor/fontSizeBridge';
+import { editorHtml } from '../../editor/generated/editorHtml';
+import { MEMO_EDITOR_EXTENSIONS } from '../../editor/memoEditorExtensions';
 import { formatFileSize } from '../../utils/filePicker';
-import type {
-  MemoRichContent,
-  MemoRichDocument,
-} from '../../types/memo';
+import type { MemoRichContent, MemoRichDocument } from '../../types/memo';
 import type {
   MainTabParamList,
   RootStackParamList,
@@ -52,13 +52,9 @@ import {
   ContentLengthText,
   ToolbarBox,
   ToolbarRow,
-  ToolbarRowDivider,
-  ToolGroup,
   FormatGroup,
   ToolButton,
   ToolText,
-  FontSizeBox,
-  FontSizeText,
   ColorPickerWrapper,
   ColorCircle,
   SectionTitle,
@@ -127,6 +123,36 @@ type MemoEditorScreenProps = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 
+const normalizeRemovedFormatting = (
+  nodes: MemoRichDocument['content'],
+): MemoRichDocument['content'] =>
+  nodes?.flatMap(node => {
+    const normalizedContent = normalizeRemovedFormatting(node.content);
+
+    if (node.type === 'bulletList' || node.type === 'listItem') {
+      return normalizedContent ?? [];
+    }
+
+    const normalizedMarks = node.marks
+      ?.map(mark => {
+        if (mark.type !== 'textStyle' || !mark.attrs?.fontSize) return mark;
+        const remainingAttrs = { ...mark.attrs };
+        delete remainingAttrs.fontSize;
+        return Object.keys(remainingAttrs).length
+          ? { ...mark, attrs: remainingAttrs }
+          : null;
+      })
+      .filter(mark => mark !== null);
+
+    return [
+      {
+        ...node,
+        content: normalizedContent,
+        marks: normalizedMarks,
+      },
+    ];
+  });
+
 const getInitialEditorContent = (
   richContent: MemoRichContent | null | undefined,
   content: string,
@@ -138,7 +164,7 @@ const getInitialEditorContent = (
     return {
       type: document.type,
       attrs: document.attrs,
-      content: document.content,
+      content: normalizeRemovedFormatting(document.content),
       marks: document.marks,
       text: document.text,
     };
@@ -154,11 +180,16 @@ const styles = StyleSheet.create({
   },
 });
 
+const MEMO_EDITOR_THEME = {
+  webview: { backgroundColor: '#FFFFFF' },
+  webviewContainer: { backgroundColor: '#FFFFFF' },
+};
+
 export default function MemoEditor({
   navigation,
   route,
 }: MemoEditorScreenProps) {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   // 이전 화면(홈/타임라인)에서 메모를 눌러 들어왔다면 route.params에 데이터가 들어있음
   const initialData = route?.params?.memoData;
   const memoId = initialData?.id;
@@ -179,58 +210,42 @@ export default function MemoEditor({
     handleSave,
   } = useMemoEditor(initialData);
 
+  const initialEditorContent = useMemo(
+    () =>
+      getInitialEditorContent(
+        initialData?.richContent,
+        initialData?.content ?? '',
+      ),
+    [initialData?.content, initialData?.richContent],
+  );
+
   const editor = useEditorBridge({
-    bridgeExtensions: [...TenTapStartKit, FontSizeBridge],
-    initialContent: getInitialEditorContent(
-      initialData?.richContent,
-      initialData?.content ?? '',
-    ),
+    bridgeExtensions: MEMO_EDITOR_EXTENSIONS,
+    customSource: editorHtml,
+    initialContent: initialEditorContent,
     autofocus: false,
     avoidIosKeyboard: true,
     dynamicHeight: false,
     editable: !isLoading,
-    theme: {
-      webview: {backgroundColor: '#FFFFFF'},
-      webviewContainer: {backgroundColor: '#FFFFFF'},
-    },
+    theme: MEMO_EDITOR_THEME,
   });
   const editorState = useBridgeState(editor);
   const editorText =
-    useEditorContent(editor, {type: 'text', debounceInterval: 100}) ?? content;
-  const richEditor = editor as typeof editor & FontSizeEditorCommands;
+    useEditorContent(editor, { type: 'text', debounceInterval: 100 }) ??
+    content;
   const initializedMemoRef = useRef<string | null>(null);
 
-  // 화면 내부 동작 전용 상태 (툴바 UI 및 모달) - 기존 로직 완벽 유지
-  const [fontSize, setFontSize] = useState(14);
+  // 화면 내부 동작 전용 상태 (모달)
   const [isModalVisible, setModalVisible] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
-
-  const resetFormatting = useCallback(() => {
-    setFontSize(14);
-  }, []);
-
-  useEffect(() => {
-    resetFormatting();
-  }, [memoId, resetFormatting]);
 
   useEffect(() => {
     if (!editorState.isReady) return;
     const editorKey = memoId ?? 'new';
     if (initializedMemoRef.current === editorKey) return;
     initializedMemoRef.current = editorKey;
-    editor.setContent(
-      getInitialEditorContent(
-        initialData?.richContent,
-        initialData?.content ?? '',
-      ),
-    );
-  }, [
-    editor,
-    editorState.isReady,
-    initialData?.content,
-    initialData?.richContent,
-    memoId,
-  ]);
+    editor.setContent(initialEditorContent);
+  }, [editor, editorState.isReady, initialEditorContent, memoId]);
 
   const clearRichEditor = useCallback(() => {
     initializedMemoRef.current = null;
@@ -239,18 +254,16 @@ export default function MemoEditor({
 
   const closeEditor = useCallback(() => {
     resetForm();
-    resetFormatting();
     clearRichEditor();
     navigation.setParams({ memoData: undefined });
     navigation.goBack();
-  }, [clearRichEditor, navigation, resetForm, resetFormatting]);
+  }, [clearRichEditor, navigation, resetForm]);
 
   const handleSaveSuccess = useCallback(() => {
-    resetFormatting();
     clearRichEditor();
     navigation.setParams({ memoData: undefined });
     navigation.goBack();
-  }, [clearRichEditor, navigation, resetFormatting]);
+  }, [clearRichEditor, navigation]);
 
   const saveMemo = useCallback(async () => {
     if (!editorState.isReady) return;
@@ -271,15 +284,6 @@ export default function MemoEditor({
       Alert.alert(t('common.error'), t('memo_editor.editor_failed'));
     }
   }, [editor, editorState.isReady, handleSave, handleSaveSuccess, memoId, t]);
-
-  const setSelectedFontSize = useCallback(
-    (nextSize: number) => {
-      const boundedSize = Math.min(30, Math.max(10, nextSize));
-      setFontSize(boundedSize);
-      richEditor.setFontSize(boundedSize);
-    },
-    [richEditor],
-  );
 
   const injectEditorStyles = useCallback(() => {
     editor.injectCSS(`
@@ -309,7 +313,9 @@ export default function MemoEditor({
             <HeaderLeftText>{t('memo_editor.cancel')}</HeaderLeftText>
           </HeaderTextButton>
         }
-        title={memoId ? t('memo_editor.edit_title') : t('memo_editor.new_title')}
+        title={
+          memoId ? t('memo_editor.edit_title') : t('memo_editor.new_title')
+        }
         right={
           // 로딩 중일 때는 터치를 막고, handleSave에 네비게이션 콜백 전달
           <HeaderTextButton
@@ -352,51 +358,6 @@ export default function MemoEditor({
           </EditorBox>
 
           <ToolbarBox>
-            <ToolbarRow>
-              <ToolGroup>
-                <ToolText color="#FF8933">Tt</ToolText>
-              </ToolGroup>
-              <ToolGroup>
-                <FontSizeBox>
-                  <TouchableOpacity
-                    onPress={() => setSelectedFontSize(fontSize - 1)}
-                  >
-                    <Icon name="remove-outline" size={16} color="#000000" />
-                  </TouchableOpacity>
-                  <FontSizeText>{fontSize}px</FontSizeText>
-                  <TouchableOpacity
-                    onPress={() => setSelectedFontSize(fontSize + 1)}
-                  >
-                    <Icon name="add-outline" size={16} color="#000000" />
-                  </TouchableOpacity>
-                </FontSizeBox>
-                <ToolButton
-                  active={!editorState.isBulletListActive}
-                  onPress={() =>
-                    editorState.isBulletListActive
-                      ? editor.toggleBulletList()
-                      : editor.focus()
-                  }
-                >
-                  <Icon
-                    name="menu-outline"
-                    size={20}
-                    color={!editorState.isBulletListActive ? '#FF8933' : '#000000'}
-                  />
-                </ToolButton>
-                <ToolButton
-                  active={Boolean(editorState.isBulletListActive)}
-                  onPress={() => editor.toggleBulletList()}
-                >
-                  <Icon
-                    name="list-outline"
-                    size={20}
-                    color={editorState.isBulletListActive ? '#FF8933' : '#000000'}
-                  />
-                </ToolButton>
-              </ToolGroup>
-            </ToolbarRow>
-            <ToolbarRowDivider />
             <ToolbarRow $alignStart={true}>
               <FormatGroup>
                 <ToolButton
@@ -452,7 +413,9 @@ export default function MemoEditor({
                     <MediaSize>{formatFileSize(file.size)}</MediaSize>
                   </MediaInfo>
                   <MediaRemoveButton
-                    accessibilityLabel={t('memo_editor.remove_attachment', {name: file.name})}
+                    accessibilityLabel={t('memo_editor.remove_attachment', {
+                      name: file.name,
+                    })}
                     disabled={isLoading}
                     onPress={() => removeMedia(file.uri)}
                   >
@@ -475,7 +438,9 @@ export default function MemoEditor({
                 <Icon name="add-outline" size={24} color="#FF8933" />
               )}
               <UploadTitle>
-                {mediaFiles.length > 0 ? t('memo_editor.reselect_image') : t('memo_editor.select_image')}
+                {mediaFiles.length > 0
+                  ? t('memo_editor.reselect_image')
+                  : t('memo_editor.select_image')}
               </UploadTitle>
               <UploadSub>{t('memo_editor.image_limit')}</UploadSub>
             </ImageUploadBox>
@@ -498,9 +463,7 @@ export default function MemoEditor({
                 </TouchableOpacity>
                 <SectionTitle>{t('memo_editor.timer_title')}</SectionTitle>
               </TimerHeaderRow>
-              <TimerDesc>
-                {t('memo_editor.timer_description')}
-              </TimerDesc>
+              <TimerDesc>{t('memo_editor.timer_description')}</TimerDesc>
               <TimerButtonRow>
                 {[
                   ['6h', t('memo_editor.after_6h')],
@@ -524,9 +487,7 @@ export default function MemoEditor({
                 <Icon name="timer-outline" size={18} color="#FF8933" />
                 <SectionTitle>{t('memo_editor.timer_set')}</SectionTitle>
               </TimerHeaderRow>
-              <TimerDesc>
-                {t('memo_editor.timer_edit_unavailable')}
-              </TimerDesc>
+              <TimerDesc>{t('memo_editor.timer_edit_unavailable')}</TimerDesc>
             </TimerBox>
           ) : null}
         </ContentContainer>
@@ -547,13 +508,19 @@ export default function MemoEditor({
               <ModalTitleWrapper>
                 <ModalText>
                   <ModalHighlight>{t('memo_editor.fire_memo')}</ModalHighlight>
-                  {t('memo_editor.disappears_prefix')}{'\n'}
-                  <ModalHighlight>{t('memo_editor.automatically')}</ModalHighlight>
+                  {t('memo_editor.disappears_prefix')}
+                  {'\n'}
+                  <ModalHighlight>
+                    {t('memo_editor.automatically')}
+                  </ModalHighlight>
                   {t('memo_editor.disappears_suffix')}
                 </ModalText>
                 <ModalSubText>
-                  {t('memo_editor.important_prefix')}{'\n'}
-                  <ModalBlueHighlight>{t('memo_editor.ice')}</ModalBlueHighlight>
+                  {t('memo_editor.important_prefix')}
+                  {'\n'}
+                  <ModalBlueHighlight>
+                    {t('memo_editor.ice')}
+                  </ModalBlueHighlight>
                   {t('memo_editor.preserve_suffix')}
                 </ModalSubText>
               </ModalTitleWrapper>
@@ -579,7 +546,9 @@ export default function MemoEditor({
               <TouchableOpacity
                 onPress={() => setDoNotShowAgain(value => !value)}
               >
-                <CheckboxLabel>{t('memo_editor.do_not_show_again')}</CheckboxLabel>
+                <CheckboxLabel>
+                  {t('memo_editor.do_not_show_again')}
+                </CheckboxLabel>
               </TouchableOpacity>
             </ModalFooter>
           </ModalContainer>

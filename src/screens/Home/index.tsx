@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, RefreshControl, TouchableOpacity } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import type {CompositeScreenProps} from '@react-navigation/native';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -18,6 +18,8 @@ import type {
   RootStackParamList,
 } from '../../types/navigation';
 import {getApiResponseMessage} from '../../utils/apiError';
+import {getNextFireExpirationAt} from '../../utils/memoExpiration';
+import {useMemoExpirationRefresh} from '../../hooks/useMemoExpirationRefresh';
 
 import {
   Container,
@@ -41,6 +43,7 @@ type HomeScreenProps = CompositeScreenProps<
 
 export default function Home({navigation}: HomeScreenProps) {
   const {t} = useTranslation();
+  const isFocused = useIsFocused();
   const [showTooltip, setShowTooltip] = useState(true);
   const {
     memoSections,
@@ -52,6 +55,20 @@ export default function Home({navigation}: HomeScreenProps) {
     toggleMemoPin,
     moveMemoToTrash,
   } = useHome();
+  const nextExpirationAt = useMemo(
+    () =>
+      getNextFireExpirationAt(
+        memoSections.flatMap(section =>
+          section.data.map(memo => ({
+            status: memo.Status,
+            expiredAt: memo.expiredAt,
+          })),
+        ),
+      ),
+    [memoSections],
+  );
+
+  useMemoExpirationRefresh(nextExpirationAt, fetchMemos, isFocused);
 
   useFocusEffect(
     useCallback(() => {
@@ -163,6 +180,7 @@ export default function Home({navigation}: HomeScreenProps) {
       />
       <ListContainer
         sections={memoSections}
+        stickySectionHeadersEnabled={false}
         keyExtractor={item => item.id}
         ListHeaderComponent={renderTooltip}
         renderSectionHeader={({ section: { title } }) => (

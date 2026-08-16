@@ -30,6 +30,7 @@ export interface MemoCardItem {
   time: string;
   isPinned: boolean;
   remainingTime: string | null;
+  expiredAt: string | null;
 }
 
 interface MemoCardProps {

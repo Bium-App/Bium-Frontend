@@ -63,6 +63,16 @@ yarn-error.log
 # Temporary files created by Metro to check the health of the file watcher
 .metro-health-check*
 
+# Local Codex workspace files and temporary project backups
+/.codex/
+/Blazememo.zip
+/ios/Pods.offloaded-backup/
+/ios/build.offloaded-backup/
+/tmp/
+/vendor/
+/work/
+/docs/~$*
+
 # testing
 /coverage
 

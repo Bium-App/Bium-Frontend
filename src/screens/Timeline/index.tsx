@@ -1,11 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Alert,
   StatusBar,
   RefreshControl,
   type GestureResponderEvent,
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -21,6 +21,8 @@ import type {
   RootStackParamList,
 } from '../../types/navigation';
 import { getApiResponseMessage } from '../../utils/apiError';
+import {getNextFireExpirationAt} from '../../utils/memoExpiration';
+import {useMemoExpirationRefresh} from '../../hooks/useMemoExpirationRefresh';
 
 import FireIcon from '../../assets/icons/ic_fire.svg';
 import IceIcon from '../../assets/icons/ic_ice.svg';
@@ -66,6 +68,7 @@ type TimelineTab = 'fire' | 'ice';
 
 export default function Timeline({ navigation }: TimelineScreenProps) {
   const {t} = useTranslation();
+  const isFocused = useIsFocused();
   const [activeTab, setActiveTab] = useState<TimelineTab>('ice');
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
 
@@ -80,6 +83,12 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
     getMemoDetail,
     toggleMemoPin,
   } = useTimeline();
+  const nextExpirationAt = useMemo(
+    () => getNextFireExpirationAt(fireMemos),
+    [fireMemos],
+  );
+
+  useMemoExpirationRefresh(nextExpirationAt, fetchMemos, isFocused);
   const hasActiveMemos =
     activeTab === 'fire'
       ? fireMemos.length > 0
