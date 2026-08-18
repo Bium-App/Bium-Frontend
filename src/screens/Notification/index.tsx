@@ -39,22 +39,18 @@ export default function Notification({
 
   const handleOpenNotification = (item: NotificationListItem) => {
     openNotification(item, {
-      onMemoReady: memoData => {
-        navigation.navigate('MainTabs', {
-          screen: 'MemoEditor',
-          params: { memoData },
-        });
-      },
       onNavigate: (screen, params) => {
         if (screen === 'FriendRequestList') {
           navigation.navigate(screen);
-        } else if (screen === 'ProjectDetail' && params) {
+        } else if (screen === 'ProjectDetail' && params?.projectId) {
           navigation.navigate(screen, {projectId: params.projectId});
-        } else if (screen === 'ProjectTodo' && params) {
+        } else if (screen === 'ProjectTodo' && params?.projectId) {
           navigation.navigate(screen, {
             projectId: params.projectId,
             todoId: params.todoId,
           });
+        } else if (screen === 'MemoDetail' && params?.memoId) {
+          navigation.navigate(screen, {memoId: params.memoId});
         }
       },
     });

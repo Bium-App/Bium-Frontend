@@ -30,7 +30,8 @@ import { useMemoEditor } from '../../hooks/useMemoEditor'; // 뷰모델 훅 임�
 import { editorHtml } from '../../editor/generated/editorHtml';
 import { MEMO_EDITOR_EXTENSIONS } from '../../editor/memoEditorExtensions';
 import { formatFileSize } from '../../utils/filePicker';
-import type { MemoRichContent, MemoRichDocument } from '../../types/memo';
+import { getRichEditorContent } from '../../utils/richContent';
+import type { MemoRichDocument } from '../../types/memo';
 import type {
   MainTabParamList,
   RootStackParamList,
@@ -61,12 +62,12 @@ import {
   SectionHeader,
   SectionSubTitle,
   ImageUploadBox,
+  UploadIconBadge,
   UploadTitle,
   UploadSub,
-  MediaPreviewList,
-  MediaPreviewItem,
+  MediaPreviewBox,
   MediaThumbnail,
-  MediaInfo,
+  MediaCaption,
   MediaName,
   MediaSize,
   MediaRemoveButton,
@@ -123,59 +124,9 @@ type MemoEditorScreenProps = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 
-const normalizeRemovedFormatting = (
-  nodes: MemoRichDocument['content'],
-): MemoRichDocument['content'] =>
-  nodes?.flatMap(node => {
-    const normalizedContent = normalizeRemovedFormatting(node.content);
-
-    if (node.type === 'bulletList' || node.type === 'listItem') {
-      return normalizedContent ?? [];
-    }
-
-    const normalizedMarks = node.marks
-      ?.map(mark => {
-        if (mark.type !== 'textStyle' || !mark.attrs?.fontSize) return mark;
-        const remainingAttrs = { ...mark.attrs };
-        delete remainingAttrs.fontSize;
-        return Object.keys(remainingAttrs).length
-          ? { ...mark, attrs: remainingAttrs }
-          : null;
-      })
-      .filter(mark => mark !== null);
-
-    return [
-      {
-        ...node,
-        content: normalizedContent,
-        marks: normalizedMarks,
-      },
-    ];
-  });
-
-const getInitialEditorContent = (
-  richContent: MemoRichContent | null | undefined,
-  content: string,
-): object | string => {
-  if (!richContent) return content;
-  try {
-    const document = JSON.parse(richContent) as MemoRichDocument;
-    if (!document || document.type !== 'doc') return content;
-    return {
-      type: document.type,
-      attrs: document.attrs,
-      content: normalizeRemovedFormatting(document.content),
-      marks: document.marks,
-      text: document.text,
-    };
-  } catch {
-    return content;
-  }
-};
-
 const styles = StyleSheet.create({
   richEditor: {
-    minHeight: 100,
+    minHeight: 240,
     backgroundColor: '#FFFFFF',
   },
 });
@@ -212,7 +163,7 @@ export default function MemoEditor({
 
   const initialEditorContent = useMemo(
     () =>
-      getInitialEditorContent(
+      getRichEditorContent(
         initialData?.richContent,
         initialData?.content ?? '',
       ),
@@ -224,8 +175,8 @@ export default function MemoEditor({
     customSource: editorHtml,
     initialContent: initialEditorContent,
     autofocus: false,
-    avoidIosKeyboard: true,
-    dynamicHeight: false,
+    avoidIosKeyboard: false,
+    dynamicHeight: true,
     editable: !isLoading,
     theme: MEMO_EDITOR_THEME,
   });
@@ -289,7 +240,7 @@ export default function MemoEditor({
     editor.injectCSS(`
       html, body { margin: 0; padding: 0; background: #ffffff; }
       .ProseMirror {
-        min-height: 100px;
+        min-height: 240px;
         padding: 0;
         color: #000000;
         font-size: 14px;
@@ -404,29 +355,27 @@ export default function MemoEditor({
           </SectionHeader>
 
           {mediaFiles.length > 0 ? (
-            <MediaPreviewList>
-              {mediaFiles.map(file => (
-                <MediaPreviewItem key={file.uri}>
-                  <MediaThumbnail source={{ uri: file.uri }} />
-                  <MediaInfo>
-                    <MediaName numberOfLines={1}>{file.name}</MediaName>
-                    <MediaSize>{formatFileSize(file.size)}</MediaSize>
-                  </MediaInfo>
-                  <MediaRemoveButton
-                    accessibilityLabel={t('memo_editor.remove_attachment', {
-                      name: file.name,
-                    })}
-                    disabled={isLoading}
-                    onPress={() => removeMedia(file.uri)}
-                  >
-                    <Icon name="close-circle" size={22} color="#AAAAAA" />
-                  </MediaRemoveButton>
-                </MediaPreviewItem>
-              ))}
-            </MediaPreviewList>
-          ) : null}
-
-          {mediaFiles.length < 1 ? (
+            mediaFiles.map(file => (
+              <MediaPreviewBox key={file.uri}>
+                <MediaThumbnail source={{uri: file.uri}} resizeMode="cover" />
+                <MediaCaption pointerEvents="none">
+                  <Icon name="image-outline" size={13} color="#FFFFFF" />
+                  <MediaName numberOfLines={1}>{file.name}</MediaName>
+                  <MediaSize>{formatFileSize(file.size)}</MediaSize>
+                </MediaCaption>
+                <MediaRemoveButton
+                  accessibilityLabel={t('memo_editor.remove_attachment', {
+                    name: file.name,
+                  })}
+                  activeOpacity={0.8}
+                  disabled={isLoading}
+                  onPress={() => removeMedia(file.uri)}
+                >
+                  <Icon name="close" size={16} color="#FFFFFF" />
+                </MediaRemoveButton>
+              </MediaPreviewBox>
+            ))
+          ) : (
             <ImageUploadBox
               activeOpacity={0.7}
               disabled={isLoading || isPickingMedia}
@@ -435,16 +384,16 @@ export default function MemoEditor({
               {isPickingMedia ? (
                 <ActivityIndicator color="#FF8933" size="small" />
               ) : (
-                <Icon name="add-outline" size={24} color="#FF8933" />
+                <>
+                  <UploadIconBadge>
+                    <Icon name="camera-outline" size={22} color="#FF8933" />
+                  </UploadIconBadge>
+                  <UploadTitle>{t('memo_editor.select_image')}</UploadTitle>
+                  <UploadSub>{t('memo_editor.image_limit')}</UploadSub>
+                </>
               )}
-              <UploadTitle>
-                {mediaFiles.length > 0
-                  ? t('memo_editor.reselect_image')
-                  : t('memo_editor.select_image')}
-              </UploadTitle>
-              <UploadSub>{t('memo_editor.image_limit')}</UploadSub>
             </ImageUploadBox>
-          ) : null}
+          )}
 
           {!memoId ? (
             <TimerBox>

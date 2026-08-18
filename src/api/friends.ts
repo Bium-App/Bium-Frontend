@@ -8,6 +8,11 @@ import type {
   SendFriendRequestResponse,
 } from '../types/friend';
 
+export const getFriendsApi = async (): Promise<FriendUser[]> => {
+  const response = await apiClient.get<unknown>('/api/friends');
+  return parseRootArray<FriendUser>(response.data, '내 친구 목록');
+};
+
 export const searchFriendsApi = async (
   keyword: string,
 ): Promise<FriendUser[]> => {

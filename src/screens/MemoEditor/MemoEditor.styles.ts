@@ -74,7 +74,7 @@ export const Divider = styled.View`
 `;
 
 export const RichEditorFrame = styled.View`
-  min-height: 100px;
+  min-height: 240px;
   overflow: hidden;
   background-color: #ffffff;
 `;
@@ -170,72 +170,91 @@ export const SectionSubTitle = styled.Text`
 `;
 
 export const ImageUploadBox = styled.TouchableOpacity`
-  border-width: 1px;
+  width: 100%;
+  min-height: 148px;
+  border-width: 1.5px;
   border-style: dashed;
-  border-color: #ff8933;
-  border-radius: 8px;
-  padding: 16px 36px;
-  align-self: flex-start;
+  border-color: #ffcda3;
+  border-radius: 14px;
   align-items: center;
   justify-content: center;
+  padding: 24px;
   margin-bottom: 16px;
-  background-color: #ffffff;
+  background-color: #fff6ee;
+`;
+
+export const UploadIconBadge = styled.View`
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  background-color: #ffe8d6;
 `;
 
 export const UploadTitle = styled.Text`
   font-size: 14px;
-  color: #8a8a8a;
-  margin-top: 8px;
+  font-weight: 600;
+  color: #ff8933;
   margin-bottom: 2px;
 `;
 
 export const UploadSub = styled.Text`
   font-size: 11px;
-  color: #8a8a8a;
+  color: #c99465;
 `;
 
-export const MediaPreviewList = styled.View`
-  gap: 8px;
-  margin-bottom: 10px;
-`;
-
-export const MediaPreviewItem = styled.View`
-  min-height: 64px;
-  flex-direction: row;
-  align-items: center;
-  border-width: 1px;
-  border-color: #e8e8e8;
-  border-radius: 8px;
-  padding: 8px 10px;
-  background-color: #ffffff;
+export const MediaPreviewBox = styled.View`
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background-color: #f4f6f8;
 `;
 
 export const MediaThumbnail = styled.Image`
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
-  margin-right: 10px;
+  width: 100%;
+  height: 100%;
 `;
 
-export const MediaInfo = styled.View`
-  flex: 1;
-  margin-left: 10px;
+export const MediaCaption = styled.View`
+  position: absolute;
+  left: 8px;
+  right: 44px;
+  bottom: 8px;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
 `;
 
 export const MediaName = styled.Text`
-  color: #000000;
-  font-size: 14px;
-  font-weight: 500;
+  flex: 1;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
 `;
 
 export const MediaSize = styled.Text`
-  color: #9b9a9a;
+  color: #ffffff;
   font-size: 11px;
-  margin-top: 4px;
+  opacity: 0.85;
 `;
 
 export const MediaRemoveButton = styled.TouchableOpacity`
-  padding: 6px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
 `;
 
 export const TimerBox = styled.View`

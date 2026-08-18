@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
 import {
-  getMemoApi,
   getUserMemosApi,
   moveMemoToTrashApi,
   updateMemoPinApi,
@@ -10,6 +9,7 @@ import { getUserId } from '../utils/authStorage';
 import { getApiErrorMessage } from '../utils/apiError';
 import type { MemoStatus } from '../types/memo';
 import {isExpiredFireMemo} from '../utils/memoExpiration';
+import {sortMemosByCreatedAtDesc} from '../utils/memoSort';
 
 export interface TimelineMemoItem {
   id: string;
@@ -54,7 +54,8 @@ export const useTimeline = () => {
         }
       }
 
-      const mapped: TimelineMemoItem[] = activeMemos.map(memo => ({
+      const sortedActiveMemos = sortMemosByCreatedAtDesc(activeMemos);
+      const mapped: TimelineMemoItem[] = sortedActiveMemos.map(memo => ({
         id: String(memo.memoId),
         title: memo.title,
         desc: memo.content ?? '',
@@ -114,7 +115,6 @@ export const useTimeline = () => {
     isLoading,
     errorMessage,
     fetchMemos,
-    getMemoDetail: getMemoApi,
     toggleMemoPin,
   };
 };

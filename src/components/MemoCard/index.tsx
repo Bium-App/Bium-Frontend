@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {Swipeable} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useTranslation} from 'react-i18next';
@@ -49,12 +49,24 @@ export default function MemoCard({
   onStatusChange,
 }: MemoCardProps) {
   const {t} = useTranslation();
+  const swipeableRef = useRef<Swipeable>(null);
+
+  const handlePin = () => {
+    swipeableRef.current?.close();
+    onPin?.(item);
+  };
+
+  const handleStatusChange = () => {
+    swipeableRef.current?.close();
+    onStatusChange?.(item, 'ICE');
+  };
+
   const renderLeftActions = () => (
     <ActionBackground
       color="#EAF3FF"
       align="flex-start"
       activeOpacity={0.8}
-      onPress={() => onPin?.(item)}>
+      onPress={handlePin}>
       {item.isPinned ? (
         <PinnedPinIcon width={22} height={22} />
       ) : (
@@ -68,13 +80,14 @@ export default function MemoCard({
       color="#FFE8D6"
       align="flex-end"
       activeOpacity={0.8}
-      onPress={() => onStatusChange?.(item, 'ICE')}>
+      onPress={handleStatusChange}>
       <IceIcon width={28} height={28} color="#FF8933" />
     </ActionBackground>
   );
 
   return (
     <Swipeable
+      ref={swipeableRef}
       renderLeftActions={
         item.Status === 'ICE' ? renderLeftActions : undefined
       }

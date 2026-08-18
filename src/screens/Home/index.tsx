@@ -17,7 +17,6 @@ import type {
   MainTabParamList,
   RootStackParamList,
 } from '../../types/navigation';
-import {getApiResponseMessage} from '../../utils/apiError';
 import {getNextFireExpirationAt} from '../../utils/memoExpiration';
 import {useMemoExpirationRefresh} from '../../hooks/useMemoExpirationRefresh';
 
@@ -50,7 +49,6 @@ export default function Home({navigation}: HomeScreenProps) {
     isLoading,
     errorMessage,
     fetchMemos,
-    getMemoDetail,
     changeMemoStatus,
     toggleMemoPin,
     moveMemoToTrash,
@@ -76,27 +74,8 @@ export default function Home({navigation}: HomeScreenProps) {
     }, [fetchMemos]),
   );
 
-  const openMemoEditor = async (item: HomeMemoItem) => {
-    try {
-      const memo = await getMemoDetail(item.id);
-      navigation.navigate('MemoEditor', {
-        memoData: {
-          id: String(memo.memoId),
-          title: memo.title,
-          content: memo.content,
-          richContent: memo.richContent,
-          status: memo.status,
-          expiredAt: memo.expiredAt,
-          createdAt: memo.createdAt,
-        },
-      });
-    } catch (error) {
-      Alert.alert(
-        t('common.error'),
-        getApiResponseMessage(error) ??
-          t('home.memo_detail_failed'),
-      );
-    }
+  const openMemoDetail = (item: HomeMemoItem) => {
+    navigation.navigate('MemoDetail', {memoId: item.id});
   };
 
   const confirmTrash = (item: HomeMemoItem) => {
@@ -189,7 +168,7 @@ export default function Home({navigation}: HomeScreenProps) {
         renderItem={({ item }) => (
           <MemoCard
             item={item}
-            onPress={openMemoEditor}
+            onPress={openMemoDetail}
             onMore={openMemoMenu}
             onPin={memo => toggleMemoPin(memo.id, memo.isPinned)}
             onStatusChange={(memo, status) => changeMemoStatus(memo.id, status)}

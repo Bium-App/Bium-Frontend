@@ -21,6 +21,7 @@ import FindPassword from '../screens/FindPassword';
 import Home from '../screens/Home';
 import Timeline from '../screens/Timeline';
 import MemoEditor from '../screens/MemoEditor';
+import MemoDetail from '../screens/MemoDetail';
 import Search from '../screens/Search';
 import Notification from '../screens/Notification';
 
@@ -108,6 +109,11 @@ export default function Navigation() {
         <Stack.Screen name="MainTabs" component={FooterTabs} />
         <Stack.Screen name="Search" component={Search} />
         <Stack.Screen name="Notification" component={Notification} />
+        <Stack.Screen
+          name="MemoDetail"
+          component={MemoDetail}
+          options={noAnimation}
+        />
 
         {/* 팀 스페이스 */}
         <Stack.Screen

@@ -3,7 +3,6 @@ import {Alert} from 'react-native';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import {
-  getMemoApi,
   getUserMemosApi,
   moveMemoToTrashApi,
   updateMemoPinApi,
@@ -14,6 +13,7 @@ import {getApiErrorMessage, getApiResponseMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
 import type {MemoStatus, MemoSummary} from '../types/memo';
 import {isExpiredFireMemo} from '../utils/memoExpiration';
+import {sortMemosByCreatedAtDesc} from '../utils/memoSort';
 
 dayjs.locale('ko');
 
@@ -81,7 +81,8 @@ export const useHome = () => {
         }
       }
 
-      const mapped: HomeMemoItem[] = activeMemos.map((memo: MemoSummary) => ({
+      const sortedActiveMemos = sortMemosByCreatedAtDesc(activeMemos);
+      const mapped: HomeMemoItem[] = sortedActiveMemos.map((memo: MemoSummary) => ({
         id: String(memo.memoId),
         MTitle: memo.title,
         MContent: memo.content ?? '',
@@ -148,7 +149,6 @@ export const useHome = () => {
     isLoading,
     errorMessage,
     fetchMemos,
-    getMemoDetail: getMemoApi,
     changeMemoStatus,
     toggleMemoPin,
     moveMemoToTrash,

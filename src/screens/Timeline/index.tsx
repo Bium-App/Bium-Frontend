@@ -80,7 +80,6 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
     isLoading,
     errorMessage,
     fetchMemos,
-    getMemoDetail,
     toggleMemoPin,
   } = useTimeline();
   const nextExpirationAt = useMemo(
@@ -101,26 +100,8 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
     }, [fetchMemos]),
   );
 
-  const openMemo = async (item: TimelineMemoItem) => {
-    try {
-      const memo = await getMemoDetail(item.id);
-      navigation.navigate('MemoEditor', {
-        memoData: {
-          id: String(memo.memoId),
-          title: memo.title,
-          content: memo.content,
-          richContent: memo.richContent,
-          status: memo.status,
-          expiredAt: memo.expiredAt,
-          createdAt: memo.createdAt,
-        },
-      });
-    } catch (error) {
-      Alert.alert(
-        t('common.error'),
-        getApiResponseMessage(error) ?? t('home.memo_detail_failed'),
-      );
-    }
+  const openMemo = (item: TimelineMemoItem) => {
+    navigation.navigate('MemoDetail', {memoId: item.id});
   };
 
   const handlePinPress = async (item: TimelineMemoItem): Promise<void> => {

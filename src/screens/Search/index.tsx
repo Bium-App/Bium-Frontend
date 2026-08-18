@@ -7,7 +7,6 @@ import {useTranslation} from 'react-i18next';
 import { useSearch } from '../../hooks/useSearch';
 import type {SearchResultItem} from '../../hooks/useSearch';
 import AsyncState from '../../components/AsyncState';
-import {getApiResponseMessage} from '../../utils/apiError';
 
 import {
   Container,
@@ -55,7 +54,6 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
     deleteAllRecentSearches,
     handleSearchSubmit,
     clearSearch,
-    getMemoDetail,
   } = useSearch();
 
   const onChangeKeyword = (text: string) => {
@@ -65,31 +63,9 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
     }
   };
 
-  const handleResultPress = async (item: SearchResultItem) => {
+  const handleResultPress = (item: SearchResultItem) => {
     if (item.resultType === 'MEMO') {
-      try {
-        const memo = await getMemoDetail(item.targetId);
-        navigation.navigate('MainTabs', {
-          screen: 'MemoEditor',
-          params: {
-            memoData: {
-              id: String(memo.memoId),
-              title: memo.title,
-              content: memo.content,
-              richContent: memo.richContent,
-              status: memo.status,
-              expiredAt: memo.expiredAt,
-              createdAt: memo.createdAt,
-            },
-          },
-        });
-      } catch (error) {
-        Alert.alert(
-          t('common.error'),
-          getApiResponseMessage(error) ??
-            t('home.memo_detail_failed'),
-        );
-      }
+      navigation.navigate('MemoDetail', {memoId: item.targetId});
       return;
     }
 

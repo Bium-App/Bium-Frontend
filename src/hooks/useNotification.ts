@@ -5,11 +5,9 @@ import {
   getNotificationsApi,
   readNotificationApi,
 } from '../api/common';
-import {getMemoApi} from '../api/memos';
 import {getTeamNoticeApi, getTeamTodoApi} from '../api/teamSpaces';
 import {getApiErrorMessage, getApiResponseMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
-import type {MemoEditorData} from '../types/navigation';
 import {
   mapNotificationResponse,
   type NotificationListItem,
@@ -18,10 +16,9 @@ import {
 export type {NotificationListItem} from '../utils/viewModelMappers';
 
 interface NotificationHandlers {
-  onMemoReady?: (memoData: MemoEditorData) => void;
   onNavigate?: (
-    screen: 'FriendRequestList' | 'ProjectDetail' | 'ProjectTodo',
-    params?: {projectId: string; todoId?: string},
+    screen: 'FriendRequestList' | 'ProjectDetail' | 'ProjectTodo' | 'MemoDetail',
+    params?: {projectId?: string; todoId?: string; memoId?: string},
   ) => void;
 }
 
@@ -80,7 +77,7 @@ export const useNotification = () => {
 
   const openNotification = async (
     notification: NotificationListItem,
-    {onMemoReady, onNavigate}: NotificationHandlers = {},
+    {onNavigate}: NotificationHandlers = {},
   ): Promise<void> => {
     await markAsRead(notification.id);
     if (
@@ -93,16 +90,7 @@ export const useNotification = () => {
 
     try {
       if (notification.notificationType === 'MEMO') {
-        const memo = await getMemoApi(notification.targetId);
-        onMemoReady?.({
-          id: String(memo.memoId),
-          title: memo.title,
-          content: memo.content,
-          richContent: memo.richContent,
-          status: memo.status,
-          expiredAt: memo.expiredAt,
-          createdAt: memo.createdAt,
-        });
+        onNavigate?.('MemoDetail', {memoId: String(notification.targetId)});
         return;
       }
       if (notification.notificationType === 'FRIEND_REQUEST') {

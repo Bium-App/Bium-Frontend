@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {searchApi} from '../api/common';
-import {getMemoApi} from '../api/memos';
 import {getApiErrorMessage} from '../utils/apiError';
 import {
   mapSearchResponse,
@@ -123,6 +122,5 @@ export const useSearch = () => {
     deleteAllRecentSearches,
     handleSearchSubmit,
     clearSearch,
-    getMemoDetail: getMemoApi,
   };
 };

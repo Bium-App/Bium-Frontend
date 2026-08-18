@@ -1,5 +1,6 @@
 import apiClient from './client';
 import {parseLoginId, parseRootArray} from '../utils/apiResponse';
+import {getRefreshToken} from '../utils/authStorage';
 import type {
   ApiMutationResponse,
   EntityId,
@@ -103,9 +104,11 @@ export const twoFactorApi = async ({
 export const logoutApi = async (
   type: LogoutType = 'CURRENT',
 ): Promise<ApiMutationResponse> => {
+  const body =
+    type === 'CURRENT' ? {refreshToken: await getRefreshToken()} : null;
   const response = await apiClient.post<ApiMutationResponse>(
     '/api/auth/logout',
-    null,
+    body,
     {params: {type}},
   );
   return response.data;

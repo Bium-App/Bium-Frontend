@@ -54,6 +54,7 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   Search: undefined;
   Notification: undefined;
+  MemoDetail: {memoId: EntityId};
   ProjectDetail: {projectId: EntityId; projectName?: string};
   ProjectTodo: {
     projectId: EntityId;
