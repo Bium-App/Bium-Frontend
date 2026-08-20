@@ -43,31 +43,26 @@ export const IconWrapper = styled.View`
 `;
 
 export const PermissionText = styled.Text`
-  font-size: 13px; 
-  font-weight: 500; 
+  font-size: 13px;
+  font-weight: 500;
   color: #000000;
 `;
 
-/* --- 💡 완벽한 원형의 커스텀 토글 스타일 --- */
-
-export const CustomToggle = styled.TouchableOpacity<{isOn: boolean}>`
-  width: 52px;
-  height: 30px;
-  border-radius: 15px; 
-  background-color: ${props => (props.isOn ? '#FF8933' : '#E8E8E8')}; 
-  justify-content: center;
-  padding: 2px;
+export const HelperText = styled.Text`
+  font-size: 12px;
+  color: #919191;
+  line-height: 18px;
+  margin-bottom: 20px;
 `;
 
-export const ToggleCircle = styled.View<{isOn: boolean}>`
-  width: 26px;
-  height: 26px;
-  border-radius: 13px; 
-  background-color: #FFFFFF;
-  align-self: ${props => (props.isOn ? 'flex-end' : 'flex-start')};
-  shadow-color: #000;
-  shadow-offset: 0px 2px;
-  shadow-opacity: 0.1;
-  shadow-radius: 2px;
-  elevation: 2;
+export const SettingsLinkRow = styled.TouchableOpacity`
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+`;
+
+export const SettingsLinkText = styled.Text`
+  font-size: 12px;
+  font-weight: 500;
+  color: #ff8933;
 `;

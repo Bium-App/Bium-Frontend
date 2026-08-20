@@ -6,6 +6,7 @@ import {
   getTeamSpaceApi,
   removeTeamMemberApi,
   updateTeamMemberRoleApi,
+  updateTeamSpaceApi,
 } from '../api/teamSpaces';
 import {getUserId} from '../utils/authStorage';
 import {getApiErrorMessage} from '../utils/apiError';
@@ -92,6 +93,14 @@ export const useTeamManagement = (teamSpaceId?: EntityId) => {
     await deleteTeamSpaceApi(teamSpaceId);
   };
 
+  const renameTeam = async (name: string): Promise<void> => {
+    if (teamSpaceId === undefined || teamSpaceId === null) {
+      throw new Error('수정할 팀 정보를 찾을 수 없습니다.');
+    }
+    await updateTeamSpaceApi(teamSpaceId, name);
+    await fetchTeamManagement();
+  };
+
   return {
     team,
     members,
@@ -103,5 +112,6 @@ export const useTeamManagement = (teamSpaceId?: EntityId) => {
     updateMemberRole,
     removeMember,
     deleteTeam,
+    renameTeam,
   };
 };

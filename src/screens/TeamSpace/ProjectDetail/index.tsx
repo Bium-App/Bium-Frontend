@@ -76,6 +76,8 @@ import {
   DateActionText,
   ManagementBody,
   TeamSummary,
+  TeamSummaryRow,
+  RenameIconButton,
   TeamSummaryTitle,
   TeamSummaryText,
   MemberList,
@@ -165,10 +167,13 @@ export default function ProjectDetail({
     updateMemberRole,
     removeMember,
     deleteTeam,
+    renameTeam,
   } = useTeamManagement(projectId);
   const resolvedProjectName = team?.name ?? projectName;
   const [searchQuery, setSearchQuery] = useState('');
   const [isManagementVisible, setManagementVisible] = useState(false);
+  const [isRenameModalVisible, setRenameModalVisible] = useState(false);
+  const [renameInput, setRenameInput] = useState('');
   const hasDashboardData =
     notices.length > 0 || todos.length > 0 || schedules.length > 0;
 
@@ -283,6 +288,33 @@ export default function ProjectDetail({
       },
       { text: '취소', style: 'cancel' },
     ]);
+  };
+
+  // Modal 두 개를 동시에 띄워두면(특히 iOS) 나중에 연 Modal이 화면에
+  // 반영되지 않는 경우가 있어, 팀 관리 모달을 닫고 이름 수정 모달을 연다.
+  const openRenameModal = (): void => {
+    setRenameInput(team?.name ?? '');
+    setManagementVisible(false);
+    setRenameModalVisible(true);
+  };
+
+  const closeRenameModal = (): void => {
+    setRenameModalVisible(false);
+    setManagementVisible(true);
+  };
+
+  const handleRenameTeam = async (): Promise<void> => {
+    const nextName = renameInput.trim();
+    if (!nextName) return;
+    try {
+      await renameTeam(nextName);
+      closeRenameModal();
+    } catch (error) {
+      Alert.alert(
+        '이름 변경 실패',
+        getActionErrorMessage(error, '팀 이름을 변경하지 못했습니다.'),
+      );
+    }
   };
 
   const confirmDeleteTeam = (): void => {
@@ -746,9 +778,20 @@ export default function ProjectDetail({
             </ModalHeader>
             <ManagementBody showsVerticalScrollIndicator={false}>
               <TeamSummary>
-                <TeamSummaryTitle>
-                  {team?.name ?? '팀스페이스'}
-                </TeamSummaryTitle>
+                <TeamSummaryRow>
+                  <TeamSummaryTitle>
+                    {team?.name ?? '팀스페이스'}
+                  </TeamSummaryTitle>
+                  {canManage ? (
+                    <RenameIconButton
+                      accessibilityLabel="팀 이름 수정"
+                      hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                      onPress={openRenameModal}
+                    >
+                      <Icon name="pencil-outline" size={16} color="#FF8933" />
+                    </RenameIconButton>
+                  ) : null}
+                </TeamSummaryRow>
                 <TeamSummaryText>멤버 {members.length}명</TeamSummaryText>
               </TeamSummary>
 
@@ -817,6 +860,37 @@ export default function ProjectDetail({
                 </DeleteTeamButton>
               ) : null}
             </ManagementBody>
+          </ModalContainer>
+        </ModalOverlay>
+      </Modal>
+
+      <Modal
+        visible={isRenameModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeRenameModal}
+      >
+        <ModalOverlay>
+          <ModalContainer>
+            <ModalHeader>
+              <ModalHeaderButton onPress={closeRenameModal}>
+                <ModalCancelText>취소</ModalCancelText>
+              </ModalHeaderButton>
+              <ModalTitleText>팀 이름 수정</ModalTitleText>
+              <ModalHeaderButton onPress={handleRenameTeam}>
+                <ModalSaveText>저장</ModalSaveText>
+              </ModalHeaderButton>
+            </ModalHeader>
+            <ModalBody>
+              <InputLabel isFirst={true}>팀 이름</InputLabel>
+              <TitleInput
+                isFocused={false}
+                value={renameInput}
+                onChangeText={setRenameInput}
+                placeholder="팀 이름을 입력하세요."
+                placeholderTextColor="#AAAAAA"
+              />
+            </ModalBody>
           </ModalContainer>
         </ModalOverlay>
       </Modal>

@@ -4,9 +4,9 @@ import {useFocusEffect} from '@react-navigation/native';
 import {
   getReceivedFriendRequestsApi,
   getRecommendedFriendsApi,
-  searchFriendsApi,
   sendFriendRequestApi,
 } from '../api/friends';
+import {searchUsersApi} from '../api/users';
 import {
   getApiErrorMessage,
   getApiResponseMessage,
@@ -98,7 +98,7 @@ export const useFriendAdd = () => {
     setIsSearching(true);
     setSearchErrorMessage('');
     try {
-      const result = await searchFriendsApi(normalizedKeyword);
+      const result = await searchUsersApi(normalizedKeyword);
       if (searchRequestIdRef.current === requestId) {
         setSearchResults(result.map(mapFriend));
       }

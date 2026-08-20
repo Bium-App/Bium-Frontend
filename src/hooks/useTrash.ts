@@ -7,12 +7,14 @@ import {
   restoreMemoApi,
 } from '../api/memos';
 import {getApiErrorMessage} from '../utils/apiError';
+import type {MemoStatus} from '../types/memo';
 
 export interface TrashItem {
   id: string;
   title: string;
   desc: string;
   remain: string;
+  status: MemoStatus;
 }
 
 export const useTrash = () => {
@@ -34,6 +36,7 @@ export const useTrash = () => {
             title: memo.title,
             desc: memo.content ?? '',
             remain: remainingDays ? `${remainingDays}일` : 'D-Day',
+            status: memo.status,
           };
         }),
       );

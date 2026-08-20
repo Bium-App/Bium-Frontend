@@ -55,3 +55,8 @@ export type FileMutationResponse = ApiMutationResponse & Partial<TeamFile>;
 export interface MemoImageMutationResponse extends ApiMutationResponse {
   imageId: EntityId;
 }
+
+export interface MemoImage {
+  imageId: EntityId;
+  imageUrl: string;
+}

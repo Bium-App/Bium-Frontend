@@ -6,6 +6,7 @@ import {useTranslation} from 'react-i18next';
 import Header from '../../../../components/Header'; // 💡 항상 공통 컴포넌트로 분리해서 사용하는 헤더
 import AsyncState from '../../../../components/AsyncState';
 import IcFire from '../../../../assets/icons/ic_fire.svg';
+import IcIce from '../../../../assets/icons/ic_ice.svg';
 import { useTrash } from '../../../../hooks/useTrash';
 
 import {
@@ -158,12 +159,20 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
             >
               <CardInner>
                 <CardTop>
-                  <IconCircle isSelected={isSelected}>
-                    <IcFire 
-                      width={32} 
-                      height={36} 
-                      color={isSelected ? '#FF8933' : '#000000'}  /* 1A1A1A -> 000000 */ 
-                    />
+                  <IconCircle isSelected={isSelected} isIce={item.status === 'ICE'}>
+                    {item.status === 'ICE' ? (
+                      <IcIce
+                        width={32}
+                        height={36}
+                        color={isSelected ? '#7CC4FF' : '#000000'}
+                      />
+                    ) : (
+                      <IcFire
+                        width={32}
+                        height={36}
+                        color={isSelected ? '#FF8933' : '#000000'}  /* 1A1A1A -> 000000 */
+                      />
+                    )}
                   </IconCircle>
 
                   <TextContainer>

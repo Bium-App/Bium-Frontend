@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useState} from 'react';
 import {Alert} from 'react-native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {getRecommendedFriendsApi, searchFriendsApi} from '../api/friends';
+import {getRecommendedFriendsApi} from '../api/friends';
+import {searchUsersApi} from '../api/users';
 import {addTeamMemberApi, createTeamSpaceApi} from '../api/teamSpaces';
 import {getApiResponseMessage} from '../utils/apiError';
 import type {FriendUser} from '../types/friend';
@@ -62,7 +63,7 @@ export const useTeamCreate = (navigation: Navigation) => {
     }
     const timerId = setTimeout(async () => {
       try {
-        const result = await searchFriendsApi(keyword);
+        const result = await searchUsersApi(keyword);
         setSearchResults(result.map(mapMember));
       } catch {
         setSearchResults([]);

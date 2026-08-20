@@ -10,6 +10,7 @@ import type {ApiMutationResponse, EntityId} from '../types/api';
 import type {
   CreateTeamFileRequest,
   FileMutationResponse,
+  MemoImage,
   MemoImageMutationResponse,
   PresignedUrlRequest,
   PresignedUrlResponse,
@@ -136,4 +137,15 @@ export const addMemoImageApi = async (
     {imageUrl},
   );
   return response.data;
+};
+
+export const getMemoImagesApi = async (
+  memoId: EntityId,
+): Promise<MemoImage[]> => {
+  const response = await apiClient.get<unknown>(`/api/memos/${memoId}/images`);
+  return parseRootArray<MemoImage>(response.data, '메모 이미지 목록');
+};
+
+export const deleteMemoImageApi = async (imageId: EntityId): Promise<void> => {
+  await apiClient.delete(`/api/memos/images/${imageId}`);
 };

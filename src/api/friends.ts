@@ -1,5 +1,6 @@
 import apiClient from './client';
 import {parseRootArray} from '../utils/apiResponse';
+import {excludeSelf} from '../utils/excludeSelf';
 import type {EntityId} from '../types/api';
 import type {
   FriendMutationResponse,
@@ -10,23 +11,16 @@ import type {
 
 export const getFriendsApi = async (): Promise<FriendUser[]> => {
   const response = await apiClient.get<unknown>('/api/friends');
-  return parseRootArray<FriendUser>(response.data, '내 친구 목록');
-};
-
-export const searchFriendsApi = async (
-  keyword: string,
-): Promise<FriendUser[]> => {
-  const response = await apiClient.get<unknown>('/api/friends', {
-    params: {type: 'SEARCH', keyword},
-  });
-  return parseRootArray<FriendUser>(response.data, '친구 검색 목록');
+  return excludeSelf(parseRootArray<FriendUser>(response.data, '내 친구 목록'));
 };
 
 export const getRecommendedFriendsApi = async (): Promise<FriendUser[]> => {
   const response = await apiClient.get<unknown>('/api/friends', {
     params: {type: 'RECOMMEND'},
   });
-  return parseRootArray<FriendUser>(response.data, '추천 친구 목록');
+  return excludeSelf(
+    parseRootArray<FriendUser>(response.data, '추천 친구 목록'),
+  );
 };
 
 export const sendFriendRequestApi = async (

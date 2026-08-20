@@ -3,6 +3,7 @@ import type {CompositeScreenProps} from '@react-navigation/native';
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs';
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import type {EntityId} from './api';
+import type {MemoImage} from './file';
 import type {MemoRichContent} from './memo';
 import type {TwoFactorMethod} from './auth';
 
@@ -14,6 +15,7 @@ export interface MemoEditorData {
   status?: string;
   expiredAt?: string | null;
   createdAt?: string;
+  images?: MemoImage[];
 }
 
 export interface TeamTodoRouteData {

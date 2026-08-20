@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type {RootScreenProps} from '../../../../../types/navigation';
-import { TouchableOpacity } from 'react-native'; 
+import { Linking, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Header from '../../../../../components/Header'; 
+import Header from '../../../../../components/Header';
 import IcCamera from '../../../../../assets/icons/ic_camera.svg';
 import IcImage from '../../../../../assets/icons/ic_image.svg';
 import IcMic from '../../../../../assets/icons/ic_mic.svg';
@@ -16,34 +16,19 @@ import {
   RowLeft,
   IconWrapper,
   PermissionText,
-  CustomToggle, 
-  ToggleCircle  
+  HelperText,
+  SettingsLinkRow,
+  SettingsLinkText,
 } from './PermissionSetup.styles';
 
-interface PermissionState {
-  camera: boolean;
-  image: boolean;
-  mic: boolean;
-  bell: boolean;
-}
+const PERMISSION_ROWS = [
+  {key: 'camera', label: '카메라', Icon: IcCamera, width: 24, height: 24},
+  {key: 'image', label: '사진 및 동영상', Icon: IcImage, width: 24, height: 24},
+  {key: 'mic', label: '마이크', Icon: IcMic, width: 16, height: 24},
+  {key: 'bell', label: '알림', Icon: IcBell, width: 24, height: 24},
+] as const;
 
 export default function PermissionSetup({navigation}: RootScreenProps<'PermissionSetup'>) {
-  
-  // 권한 상태 관리
-  const [permissions, setPermissions] = useState<PermissionState>({
-    camera: true, 
-    image: true,
-    mic: true,    
-    bell: true,   
-  });
-
-  const togglePermission = (key: keyof PermissionState) => {
-    setPermissions(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
   return (
     <Container>
       <Header
@@ -52,88 +37,29 @@ export default function PermissionSetup({navigation}: RootScreenProps<'Permissio
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
         }
-        title="필수 권한 설정" 
+        title="필수 권한 설정"
       />
 
       <MainContainer>
+        <HelperText>
+          권한은 앱에서 직접 켜고 끌 수 없고, 기기의 설정 앱에서만 변경할 수 있어요. 항목을 누르면 설정으로 이동합니다.
+        </HelperText>
         <PermissionCard>
-          
-          {/* 1. 카메라 권한 */}
-          <PermissionRow>
-            <RowLeft>
-              <IconWrapper>
-                {/* 💡 23x23 -> 24x24 로 미세 조정하여 시각적 안정감 부여 */}
-                <IcCamera width={24} height={24} />
-              </IconWrapper>
-              <PermissionText>카메라</PermissionText>
-            </RowLeft>
-            
-            <CustomToggle 
-              activeOpacity={0.8} 
-              isOn={permissions.camera} 
-              onPress={() => togglePermission('camera')}
-            >
-              <ToggleCircle isOn={permissions.camera} />
-            </CustomToggle>
-          </PermissionRow>
+          {PERMISSION_ROWS.map(({key, label, Icon: RowIcon, width, height}, index) => (
+            <PermissionRow key={key} isLast={index === PERMISSION_ROWS.length - 1}>
+              <RowLeft>
+                <IconWrapper>
+                  <RowIcon width={width} height={height} />
+                </IconWrapper>
+                <PermissionText>{label}</PermissionText>
+              </RowLeft>
 
-          {/* 2. 사진 및 동영상 권한 */}
-          <PermissionRow>
-            <RowLeft>
-              <IconWrapper>
-                {/* 💡 26x26으로 너무 커서 박스를 삐져나가던 것을 24x24로 축소 통일 */}
-                <IcImage width={24} height={24} />
-              </IconWrapper>
-              <PermissionText>사진 및 동영상</PermissionText>
-            </RowLeft>
-            
-            <CustomToggle 
-              activeOpacity={0.8} 
-              isOn={permissions.image} 
-              onPress={() => togglePermission('image')}
-            >
-              <ToggleCircle isOn={permissions.image} />
-            </CustomToggle>
-          </PermissionRow>
-
-          {/* 3. 마이크 권한 */}
-          <PermissionRow>
-            <RowLeft>
-              <IconWrapper>
-                {/* 💡 13x20으로 너무 왜소했던 비율을 유지하면서 16x24로 키워 밸런스 맞춤 */}
-                <IcMic width={16} height={24} />
-              </IconWrapper>
-              <PermissionText>마이크</PermissionText>
-            </RowLeft>
-            
-            <CustomToggle 
-              activeOpacity={0.8} 
-              isOn={permissions.mic} 
-              onPress={() => togglePermission('mic')}
-            >
-              <ToggleCircle isOn={permissions.mic} />
-            </CustomToggle>
-          </PermissionRow>
-
-          {/* 4. 알림 권한 */}
-          <PermissionRow isLast={true}>
-            <RowLeft>
-              <IconWrapper>
-                {/* 💡 23x23 -> 24x24 로 미세 조정 */}
-                <IcBell width={24} height={24} />
-              </IconWrapper>
-              <PermissionText>알림</PermissionText>
-            </RowLeft>
-            
-            <CustomToggle 
-              activeOpacity={0.8} 
-              isOn={permissions.bell} 
-              onPress={() => togglePermission('bell')}
-            >
-              <ToggleCircle isOn={permissions.bell} />
-            </CustomToggle>
-          </PermissionRow>
-
+              <SettingsLinkRow activeOpacity={0.7} onPress={() => Linking.openSettings()}>
+                <SettingsLinkText>설정</SettingsLinkText>
+                <Icon name="chevron-forward" size={14} color="#FF8933" />
+              </SettingsLinkRow>
+            </PermissionRow>
+          ))}
         </PermissionCard>
       </MainContainer>
     </Container>

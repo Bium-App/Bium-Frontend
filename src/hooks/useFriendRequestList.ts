@@ -20,16 +20,26 @@ export interface FriendRequestListItem {
   desc: string;
 }
 
-const mapRequest = (request: FriendRequest): FriendRequestListItem => ({
-  id: String(request.requestId),
-  handle: String(
-    request.requesterId ?? request.receiverId ?? request.requestId,
-  ),
-  name: request.nickname ?? '',
-  desc: request.createdAt
-    ? `${dayjs(request.createdAt).format('YYYY.MM.DD HH:mm')} 요청`
-    : '친구 요청',
-});
+// 받은 요청은 상대방이 requesterId, 보낸 요청은 상대방이 receiverId다.
+// 방향을 구분하지 않고 requesterId를 무조건 우선하면 보낸 요청 목록에
+// 상대방이 아니라 본인 ID가 표시된다.
+const mapRequest = (
+  request: FriendRequest,
+  direction: 'SENT' | 'RECEIVED',
+): FriendRequestListItem => {
+  const counterpartId =
+    direction === 'SENT'
+      ? request.receiverId ?? request.requesterId
+      : request.requesterId ?? request.receiverId;
+  return {
+    id: String(request.requestId),
+    handle: String(counterpartId ?? request.requestId),
+    name: request.nickname ?? '',
+    desc: request.createdAt
+      ? `${dayjs(request.createdAt).format('YYYY.MM.DD HH:mm')} 요청`
+      : '친구 요청',
+  };
+};
 
 export const useFriendRequestList = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,7 +60,9 @@ export const useFriendRequestList = () => {
     ]);
 
     if (receivedResult.status === 'fulfilled') {
-      setReceived(receivedResult.value.map(mapRequest));
+      setReceived(
+        receivedResult.value.map(request => mapRequest(request, 'RECEIVED')),
+      );
     } else {
       setReceivedErrorMessage(
         getApiErrorMessage(
@@ -60,7 +72,7 @@ export const useFriendRequestList = () => {
       );
     }
     if (sentResult.status === 'fulfilled') {
-      setSent(sentResult.value.map(mapRequest));
+      setSent(sentResult.value.map(request => mapRequest(request, 'SENT')));
     } else {
       setSentErrorMessage(
         getApiErrorMessage(

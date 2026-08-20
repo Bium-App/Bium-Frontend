@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
 import dayjs from 'dayjs';
 import {useFocusEffect} from '@react-navigation/native';
 import {getDevicesApi, logoutApi, logoutDeviceApi} from '../api/auth';
@@ -35,6 +35,9 @@ export const useDeviceManagement = () => {
   const [devices, setDevices] = useState<DeviceListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  // 로그아웃 요청이 동시에 두 번 나가면 서버가 500을 낸다. isLoading은
+  // 비동기라 빠른 연타를 못 막을 수 있어 ref로 즉시 막는다.
+  const isLoggingOutRef = useRef(false);
 
   const fetchDevices = useCallback(async (): Promise<void> => {
     setIsLoading(true);
@@ -72,6 +75,8 @@ export const useDeviceManagement = () => {
   );
 
   const logoutDevice = async (deviceId: EntityId): Promise<boolean> => {
+    if (isLoggingOutRef.current) return false;
+    isLoggingOutRef.current = true;
     setIsLoading(true);
     try {
       const currentDeviceId = await getDeviceId();
@@ -82,16 +87,20 @@ export const useDeviceManagement = () => {
       return isCurrent;
     } finally {
       setIsLoading(false);
+      isLoggingOutRef.current = false;
     }
   };
 
   const logoutAllDevices = async (): Promise<void> => {
+    if (isLoggingOutRef.current) return;
+    isLoggingOutRef.current = true;
     setIsLoading(true);
     try {
       await logoutApi('ALL');
       await clearSession();
     } finally {
       setIsLoading(false);
+      isLoggingOutRef.current = false;
     }
   };
 

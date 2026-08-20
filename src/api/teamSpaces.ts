@@ -37,6 +37,17 @@ export const getUserTeamSpacesApi = async (): Promise<TeamSpace[]> => {
   return parseRootArray<TeamSpace>(response.data, '팀스페이스 목록');
 };
 
+export const updateTeamSpaceApi = async (
+  teamSpaceId: EntityId,
+  name: string,
+): Promise<ApiMutationResponse> => {
+  const response = await apiClient.patch<ApiMutationResponse>(
+    `/api/team-spaces/${teamSpaceId}`,
+    {name},
+  );
+  return response.data;
+};
+
 export const deleteTeamSpaceApi = async (
   teamSpaceId: EntityId,
 ): Promise<ApiMutationResponse> => {

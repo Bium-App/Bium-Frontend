@@ -366,6 +366,16 @@ export const TeamSummary = styled.View`
   padding-bottom: 16px;
 `;
 
+export const TeamSummaryRow = styled.View`
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const RenameIconButton = styled.TouchableOpacity`
+  padding: 2px;
+`;
+
 export const TeamSummaryTitle = styled.Text`
   color: #000000;
   font-size: 18px;

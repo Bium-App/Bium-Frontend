@@ -126,11 +126,19 @@ export const useHome = () => {
     }
   };
 
-  const changeMemoStatus = (memoId: EntityId, status: MemoStatus) =>
-    runMemoAction(
-      () => updateMemoStatusApi(memoId, status),
-      '메모 상태를 변경하지 못했습니다.',
-    );
+  const changeMemoStatus = (
+    memoId: EntityId,
+    status: MemoStatus,
+    wasPinned = false,
+  ) =>
+    runMemoAction(async () => {
+      await updateMemoStatusApi(memoId, status);
+      // 얼음 메모만 고정할 수 있어서, 불로 바뀌면 고정도 같이 풀어야 한다.
+      // 서버가 상태 변경 시 자동으로 고정을 풀어주지 않는다.
+      if (status === 'FIRE' && wasPinned) {
+        await updateMemoPinApi(memoId, false);
+      }
+    }, '메모 상태를 변경하지 못했습니다.');
 
   const toggleMemoPin = (memoId: EntityId, isPinned: boolean) =>
     runMemoAction(

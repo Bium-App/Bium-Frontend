@@ -94,7 +94,11 @@ export default function Home({navigation}: HomeScreenProps) {
       {
         text: item.Status === 'ICE' ? t('home.change_to_fire') : t('home.store_as_ice'),
         onPress: () =>
-          changeMemoStatus(item.id, item.Status === 'ICE' ? 'FIRE' : 'ICE'),
+          changeMemoStatus(
+            item.id,
+            item.Status === 'ICE' ? 'FIRE' : 'ICE',
+            item.isPinned,
+          ),
       },
       {
         text: t('home.move_to_trash_action'),

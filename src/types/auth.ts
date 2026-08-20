@@ -54,6 +54,16 @@ export type TwoFactorResponse = ApiMutationResponse & Partial<AuthTokens>;
 
 export type LogoutType = 'CURRENT' | 'ALL';
 
+export type SocialProvider = 'GOOGLE';
+
+export interface SocialLoginRequest {
+  provider: SocialProvider;
+  providerId: string;
+  email: string;
+  name: string;
+  profileImageUrl?: string;
+}
+
 export interface LoginDevice {
   deviceId: EntityId;
   deviceName: string;

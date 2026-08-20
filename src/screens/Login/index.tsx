@@ -5,6 +5,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {useTranslation} from 'react-i18next';
 import Header from '../../components/Header';
 import { useLogin } from '../../hooks/useLogin';
+import { useSocialLogin } from '../../hooks/useSocialLogin';
+
+import GoogleIcon from '../../assets/icons/ic_google.svg';
 
 import {
   Container,
@@ -19,15 +22,27 @@ import {
   LinksRow,
   LinkText,
   LinkDivider,
+  DividerRow,
+  DividerLine,
+  DividerText,
+  GoogleButton,
+  GoogleButtonText,
 } from './Login.styles';
 
 export default function Login({navigation}: RootScreenProps<'Login'>) {
   const {t} = useTranslation();
   const { loginId, setLoginId, password, setPassword, isLoading, handleLoginSubmit } = useLogin();
+  const { isLoading: isSocialLoading, handleGoogleLogin } = useSocialLogin();
   const fillAnimation = useRef(new Animated.Value(0)).current;
   const pressAnimation = useRef(new Animated.Value(1)).current;
+  const isSubmittingRef = useRef(false);
 
   const handleLogin = () => {
+    // isLoading 상태는 애니메이션이 끝난 뒤에야 true가 되므로, 그 사이
+    // 버튼을 빠르게 두 번 누르면 로그인 요청이 중복으로 나갈 수 있다.
+    // 애니메이션 시작 전에 ref로 즉시 막는다.
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     Animated.sequence([
       Animated.parallel([
         Animated.timing(fillAnimation, { toValue: 1, duration: 250, useNativeDriver: false }),
@@ -47,8 +62,13 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
     ]).start(() => {
       handleLoginSubmit(() => navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] })).finally(() => {
         fillAnimation.setValue(0);
+        isSubmittingRef.current = false;
       });
     });
+  };
+
+  const handleSocialLogin = () => {
+    handleGoogleLogin(() => navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] }));
   };
 
   const backgroundColor = fillAnimation.interpolate({
@@ -112,6 +132,24 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
             <LinkText>{t('auth.sign_up')}</LinkText>
           </TouchableOpacity>
         </LinksRow>
+
+        <DividerRow>
+          <DividerLine />
+          <DividerText>{t('auth.sns_login')}</DividerText>
+          <DividerLine />
+        </DividerRow>
+        <GoogleButton
+          accessibilityRole="button"
+          accessibilityLabel="Google"
+          activeOpacity={0.7}
+          onPress={handleSocialLogin}
+          disabled={isSocialLoading}
+        >
+          <GoogleIcon width={20} height={20} />
+          <GoogleButtonText>
+            {isSocialLoading ? t('auth.logging_in') : t('auth.google_login')}
+          </GoogleButtonText>
+        </GoogleButton>
       </ScrollContent>
     </Container>
   );

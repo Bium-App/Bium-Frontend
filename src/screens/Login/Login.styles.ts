@@ -105,16 +105,21 @@ export const DividerText = styled.Text`
   margin-horizontal: 16px;
 `;
 
-export const SnsRow = styled.View`
+export const GoogleButton = styled.TouchableOpacity`
+  width: 100%;
+  height: 52px;
   flex-direction: row;
+  align-items: center;
   justify-content: center;
-  gap: 16px;
+  border-width: 1px;
+  border-color: #DADCE0;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  gap: 10px;
 `;
 
-export const SnsButton = styled.TouchableOpacity`
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
-  justify-content: center;
-  align-items: center;
+export const GoogleButtonText = styled.Text`
+  font-size: 15px;
+  font-weight: 600;
+  color: #1F1F1F;
 `;

@@ -76,14 +76,17 @@ export const CardBottom = styled.View`
   align-items: center;      
 `;
 
-export const IconCircle = styled.View<{isSelected: boolean}>`
+export const IconCircle = styled.View<{isSelected: boolean; isIce?: boolean}>`
   width: 53px;
   height: 53px;
-  border-radius: 26px; 
-  background-color: ${props => (props.isSelected ? '#FFE8D6' : '#E8E8E8')};
+  border-radius: 26px;
+  background-color: ${props => {
+    if (!props.isSelected) return '#E8E8E8';
+    return props.isIce ? '#EAF3FF' : '#FFE8D6';
+  }};
   justify-content: center;
   align-items: center;
-  margin-right: 20px;  
+  margin-right: 20px;
 `;
 
 export const TextContainer = styled.View`

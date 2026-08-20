@@ -103,7 +103,9 @@ const resources = {
         sent: "발송 완료",
         temporary_password_sent: "가입한 이메일로 임시 비밀번호를 발송했습니다.",
         temporary_password_helper: "가입한 이메일로 임시 비밀번호가 발송됩니다.",
-        get_temporary_password: "임시 비밀번호 받기"
+        get_temporary_password: "임시 비밀번호 받기",
+        sns_login: "SNS 계정으로 로그인",
+        google_login: "Google로 로그인",
       },
       my_page: {
         edit_profile: "내 정보 수정",
@@ -358,7 +360,9 @@ const resources = {
         sent: "Sent",
         temporary_password_sent: "A temporary password was sent to your registered email.",
         temporary_password_helper: "A temporary password will be sent to your registered email.",
-        get_temporary_password: "Get Temporary Password"
+        get_temporary_password: "Get Temporary Password",
+        sns_login: "Log in with SNS account",
+        google_login: "Sign in with Google",
       },
       my_page: {
         edit_profile: "Edit Profile",

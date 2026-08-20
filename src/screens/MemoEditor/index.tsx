@@ -156,6 +156,8 @@ export default function MemoEditor({
     isPickingMedia,
     selectMedia,
     removeMedia,
+    existingImages,
+    removeExistingImage,
     resetForm,
     isLoading,
     handleSave,
@@ -185,6 +187,7 @@ export default function MemoEditor({
     useEditorContent(editor, { type: 'text', debounceInterval: 100 }) ??
     content;
   const initializedMemoRef = useRef<string | null>(null);
+  const isSavingRef = useRef(false);
 
   // 화면 내부 동작 전용 상태 (모달)
   const [isModalVisible, setModalVisible] = useState(false);
@@ -217,7 +220,11 @@ export default function MemoEditor({
   }, [clearRichEditor, navigation]);
 
   const saveMemo = useCallback(async () => {
-    if (!editorState.isReady) return;
+    // isLoading은 editor.getText()/getJSON() 왕복이 끝난 뒤에야 true가 되므로,
+    // 그 사이 저장 버튼을 빠르게 두 번 누르면 메모가 중복 생성될 수 있다.
+    // ref로 그 창을 즉시 막는다.
+    if (!editorState.isReady || isSavingRef.current) return;
+    isSavingRef.current = true;
     try {
       const [plainText, document] = await Promise.all([
         editor.getText(),
@@ -233,6 +240,8 @@ export default function MemoEditor({
       });
     } catch {
       Alert.alert(t('common.error'), t('memo_editor.editor_failed'));
+    } finally {
+      isSavingRef.current = false;
     }
   }, [editor, editorState.isReady, handleSave, handleSaveSuccess, memoId, t]);
 
@@ -370,6 +379,25 @@ export default function MemoEditor({
                   activeOpacity={0.8}
                   disabled={isLoading}
                   onPress={() => removeMedia(file.uri)}
+                >
+                  <Icon name="close" size={16} color="#FFFFFF" />
+                </MediaRemoveButton>
+              </MediaPreviewBox>
+            ))
+          ) : existingImages.length > 0 ? (
+            existingImages.map(image => (
+              <MediaPreviewBox key={image.imageId}>
+                <MediaThumbnail
+                  source={{uri: image.imageUrl}}
+                  resizeMode="cover"
+                />
+                <MediaRemoveButton
+                  accessibilityLabel={t('memo_editor.remove_attachment', {
+                    name: t('memo_editor.add_image'),
+                  })}
+                  activeOpacity={0.8}
+                  disabled={isLoading}
+                  onPress={() => removeExistingImage(image.imageId)}
                 >
                   <Icon name="close" size={16} color="#FFFFFF" />
                 </MediaRemoveButton>

@@ -1,4 +1,5 @@
 import type {ApiMutationResponse, EntityId} from './api';
+import type {MemoImage} from './file';
 import type {JSONContent} from '@tiptap/core';
 
 export type MemoStatus = 'FIRE' | 'ICE';
@@ -20,7 +21,7 @@ export interface MemoSummary {
 export interface MemoDetail extends MemoSummary {
   content: string;
   richContent?: MemoRichContent | null;
-  imageUrls?: string[];
+  images?: MemoImage[];
   updatedAt?: string;
 }
 

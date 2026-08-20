@@ -1,9 +1,9 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {Alert, StatusBar, StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useTranslation} from 'react-i18next';
-import {RichText, useEditorBridge} from '@10play/tentap-editor';
+import {RichText, useBridgeState, useEditorBridge} from '@10play/tentap-editor';
 import Header from '../../components/Header';
 import BurningTimer from '../../components/BurningTimer';
 import AsyncState from '../../components/AsyncState';
@@ -83,6 +83,15 @@ export default function MemoDetail({
     dynamicHeight: true,
     theme: MEMO_EDITOR_THEME,
   });
+  const editorState = useBridgeState(editor);
+  const appliedContentRef = useRef<object | string | null>(null);
+
+  useEffect(() => {
+    if (!editorState.isReady) return;
+    if (appliedContentRef.current === initialEditorContent) return;
+    appliedContentRef.current = initialEditorContent;
+    editor.setContent(initialEditorContent);
+  }, [editor, editorState.isReady, initialEditorContent]);
 
   const injectEditorStyles = useCallback(() => {
     editor.injectCSS(`
@@ -113,6 +122,7 @@ export default function MemoDetail({
           status: memo.status,
           expiredAt: memo.expiredAt,
           createdAt: memo.createdAt,
+          images: memo.images,
         },
       },
     });
@@ -250,10 +260,14 @@ export default function MemoDetail({
           />
         </RichEditorFrame>
 
-        {memo.imageUrls?.length ? (
+        {memo.images?.length ? (
           <ImageSection>
-            {memo.imageUrls.map(url => (
-              <MemoImage key={url} source={{uri: url}} resizeMode="cover" />
+            {memo.images.map(image => (
+              <MemoImage
+                key={image.imageId}
+                source={{uri: image.imageUrl}}
+                resizeMode="cover"
+              />
             ))}
           </ImageSection>
         ) : null}
