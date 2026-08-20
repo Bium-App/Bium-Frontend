@@ -13,6 +13,7 @@ import type {
   SignUpRequest,
   SignUpResponse,
   SocialLoginRequest,
+  SocialLoginResponse,
   TwoFactorRequest,
   TwoFactorResponse,
   VerifyPasswordResponse,
@@ -57,8 +58,8 @@ export const loginApi = async ({
 
 export const socialLoginApi = async (
   request: SocialLoginRequest,
-): Promise<SessionResponse> => {
-  const response = await apiClient.post<SessionResponse>(
+): Promise<SocialLoginResponse> => {
+  const response = await apiClient.post<SocialLoginResponse>(
     '/api/auth/social-login',
     request,
   );
@@ -115,11 +116,10 @@ export const twoFactorApi = async ({
 export const logoutApi = async (
   type: LogoutType = 'CURRENT',
 ): Promise<ApiMutationResponse> => {
-  const refreshToken = await getRefreshToken();
   const body =
     type === 'CURRENT'
-      ? {refreshToken}
-      : {};
+      ? {refreshToken: await getRefreshToken()}
+      : null;
   const response = await apiClient.post<ApiMutationResponse>(
     '/api/auth/logout',
     body,

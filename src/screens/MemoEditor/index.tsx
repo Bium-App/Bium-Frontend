@@ -13,6 +13,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
+import type { ImageLoadEvent } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import type { CompositeScreenProps } from '@react-navigation/native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -192,6 +193,23 @@ export default function MemoEditor({
   // 화면 내부 동작 전용 상태 (모달)
   const [isModalVisible, setModalVisible] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
+  const [imageAspectRatios, setImageAspectRatios] = useState<
+    Record<string, number>
+  >({});
+
+  const rememberImageAspectRatio = useCallback(
+    (uri: string, event: ImageLoadEvent) => {
+      const { width, height } = event.nativeEvent.source;
+      if (!width || !height) return;
+      const aspectRatio = width / height;
+      setImageAspectRatios(current =>
+        current[uri] === aspectRatio
+          ? current
+          : { ...current, [uri]: aspectRatio },
+      );
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!editorState.isReady) return;
@@ -365,8 +383,15 @@ export default function MemoEditor({
 
           {mediaFiles.length > 0 ? (
             mediaFiles.map(file => (
-              <MediaPreviewBox key={file.uri}>
-                <MediaThumbnail source={{uri: file.uri}} resizeMode="cover" />
+              <MediaPreviewBox
+                key={file.uri}
+                $aspectRatio={imageAspectRatios[file.uri]}
+              >
+                <MediaThumbnail
+                  source={{uri: file.uri}}
+                  resizeMode="cover"
+                  onLoad={event => rememberImageAspectRatio(file.uri, event)}
+                />
                 <MediaCaption pointerEvents="none">
                   <Icon name="image-outline" size={13} color="#FFFFFF" />
                   <MediaName numberOfLines={1}>{file.name}</MediaName>
@@ -386,10 +411,16 @@ export default function MemoEditor({
             ))
           ) : existingImages.length > 0 ? (
             existingImages.map(image => (
-              <MediaPreviewBox key={image.imageId}>
+              <MediaPreviewBox
+                key={image.imageId}
+                $aspectRatio={imageAspectRatios[image.imageUrl]}
+              >
                 <MediaThumbnail
                   source={{uri: image.imageUrl}}
                   resizeMode="cover"
+                  onLoad={event =>
+                    rememberImageAspectRatio(image.imageUrl, event)
+                  }
                 />
                 <MediaRemoveButton
                   accessibilityLabel={t('memo_editor.remove_attachment', {

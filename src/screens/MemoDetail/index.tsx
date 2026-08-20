@@ -1,5 +1,6 @@
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Alert, StatusBar, StyleSheet} from 'react-native';
+import type {ImageLoadEvent} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useTranslation} from 'react-i18next';
@@ -85,6 +86,23 @@ export default function MemoDetail({
   });
   const editorState = useBridgeState(editor);
   const appliedContentRef = useRef<object | string | null>(null);
+  const [imageAspectRatios, setImageAspectRatios] = useState<
+    Record<string, number>
+  >({});
+
+  const rememberImageAspectRatio = useCallback(
+    (uri: string, event: ImageLoadEvent) => {
+      const {width, height} = event.nativeEvent.source;
+      if (!width || !height) return;
+      const aspectRatio = width / height;
+      setImageAspectRatios(current =>
+        current[uri] === aspectRatio
+          ? current
+          : {...current, [uri]: aspectRatio},
+      );
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!editorState.isReady) return;
@@ -267,6 +285,10 @@ export default function MemoDetail({
                 key={image.imageId}
                 source={{uri: image.imageUrl}}
                 resizeMode="cover"
+                $aspectRatio={imageAspectRatios[image.imageUrl]}
+                onLoad={event =>
+                  rememberImageAspectRatio(image.imageUrl, event)
+                }
               />
             ))}
           </ImageSection>

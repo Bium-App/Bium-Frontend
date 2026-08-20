@@ -7,6 +7,9 @@ jest.mock('../src/api/client', () => ({
     delete: jest.fn(),
   },
 }));
+jest.mock('../src/utils/excludeSelf', () => ({
+  excludeSelf: jest.fn(async users => users),
+}));
 
 import apiClient from '../src/api/client';
 import {
@@ -16,6 +19,7 @@ import {
   logoutApi,
   logoutDeviceApi,
   signUpApi,
+  socialLoginApi,
   twoFactorApi,
   verifyPasswordApi,
 } from '../src/api/auth';
@@ -23,6 +27,7 @@ import {
   deleteUserApi,
   getUserApi,
   getUserSettingsApi,
+  searchUsersApi,
   updateUserApi,
   updateUserSettingsApi,
 } from '../src/api/users';
@@ -45,7 +50,6 @@ import {
   getReceivedFriendRequestsApi,
   getRecommendedFriendsApi,
   getSentFriendRequestsApi,
-  searchFriendsApi,
   rejectFriendRequestApi,
   sendFriendRequestApi,
 } from '../src/api/friends';
@@ -102,7 +106,7 @@ beforeEach(() => {
   );
 });
 
-test('8/13 v1.3 인증·기기 계약을 사용한다', async () => {
+test('v1.18 인증·Google 로그인·기기 계약을 사용한다', async () => {
   await signUpApi({
     loginId: 'blaze',
     password: 'pw',
@@ -124,6 +128,14 @@ test('8/13 v1.3 인증·기기 계약을 사용한다', async () => {
   await loginApi({
     loginId: 'blaze',
     password: 'pw',
+    deviceName: 'ios-26.5',
+  });
+  await socialLoginApi({
+    provider: 'GOOGLE',
+    providerId: 'google-user-id',
+    email: 'google@example.com',
+    name: '구글 사용자',
+    profileImageUrl: 'https://image.example.com/profile.jpg',
     deviceName: 'ios-26.5',
   });
 
@@ -151,6 +163,14 @@ test('8/13 v1.3 인증·기기 계약을 사용한다', async () => {
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/login', {
     loginId: 'blaze',
     password: 'pw',
+    deviceName: 'ios-26.5',
+  });
+  expect(apiClient.post).toHaveBeenCalledWith('/api/auth/social-login', {
+    provider: 'GOOGLE',
+    providerId: 'google-user-id',
+    email: 'google@example.com',
+    name: '구글 사용자',
+    profileImageUrl: 'https://image.example.com/profile.jpg',
     deviceName: 'ios-26.5',
   });
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/verify-password', {
@@ -204,7 +224,7 @@ test('사용자 API는 토큰 기반 me 경로를 사용한다', async () => {
   expect(apiClient.delete).toHaveBeenCalledWith('/api/users/me');
 });
 
-test('메모와 휴지통 API는 8/13 v1.3 경로와 문자열 PIN을 사용한다', async () => {
+test('메모와 휴지통 API는 v1.18 경로와 문자열 PIN을 사용한다', async () => {
   const richContent = JSON.stringify({
     version: 1,
     type: 'doc',
@@ -270,8 +290,8 @@ test('메모와 휴지통 API는 8/13 v1.3 경로와 문자열 PIN을 사용한�
   });
 });
 
-test('친구 API는 type과 action 쿼리를 사용한다', async () => {
-  await searchFriendsApi('친구');
+test('친구 API는 사용자 검색과 type·action 쿼리를 사용한다', async () => {
+  await searchUsersApi('친구');
   await getRecommendedFriendsApi();
   await getReceivedFriendRequestsApi();
   await getSentFriendRequestsApi();
@@ -280,8 +300,8 @@ test('친구 API는 type과 action 쿼리를 사용한다', async () => {
   await rejectFriendRequestApi(5);
   await cancelFriendRequestApi(6);
 
-  expect(apiClient.get).toHaveBeenCalledWith('/api/friends', {
-    params: { type: 'SEARCH', keyword: '친구' },
+  expect(apiClient.get).toHaveBeenCalledWith('/api/users/search', {
+    params: {nickname: '친구'},
   });
   expect(apiClient.get).toHaveBeenCalledWith('/api/friends', {
     params: { type: 'RECOMMEND' },
@@ -310,7 +330,7 @@ test('친구 API는 type과 action 쿼리를 사용한다', async () => {
   expect(apiClient.delete).toHaveBeenCalledWith('/api/friends/requests/6');
 });
 
-test('팀 공지와 할 일은 8/13 v1.3 목록·상세·전체 수정 계약을 사용한다', async () => {
+test('팀 공지와 할 일은 v1.18 목록·상세·전체 수정 계약을 사용한다', async () => {
   await addTeamMemberApi(2, 8);
   await getTeamNoticesApi(2);
   await createTeamNoticeApi(2, {
@@ -422,7 +442,7 @@ test('팀 목록의 빈 응답은 안전하게 빈 배열로 처리한다', asyn
   expect(apiClient.get).toHaveBeenCalledWith('/api/team-spaces');
 });
 
-test('일정·검색·문의·공지·알림은 8/13 v1.3 통합 계약을 사용한다', async () => {
+test('일정·검색·문의·공지·알림은 v1.18 통합 계약을 사용한다', async () => {
   const schedule = {
     teamSpaceId: 2,
     title: '회의',

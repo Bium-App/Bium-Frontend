@@ -175,7 +175,9 @@ export default function Home({navigation}: HomeScreenProps) {
             onPress={openMemoDetail}
             onMore={openMemoMenu}
             onPin={memo => toggleMemoPin(memo.id, memo.isPinned)}
-            onStatusChange={(memo, status) => changeMemoStatus(memo.id, status)}
+            onStatusChange={(memo, status) =>
+              changeMemoStatus(memo.id, status, memo.isPinned)
+            }
           />
         )}
         ListEmptyComponent={

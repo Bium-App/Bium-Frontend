@@ -74,7 +74,7 @@ export type RootStackParamList = {
   FriendAdd: undefined;
   FriendRequestList: undefined;
   TeamCreate: undefined;
-  EditProfile: undefined;
+  EditProfile: {onboarding?: boolean} | undefined;
   Language: undefined;
   SettingNotification: undefined;
   Privacy: undefined;

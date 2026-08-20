@@ -82,7 +82,10 @@ apiClient.interceptors.request.use(async config => {
 apiClient.interceptors.response.use(
   response => {
     logApiResponse(response);
-    if (response.config.url?.startsWith('/api/auth/login')) {
+    if (
+      response.config.url?.startsWith('/api/auth/login') ||
+      response.config.url?.startsWith('/api/auth/social-login')
+    ) {
       didShowSessionExpiredAlert = false;
     }
     return response;

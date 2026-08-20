@@ -205,9 +205,9 @@ export const UploadSub = styled.Text`
   color: #c99465;
 `;
 
-export const MediaPreviewBox = styled.View`
+export const MediaPreviewBox = styled.View<{ $aspectRatio?: number }>`
   width: 100%;
-  height: 180px;
+  aspect-ratio: ${({ $aspectRatio }) => $aspectRatio ?? 16 / 9};
   border-radius: 14px;
   overflow: hidden;
   margin-bottom: 16px;

@@ -32,8 +32,12 @@ import {
   SubmitText,
 } from './EditProfile.styles';
 
-export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>) {
+export default function EditProfile({
+  navigation,
+  route,
+}: RootScreenProps<'EditProfile'>) {
   const {t} = useTranslation();
+  const isOnboarding = route.params?.onboarding === true;
   const {
     user,
     name,
@@ -59,14 +63,14 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
   return (
     <Container>
       <Header
-        left={
+        left={isOnboarding ? undefined : (
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
           >
             <Icon name="chevron-back-outline" size={24} color="#FF8933" />
           </TouchableOpacity>
-        }
+        )}
         title={t('my_page.edit_profile')}
       />
 
@@ -172,7 +176,18 @@ export default function EditProfile({navigation}: RootScreenProps<'EditProfile'>
             <SubmitButton
               activeOpacity={0.8}
               disabled={isBusy}
-              onPress={() => handleSubmit(() => navigation.goBack())}
+              onPress={() =>
+                handleSubmit(() => {
+                  if (isOnboarding) {
+                    navigation.reset({
+                      index: 0,
+                      routes: [{name: 'MainTabs'}],
+                    });
+                  } else {
+                    navigation.goBack();
+                  }
+                })
+              }
             >
               {isSubmitting ? (
                 <ActivityIndicator color="#FFFFFF" size="small" />

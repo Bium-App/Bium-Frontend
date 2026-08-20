@@ -32,6 +32,12 @@ describe('인증 실패 재시도 판별', () => {
     expect(
       shouldRefreshAccessToken({
         status: 401,
+        url: '/api/auth/social-login',
+      }),
+    ).toBe(false);
+    expect(
+      shouldRefreshAccessToken({
+        status: 401,
         url: '/api/memos',
         alreadyRetried: true,
       }),

@@ -36,6 +36,7 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
   const fillAnimation = useRef(new Animated.Value(0)).current;
   const pressAnimation = useRef(new Animated.Value(1)).current;
   const isSubmittingRef = useRef(false);
+  const isAnyLoginLoading = isLoading || isSocialLoading;
 
   const handleLogin = () => {
     // isLoading 상태는 애니메이션이 끝난 뒤에야 true가 되므로, 그 사이
@@ -68,7 +69,20 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
   };
 
   const handleSocialLogin = () => {
-    handleGoogleLogin(() => navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] }));
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    handleGoogleLogin(session => {
+      if (session.isNewUser) {
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'EditProfile', params: {onboarding: true}}],
+        });
+        return;
+      }
+      navigation.reset({index: 0, routes: [{name: 'MainTabs'}]});
+    }).finally(() => {
+      isSubmittingRef.current = false;
+    });
   };
 
   const backgroundColor = fillAnimation.interpolate({
@@ -99,7 +113,7 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
             value={loginId}
             onChangeText={setLoginId}
             autoCapitalize="none"
-            editable={!isLoading}
+            editable={!isAnyLoginLoading}
           />
         </InputWrapper>
         <InputWrapper>
@@ -109,11 +123,15 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            editable={!isLoading}
+            editable={!isAnyLoginLoading}
           />
         </InputWrapper>
         <AnimatedButtonContainer style={{ backgroundColor }}>
-          <LoginButtonTouch onPress={handleLogin} disabled={isLoading} activeOpacity={1}>
+          <LoginButtonTouch
+            onPress={handleLogin}
+            disabled={isAnyLoginLoading}
+            activeOpacity={1}
+          >
             <AnimatedButtonText style={{ color: textColor, transform: [{ scale: pressAnimation }] }}>
               {isLoading ? t('auth.logging_in') : t('common.login')}
             </AnimatedButtonText>
@@ -143,7 +161,7 @@ export default function Login({navigation}: RootScreenProps<'Login'>) {
           accessibilityLabel="Google"
           activeOpacity={0.7}
           onPress={handleSocialLogin}
-          disabled={isSocialLoading}
+          disabled={isAnyLoginLoading}
         >
           <GoogleIcon width={20} height={20} />
           <GoogleButtonText>

@@ -70,9 +70,9 @@ export const ImageSection = styled.View`
   gap: 10px;
 `;
 
-export const MemoImage = styled.Image`
+export const MemoImage = styled.Image<{ $aspectRatio?: number }>`
   width: 100%;
-  height: 220px;
+  aspect-ratio: ${({ $aspectRatio }) => $aspectRatio ?? 16 / 9};
   border-radius: 14px;
   background-color: #f4f6f8;
   shadow-color: #6b6ea1;

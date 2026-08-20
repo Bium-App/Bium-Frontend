@@ -6,6 +6,7 @@ interface AuthRetryCandidate {
 
 const PUBLIC_AUTH_PATHS = [
   '/api/auth/login',
+  '/api/auth/social-login',
   '/api/auth/signup',
   '/api/auth/find',
   '/api/auth/refresh',

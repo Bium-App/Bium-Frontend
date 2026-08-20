@@ -4,11 +4,15 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {socialLoginApi} from '../api/auth';
 import {storeSession} from '../utils/authStorage';
 import {getApiResponseMessage, getErrorMessage} from '../utils/apiError';
+import {getDeviceName} from '../utils/deviceName';
+import type {SocialLoginResponse} from '../types/auth';
 
 export const useSocialLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleGoogleLogin = async (onSuccess?: () => void): Promise<void> => {
+  const handleGoogleLogin = async (
+    onSuccess?: (session: SocialLoginResponse) => void,
+  ): Promise<void> => {
     setIsLoading(true);
     try {
       if (Platform.OS === 'android') {
@@ -27,10 +31,11 @@ export const useSocialLogin = () => {
         email: user.email,
         name: user.name ?? user.givenName ?? '',
         profileImageUrl: user.photo ?? undefined,
+        deviceName: getDeviceName(),
       });
 
       await storeSession(sessionData);
-      onSuccess?.();
+      onSuccess?.(sessionData);
     } catch (error) {
       Alert.alert(
         '구글 로그인 실패',

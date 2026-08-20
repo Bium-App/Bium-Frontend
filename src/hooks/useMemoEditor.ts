@@ -2,12 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import dayjs from 'dayjs';
 import { createMemoApi, updateMemoApi } from '../api/memos';
-import {
-  addMemoImageApi,
-  deleteMemoImageApi,
-  uploadSelectedFileApi,
-} from '../api/files';
-import { FILE_DOMAINS, pickMemoImageFiles } from '../utils/filePicker';
+import {pickMemoImageFiles} from '../utils/filePicker';
 import { formatApiDateTime } from '../utils/dateTime';
 import { getApiResponseMessage, getErrorMessage } from '../utils/apiError';
 import type { EntityId } from '../types/api';
@@ -15,6 +10,7 @@ import type { MemoEditorData } from '../types/navigation';
 import type { MemoImage, SelectedFile } from '../types/file';
 import type { MemoRichContent } from '../types/memo';
 import { saveRecentFile } from '../utils/recentFiles';
+import {saveMemoImageChanges} from '../utils/memoImageSync';
 
 const getExpiration = (timer: string): string | null => {
   const hours = Number.parseInt(timer, 10);
@@ -33,6 +29,7 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
   const [existingImages, setExistingImages] = useState<MemoImage[]>(
     initialData?.images ?? [],
   );
+  const [removedImageIds, setRemovedImageIds] = useState<EntityId[]>([]);
 
   const selectMedia = useCallback(async (): Promise<void> => {
     if (isPickingMedia) return;
@@ -58,24 +55,18 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
     setMediaFiles(current => current.filter(file => file.uri !== uri));
   }, []);
 
-  const removeExistingImage = useCallback(
-    async (imageId: EntityId): Promise<void> => {
-      try {
-        await deleteMemoImageApi(imageId);
-        setExistingImages(current =>
-          current.filter(image => String(image.imageId) !== String(imageId)),
-        );
-      } catch (error) {
-        Alert.alert(
-          '이미지 삭제 실패',
-          getApiResponseMessage(error) ??
-            getErrorMessage(error) ??
-            '이미지를 삭제하지 못했습니다.',
-        );
-      }
-    },
-    [],
-  );
+  const removeExistingImage = useCallback((imageId: EntityId): void => {
+    // 편집 취소 시 원본이 유지되도록 화면에서만 숨기고, 실제 삭제는
+    // 사용자가 저장을 확정한 뒤 처리한다.
+    setRemovedImageIds(current =>
+      current.some(id => String(id) === String(imageId))
+        ? current
+        : [...current, imageId],
+    );
+    setExistingImages(current =>
+      current.filter(image => String(image.imageId) !== String(imageId)),
+    );
+  }, []);
 
   const resetForm = useCallback((): void => {
     setTitle('');
@@ -83,6 +74,7 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
     setTimer('24h');
     setMediaFiles([]);
     setExistingImages(initialData?.images ?? []);
+    setRemovedImageIds([]);
   }, [initialData?.images]);
 
   useEffect(() => {
@@ -91,6 +83,7 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
     setTimer('24h');
     setMediaFiles([]);
     setExistingImages(initialData?.images ?? []);
+    setRemovedImageIds([]);
   }, [
     initialData?.content,
     initialData?.id,
@@ -139,20 +132,11 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
           if (!savedMemoId) {
             throw new Error('저장된 메모 ID를 확인할 수 없습니다.');
           }
-          // 이미지는 1개만 유지하므로, 새 이미지를 첨부하기 전에
-          // 아직 남아있는 기존 이미지를 먼저 지운다.
-          if (existingImages.length > 0) {
-            await Promise.all(
-              existingImages.map(image => deleteMemoImageApi(image.imageId)),
-            );
-          }
-          for (const mediaFile of mediaFiles) {
-            const mediaUrl = await uploadSelectedFileApi({
-              domain: FILE_DOMAINS.MEMO,
-              file: mediaFile,
-            });
-            await addMemoImageApi(savedMemoId, mediaUrl);
-          }
+          await saveMemoImageChanges({
+            memoId: savedMemoId,
+            newFiles: mediaFiles,
+            removedImageIds,
+          });
         } catch (uploadError) {
           resetForm();
           Alert.alert(
@@ -161,6 +145,28 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
               getApiResponseMessage(uploadError) ??
               getErrorMessage(uploadError) ??
               '업로드 오류가 발생했습니다.'
+            }`,
+          );
+          onSuccess?.();
+          return;
+        }
+      } else if (removedImageIds.length > 0) {
+        try {
+          if (!savedMemoId) {
+            throw new Error('저장된 메모 ID를 확인할 수 없습니다.');
+          }
+          await saveMemoImageChanges({
+            memoId: savedMemoId,
+            newFiles: [],
+            removedImageIds,
+          });
+        } catch (deleteError) {
+          Alert.alert(
+            '이미지 삭제 실패',
+            `메모는 저장됐지만 기존 이미지를 삭제하지 못했습니다.\n${
+              getApiResponseMessage(deleteError) ??
+              getErrorMessage(deleteError) ??
+              '삭제 오류가 발생했습니다.'
             }`,
           );
           onSuccess?.();

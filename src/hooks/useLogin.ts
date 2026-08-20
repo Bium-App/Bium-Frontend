@@ -1,13 +1,12 @@
 import {useState} from 'react';
-import {Alert, Platform} from 'react-native';
+import {Alert} from 'react-native';
 import {loginApi} from '../api/auth';
 import {storeSession} from '../utils/authStorage';
+import {getDeviceName} from '../utils/deviceName';
 import {
   getApiResponseMessage,
   getErrorMessage,
 } from '../utils/apiError';
-
-const getDeviceName = (): string => `${Platform.OS}-${Platform.Version}`;
 
 export const useLogin = () => {
   const [loginId, setLoginId] = useState('');

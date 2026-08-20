@@ -78,17 +78,27 @@ export const useDeviceManagement = () => {
     if (isLoggingOutRef.current) return false;
     isLoggingOutRef.current = true;
     setIsLoading(true);
+    let isCurrent = false;
     try {
       const currentDeviceId = await getDeviceId();
-      const isCurrent = String(deviceId) === String(currentDeviceId);
+      isCurrent = String(deviceId) === String(currentDeviceId);
       await logoutDeviceApi(deviceId);
-      if (isCurrent) await clearSession();
-      else await fetchDevices();
-      return isCurrent;
+    } catch (error) {
+      // 다른 기기 로그아웃 실패는 목록 화면에서 처리하고, 현재 기기는
+      // 서버 결과와 관계없이 로컬 인증 정보를 제거한다.
+      if (!isCurrent) throw error;
     } finally {
+      if (isCurrent) {
+        await clearSession().catch(() => undefined);
+      }
       setIsLoading(false);
       isLoggingOutRef.current = false;
     }
+
+    if (!isCurrent) {
+      await fetchDevices();
+    }
+    return isCurrent;
   };
 
   const logoutAllDevices = async (): Promise<void> => {
@@ -97,8 +107,10 @@ export const useDeviceManagement = () => {
     setIsLoading(true);
     try {
       await logoutApi('ALL');
-      await clearSession();
+    } catch {
+      // 서버 응답과 관계없이 현재 기기의 로그아웃은 완료한다.
     } finally {
+      await clearSession().catch(() => undefined);
       setIsLoading(false);
       isLoggingOutRef.current = false;
     }

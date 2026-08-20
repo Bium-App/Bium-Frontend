@@ -62,6 +62,11 @@ export interface SocialLoginRequest {
   email: string;
   name: string;
   profileImageUrl?: string;
+  deviceName: string;
+}
+
+export interface SocialLoginResponse extends SessionResponse {
+  isNewUser: boolean;
 }
 
 export interface LoginDevice {
