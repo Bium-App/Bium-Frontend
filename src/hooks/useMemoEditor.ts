@@ -10,13 +10,26 @@ import type { MemoEditorData } from '../types/navigation';
 import type { MemoImage, SelectedFile } from '../types/file';
 import type { MemoRichContent } from '../types/memo';
 import { saveRecentFile } from '../utils/recentFiles';
-import {saveMemoImageChanges} from '../utils/memoImageSync';
+import {
+  MemoImageSyncError,
+  saveMemoImageChanges,
+} from '../utils/memoImageSync';
 
 const getExpiration = (timer: string): string | null => {
   const hours = Number.parseInt(timer, 10);
   return Number.isFinite(hours)
     ? formatApiDateTime(dayjs().add(hours, 'hour'))
     : null;
+};
+
+const getImageSyncErrorDetail = (error: unknown): string => {
+  const source =
+    error instanceof MemoImageSyncError ? error.originalError : error;
+  return (
+    getApiResponseMessage(source) ??
+    getErrorMessage(source) ??
+    '서버에서 이미지 변경을 처리하지 못했습니다.'
+  );
 };
 
 export const useMemoEditor = (initialData?: MemoEditorData) => {
@@ -138,16 +151,53 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
             removedImageIds,
           });
         } catch (uploadError) {
-          resetForm();
-          Alert.alert(
-            '이미지 업로드 실패',
-            `메모는 저장됐지만 이미지를 첨부하지 못했습니다.\n${
-              getApiResponseMessage(uploadError) ??
-              getErrorMessage(uploadError) ??
-              '업로드 오류가 발생했습니다.'
-            }`,
-          );
-          onSuccess?.();
+          if (
+            uploadError instanceof MemoImageSyncError &&
+            uploadError.serverImages
+          ) {
+            // 복구 결과를 화면에도 반영해 사용자가 실제 서버 상태를 보고
+            // 남길 이미지를 다시 선택할 수 있게 한다.
+            setExistingImages(uploadError.serverImages);
+            setMediaFiles([]);
+            setRemovedImageIds([]);
+          }
+
+          const detail = getImageSyncErrorDetail(uploadError);
+          if (uploadError instanceof MemoImageSyncError) {
+            switch (uploadError.code) {
+              case 'UPLOAD_FAILED':
+                Alert.alert(
+                  '이미지 업로드 실패',
+                  `메모 내용은 저장됐지만 새 이미지 파일을 업로드하지 못했습니다.\n${detail}`,
+                );
+                break;
+              case 'ATTACH_FAILED':
+                Alert.alert(
+                  '이미지 연결 실패',
+                  `메모 내용은 저장됐지만 업로드한 이미지를 메모에 연결하지 못했습니다.\n${detail}`,
+                );
+                break;
+              case 'EXISTING_DELETE_FAILED':
+                Alert.alert(
+                  '기존 이미지 삭제 실패',
+                  `새 이미지 연결은 취소하고 서버의 이미지 상태를 다시 불러왔습니다. 다시 저장해주세요.\n${detail}`,
+                );
+                break;
+              case 'RECOVERY_FAILED':
+                Alert.alert(
+                  '이미지 교체 복구 필요',
+                  uploadError.serverImages
+                    ? `기존 이미지와 새 이미지가 모두 남아 있을 수 있어 서버 상태를 다시 불러왔습니다. 화면에서 남길 이미지 하나를 선택해 다시 저장해주세요.\n${detail}`
+                    : `이미지 관계 자동 복구와 서버 상태 확인에 실패했습니다. 잠시 후 메모를 다시 열어 이미지를 확인해주세요.\n${detail}`,
+                );
+                break;
+            }
+          } else {
+            Alert.alert(
+              '이미지 변경 실패',
+              `메모 내용은 저장됐지만 이미지 변경을 완료하지 못했습니다.\n${detail}`,
+            );
+          }
           return;
         }
       } else if (removedImageIds.length > 0) {
@@ -161,15 +211,11 @@ export const useMemoEditor = (initialData?: MemoEditorData) => {
             removedImageIds,
           });
         } catch (deleteError) {
+          const detail = getImageSyncErrorDetail(deleteError);
           Alert.alert(
             '이미지 삭제 실패',
-            `메모는 저장됐지만 기존 이미지를 삭제하지 못했습니다.\n${
-              getApiResponseMessage(deleteError) ??
-              getErrorMessage(deleteError) ??
-              '삭제 오류가 발생했습니다.'
-            }`,
+            `메모 내용은 저장됐지만 기존 이미지를 삭제하지 못했습니다. 다시 저장해주세요.\n${detail}`,
           );
-          onSuccess?.();
           return;
         }
       }

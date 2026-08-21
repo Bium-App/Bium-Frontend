@@ -25,10 +25,16 @@ export const useSocialLogin = () => {
       const response = await GoogleSignin.signIn();
       if (response.type !== 'success') return;
 
-      const {user} = response.data;
+      const {user, idToken} = response.data;
+      if (!idToken) {
+        Alert.alert('구글 로그인 실패', '구글 인증 토큰을 받아오지 못했습니다.');
+        return;
+      }
+
       const sessionData = await socialLoginApi({
         provider: 'GOOGLE',
         providerId: user.id,
+        idToken,
         email: user.email,
         name: user.name ?? user.givenName ?? '',
         profileImageUrl: user.photo ?? undefined,

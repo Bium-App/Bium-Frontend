@@ -59,6 +59,7 @@ export type SocialProvider = 'GOOGLE';
 export interface SocialLoginRequest {
   provider: SocialProvider;
   providerId: string;
+  idToken: string;
   email: string;
   name: string;
   profileImageUrl?: string;
