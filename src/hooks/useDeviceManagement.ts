@@ -1,0 +1,127 @@
+import {useCallback, useRef, useState} from 'react';
+import dayjs from 'dayjs';
+import {useFocusEffect} from '@react-navigation/native';
+import {getDevicesApi, logoutApi, logoutDeviceApi} from '../api/auth';
+import {clearSession, getDeviceId} from '../utils/authStorage';
+import {getApiErrorMessage} from '../utils/apiError';
+import type {EntityId} from '../types/api';
+
+export type DeviceType = 'mobile' | 'tablet' | 'laptop';
+
+export interface DeviceListItem {
+  id: string;
+  name: string;
+  type: DeviceType;
+  isCurrent: boolean;
+  time: string;
+}
+
+const getDeviceType = (deviceName?: string): DeviceType => {
+  const normalizedName = deviceName?.toLowerCase() ?? '';
+  if (normalizedName.includes('ipad') || normalizedName.includes('tablet')) {
+    return 'tablet';
+  }
+  if (
+    normalizedName.includes('mac') ||
+    normalizedName.includes('windows') ||
+    normalizedName.includes('pc')
+  ) {
+    return 'laptop';
+  }
+  return 'mobile';
+};
+
+export const useDeviceManagement = () => {
+  const [devices, setDevices] = useState<DeviceListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  // 로그아웃 요청이 동시에 두 번 나가면 서버가 500을 낸다. isLoading은
+  // 비동기라 빠른 연타를 못 막을 수 있어 ref로 즉시 막는다.
+  const isLoggingOutRef = useRef(false);
+
+  const fetchDevices = useCallback(async (): Promise<void> => {
+    setIsLoading(true);
+    setErrorMessage('');
+    try {
+      const [currentDeviceId, data] = await Promise.all([
+        getDeviceId(),
+        getDevicesApi(),
+      ]);
+      setDevices(
+        data.map(device => ({
+          id: String(device.deviceId),
+          name: device.deviceName,
+          type: getDeviceType(device.deviceName),
+          isCurrent: String(device.deviceId) === String(currentDeviceId),
+          time: device.lastLoginAt
+            ? dayjs(device.lastLoginAt).format('YYYY.MM.DD HH:mm')
+            : '',
+        })),
+      );
+    } catch (error) {
+      setDevices([]);
+      setErrorMessage(
+        getApiErrorMessage(error, '로그인 기기를 불러오지 못했습니다.'),
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDevices();
+    }, [fetchDevices]),
+  );
+
+  const logoutDevice = async (deviceId: EntityId): Promise<boolean> => {
+    if (isLoggingOutRef.current) return false;
+    isLoggingOutRef.current = true;
+    setIsLoading(true);
+    let isCurrent = false;
+    try {
+      const currentDeviceId = await getDeviceId();
+      isCurrent = String(deviceId) === String(currentDeviceId);
+      await logoutDeviceApi(deviceId);
+    } catch (error) {
+      // 다른 기기 로그아웃 실패는 목록 화면에서 처리하고, 현재 기기는
+      // 서버 결과와 관계없이 로컬 인증 정보를 제거한다.
+      if (!isCurrent) throw error;
+    } finally {
+      if (isCurrent) {
+        await clearSession().catch(() => undefined);
+      }
+      setIsLoading(false);
+      isLoggingOutRef.current = false;
+    }
+
+    if (!isCurrent) {
+      await fetchDevices();
+    }
+    return isCurrent;
+  };
+
+  const logoutAllDevices = async (): Promise<void> => {
+    if (isLoggingOutRef.current) return;
+    isLoggingOutRef.current = true;
+    setIsLoading(true);
+    try {
+      await logoutApi('ALL');
+    } catch {
+      // 서버 응답과 관계없이 현재 기기의 로그아웃은 완료한다.
+    } finally {
+      await clearSession().catch(() => undefined);
+      setIsLoading(false);
+      isLoggingOutRef.current = false;
+    }
+  };
+
+  return {
+    devices,
+    isLoading,
+    errorMessage,
+    fetchDevices,
+    logoutDevice,
+    logoutAllDevices,
+  };
+};
