@@ -29,13 +29,22 @@ export const useTrash = () => {
       const memos = await getTrashMemosApi();
       setTrashItems(
         memos.map(memo => {
-          const elapsedDays = dayjs().diff(dayjs(memo.deletedAt), 'day');
-          const remainingDays = Math.max(0, 30 - elapsedDays);
+          const expiresAt = dayjs(memo.deletedAt).add(24, 'hour');
+          const remainingMinutes = Math.max(
+            0,
+            expiresAt.diff(dayjs(), 'minute'),
+          );
+          const remain =
+            remainingMinutes <= 0
+              ? 'D-Day'
+              : remainingMinutes < 60
+                ? `${remainingMinutes}분`
+                : `${Math.ceil(remainingMinutes / 60)}시간`;
           return {
             id: String(memo.memoId),
             title: memo.title,
             desc: memo.content ?? '',
-            remain: remainingDays ? `${remainingDays}일` : 'D-Day',
+            remain,
             status: memo.status,
           };
         }),

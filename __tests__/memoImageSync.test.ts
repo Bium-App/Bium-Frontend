@@ -77,3 +77,20 @@ test('새 이미지 메타데이터 연결이 실패해도 기존 이미지를 �
 
   expect(deleteMock).not.toHaveBeenCalled();
 });
+
+test('기존 이미지 삭제가 실패하면 새 이미지 연결을 되돌린다', async () => {
+  deleteMock
+    .mockRejectedValueOnce(new Error('delete old image failed'))
+    .mockResolvedValueOnce(undefined);
+
+  await expect(
+    saveMemoImageChanges({
+      memoId: 10,
+      newFiles: [selectedImage],
+      removedImageIds: [20],
+    }),
+  ).rejects.toThrow('delete old image failed');
+
+  expect(deleteMock).toHaveBeenNthCalledWith(1, 20);
+  expect(deleteMock).toHaveBeenNthCalledWith(2, 30);
+});

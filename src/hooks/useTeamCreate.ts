@@ -61,15 +61,23 @@ export const useTeamCreate = (navigation: Navigation) => {
       setSearchResults([]);
       return undefined;
     }
+    let isCurrentRequest = true;
     const timerId = setTimeout(async () => {
       try {
         const result = await searchUsersApi(keyword);
-        setSearchResults(result.map(mapMember));
+        if (isCurrentRequest) {
+          setSearchResults(result.map(mapMember));
+        }
       } catch {
-        setSearchResults([]);
+        if (isCurrentRequest) {
+          setSearchResults([]);
+        }
       }
     }, 300);
-    return () => clearTimeout(timerId);
+    return () => {
+      isCurrentRequest = false;
+      clearTimeout(timerId);
+    };
   }, [searchMember]);
 
   const toggleMember = (member: TeamMemberOption): void => {

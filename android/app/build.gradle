@@ -1,6 +1,29 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
+
+def releaseSigningValues = [
+    storeFile: System.getenv("BIUM_UPLOAD_STORE_FILE"),
+    storePassword: System.getenv("BIUM_UPLOAD_STORE_PASSWORD"),
+    keyAlias: System.getenv("BIUM_UPLOAD_KEY_ALIAS"),
+    keyPassword: System.getenv("BIUM_UPLOAD_KEY_PASSWORD"),
+]
+def hasReleaseSigning = releaseSigningValues.values().every {
+    it != null && !it.trim().isEmpty()
+}
+def requestedReleaseBuild = gradle.startParameter.taskNames.any {
+    it.toLowerCase().contains("release")
+}
+
+if (requestedReleaseBuild && !hasReleaseSigning) {
+    throw new GradleException(
+        "Play Store release signing is not configured. " +
+        "Set BIUM_UPLOAD_STORE_FILE, BIUM_UPLOAD_STORE_PASSWORD, " +
+        "BIUM_UPLOAD_KEY_ALIAS, and BIUM_UPLOAD_KEY_PASSWORD. " +
+        "For an internal standalone APK, run assembleTeamTest instead."
+    )
+}
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -84,6 +107,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [usesCleartextTraffic: "false"]
     }
     signingConfigs {
         debug {
@@ -92,15 +116,30 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(releaseSigningValues.storeFile)
+                storePassword releaseSigningValues.storePassword
+                keyAlias releaseSigningValues.keyAlias
+                keyPassword releaseSigningValues.keyPassword
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
+        }
+        teamTest {
+            initWith release
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            versionNameSuffix '-team-test'
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
