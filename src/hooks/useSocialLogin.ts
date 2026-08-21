@@ -5,6 +5,7 @@ import {socialLoginApi} from '../api/auth';
 import {storeSession} from '../utils/authStorage';
 import {getApiResponseMessage, getErrorMessage} from '../utils/apiError';
 import {getDeviceName} from '../utils/deviceName';
+import {getGoogleSignInErrorMessage} from '../utils/googleSignIn';
 import type {SocialLoginResponse} from '../types/auth';
 
 export const useSocialLogin = () => {
@@ -37,9 +38,12 @@ export const useSocialLogin = () => {
       await storeSession(sessionData);
       onSuccess?.(sessionData);
     } catch (error) {
+      const googleErrorMessage = getGoogleSignInErrorMessage(error);
+      if (googleErrorMessage === null) return;
       Alert.alert(
         '구글 로그인 실패',
-        getApiResponseMessage(error) ??
+        googleErrorMessage ??
+          getApiResponseMessage(error) ??
           (__DEV__ ? getErrorMessage(error) : undefined) ??
           '구글 로그인에 실패했습니다.',
       );
@@ -47,6 +51,6 @@ export const useSocialLogin = () => {
       setIsLoading(false);
     }
   };
-
+  
   return {isLoading, handleGoogleLogin};
 };

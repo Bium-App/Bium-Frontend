@@ -17,8 +17,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "start": "npm run start:local",
-    "start:local": "BLAZE_API_ENV=local react-native start --reset-cache",
-    "start:aws": "BLAZE_API_ENV=aws react-native start --reset-cache",
+    "start:local": "XDG_STATE_HOME=/tmp/bium-watchman-state BLAZE_API_ENV=local react-native start --reset-cache",
+    "start:aws": "XDG_STATE_HOME=/tmp/bium-watchman-state BLAZE_API_ENV=aws react-native start --reset-cache",
     "start:production": "BLAZE_API_ENV=production react-native start --reset-cache",
     "test": "jest"
   },
