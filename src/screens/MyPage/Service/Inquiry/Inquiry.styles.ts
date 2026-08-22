@@ -20,7 +20,7 @@ export const ScrollContainer = styled.ScrollView.attrs({
 `;
 
 export const TopText = styled.Text`
-  font-size: 13px;  /*14 -> 13 */
+  font-size: 13px;
   font-weight: 400;
   color: #000000;
   margin-bottom: 24px;

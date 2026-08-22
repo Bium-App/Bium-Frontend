@@ -12,6 +12,7 @@ import Logo from '../../assets/icons/logo_white.svg';
 
 import { Container, LogoWrapper, SubTitleText } from './StartScreen.styles';
 
+// 앱 실행 시 표시되는 로딩 화면. 저장된 세션 존재 여부를 확인해 메인 화면 또는 온보딩(Splash)으로 라우팅한다.
 export default function StartScreen({
   navigation,
 }: RootScreenProps<'StartScreen'>) {

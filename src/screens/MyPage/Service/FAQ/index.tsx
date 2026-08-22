@@ -9,7 +9,6 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../components/Header';
 
-// 💡 종이와 돋보기를 각각 분리해서 임포트합니다.
 import ImgFaqPaper from '../../../../assets/icons/img_faq_paper.svg';
 import ImgFaqGlass from '../../../../assets/icons/img_faq_glass.svg';
 
@@ -135,10 +134,8 @@ export default function FAQ({navigation}: RootScreenProps<'FAQ'>) {
       <ScrollContainer showsVerticalScrollIndicator={false}>
         <TopSection>
           <IllustrationBackground>
-            {/* 1. 배경 한가운데에 종이를 먼저 깔아줍니다 */}
             <ImgFaqPaper width={100} height={132} />
 
-            {/* 2. 그 위에 GlassWrapper를 올려서 절대 좌표(우측 하단)로 띄워줍니다 */}
             <GlassWrapper>
               <ImgFaqGlass width={90} height={90} />
             </GlassWrapper>

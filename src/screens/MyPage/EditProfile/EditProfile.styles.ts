@@ -90,7 +90,7 @@ export const InputGroup = styled.View`
 `;
 
 export const Label = styled.Text`
-  font-size: 17px; /* 💡 17x로 되어있던 오타 수정 완료 */
+  font-size: 17px;
   font-weight: 500;
   color: #000000;
   margin-bottom: 8px;

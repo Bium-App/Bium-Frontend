@@ -28,6 +28,7 @@ const getTypeLabel = (type: string): string =>
 const getStatusLabel = (status?: string): string =>
   status === 'ANSWERED' ? '답변 완료' : '답변 대기';
 
+// 문의 내역 화면. 사용자가 등록한 1:1 문의와 답변 상태, 답변 내용을 목록으로 보여준다.
 export default function InquiryHistory({navigation}: RootScreenProps<'InquiryHistory'>) {
   const {inquiries, isLoading, errorMessage, fetchInquiries} =
     useInquiryHistory();

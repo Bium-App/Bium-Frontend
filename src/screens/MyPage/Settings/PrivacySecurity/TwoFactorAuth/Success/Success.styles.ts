@@ -53,7 +53,7 @@ export const BottomArea = styled.View`
 export const SummaryBox = styled.View`
   width: 100%;
   border-width: 1px;
-  border-color: #E8E8E8; /* EEEEEE -> E8E8E8 */
+  border-color: #E8E8E8;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 20px;
@@ -62,7 +62,7 @@ export const SummaryBox = styled.View`
 
 export const SummaryHeader = styled.Text`
   font-size: 16px;
-  font-weight: 500; /* 700 -> 500 */
+  font-weight: 500;
   color: #000000;
   margin-bottom: 20px;
 `;
@@ -94,7 +94,7 @@ export const LabelText = styled.Text`
 
 export const ValueText = styled.Text`
   font-size: 14px;
-  font-weight: 200; /* 600 -> 200 */
+  font-weight: 200;
   color: #000000;
 `;
 
@@ -108,7 +108,7 @@ export const SubmitButton = styled.TouchableOpacity`
 `;
 
 export const SubmitButtonText = styled.Text`
-  font-size: 18px; /* 16 -> 18 */
+  font-size: 18px;
   font-weight: 600;
   color: #FFFFFF;
 `;

@@ -40,6 +40,7 @@ type HomeScreenProps = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 
+// 홈 화면. FIRE/ICE 메모를 섹션 목록으로 보여주고 상태 변경, pin, TRASH 이동을 처리한다.
 export default function Home({navigation}: HomeScreenProps) {
   const {t} = useTranslation();
   const isFocused = useIsFocused();
@@ -53,6 +54,9 @@ export default function Home({navigation}: HomeScreenProps) {
     toggleMemoPin,
     moveMemoToTrash,
   } = useHome();
+  // 목록에서 가장 먼저 만료될 FIRE 메모의 시각을 구해, 그 시점에 자동으로
+  // 목록을 다시 불러오도록 한다. 화면을 새로고침하지 않아도 만료된 메모가
+  // TRASH로 이동된 최신 상태를 반영할 수 있다.
   const nextExpirationAt = useMemo(
     () =>
       getNextFireExpirationAt(

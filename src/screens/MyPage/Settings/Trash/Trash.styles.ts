@@ -19,7 +19,7 @@ export const SelectAllButton = styled.TouchableOpacity`
 `;
 
 export const SelectText = styled.Text`
-  font-size: 18px; /* 14 -> 18 */
+  font-size: 18px;
   color: #000000;
   margin-left: 8px; 
 `;
@@ -70,7 +70,7 @@ export const CardTop = styled.View`
 
 export const CardBottom = styled.View`
   width: 100%;               
-  background-color: #EBEBEB; /* EFEFEF -> EBEBEB*/
+  background-color: #EBEBEB;
   padding-vertical: 6px;     
   justify-content: center;
   align-items: center;      
@@ -130,14 +130,14 @@ export const BottomBar = styled.View`
   padding-top: 16px;
   padding-bottom: 40px;
   border-top-width: 2px;
-  border-top-color: #D9D9D9; /* F0F0F0 - > D9D9D9 */
+  border-top-color: #D9D9D9;
 `;
 
 export const RestoreButton = styled.TouchableOpacity<{$disabled: boolean}>`
   flex: 1;
   height: 57px;
   border-width: 1px;
-  border-color: #6E6E6E; /* 1A1A1A -> 6E6E6E */
+  border-color: #6E6E6E;
   border-radius: 8px;
   justify-content: center;
   align-items: center;
@@ -162,7 +162,7 @@ export const DeleteButton = styled.TouchableOpacity<{$disabled: boolean}>`
 `;
 
 export const DeleteText = styled.Text`
-  font-size: 18px; /* 15 -> 18 */ 
+  font-size: 18px;
   font-weight: 500;
   color: #FFFFFF;
 `;

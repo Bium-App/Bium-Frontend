@@ -33,6 +33,7 @@ import {
   SubmitButtonText,
 } from './Success.styles';
 
+// 2단계 인증 설정 흐름의 마지막 단계: 인증 성공 후 설정을 저장하고 요약을 보여준 뒤 MyPage로 돌아간다.
 export default function Success({route, navigation}: RootScreenProps<'Success'>) {
   const { saveSettings } = useUserSettings();
   const {method, destination} = route.params;

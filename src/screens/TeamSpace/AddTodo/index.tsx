@@ -34,10 +34,8 @@ type AddTodoScreenProps = NativeStackScreenProps<
 >;
 
 export default function AddTodo({route, navigation}: AddTodoScreenProps) {
-  // 파라미터에서 프로젝트 ID 추출
   const {projectId, todoData} = route.params;
 
-  // 뷰모델 연결
   const {
     todoTitle,
     setTodoTitle,

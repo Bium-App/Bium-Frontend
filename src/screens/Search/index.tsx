@@ -129,7 +129,6 @@ export default function Search({navigation}: RootScreenProps<'Search'>) {
 
       <HeaderDivider />
 
-      {/* 검색 여부에 따른 화면 분기 처리 */}
       {hasSearched ? (
         <SearchResultsContainer>
           {isSearching || errorMessage ? (

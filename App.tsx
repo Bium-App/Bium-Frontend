@@ -4,9 +4,10 @@ import Navigation from './src/navigation';
 import {AppRoot} from './App.styles';
 import {configureGoogleSignIn} from './src/utils/googleSignIn';
 
-// 다국어 딕셔너리 및 설정 파일 불러오기 (앱 실행 시 메모리에 즉시 세팅됩니다)
+// 앱 시작 시 다국어 설정을 초기화한다.
 import './src/locales/i18n';
 
+// 구글 로그인 SDK를 초기화한다.
 configureGoogleSignIn();
 
 export default function App() {

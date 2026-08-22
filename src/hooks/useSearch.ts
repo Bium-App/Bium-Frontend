@@ -17,6 +17,7 @@ export type {
 
 const RECENT_SEARCH_KEY = '@recent_searches';
 
+// 검색 화면에서 키워드 검색 결과 조회와 최근 검색어(로컬 저장) 관리를 담당하는 훅.
 export const useSearch = () => {
   const [keyword, setKeyword] = useState('');
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);

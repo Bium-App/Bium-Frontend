@@ -29,6 +29,7 @@ import {
   GoogleButtonText,
 } from './Login.styles';
 
+// 로그인 화면. 일반 로그인과 Google 로그인을 함께 제공한다.
 export default function Login({navigation}: RootScreenProps<'Login'>) {
   const {t} = useTranslation();
   const { loginId, setLoginId, password, setPassword, isLoading, handleLoginSubmit } = useLogin();

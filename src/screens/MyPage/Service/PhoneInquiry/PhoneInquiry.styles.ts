@@ -17,9 +17,9 @@ export const ScrollContainer = styled.ScrollView.attrs({
 `;
 
 export const IllustrationBackground = styled.View`
-  width: 176px;     /* 160 -> 176 */
-  height: 176px;    /* 160 -> 176 */
-  border-radius: 88px;       /* 80 -> 88 */
+  width: 176px;
+  height: 176px;
+  border-radius: 88px;
   background-color: #FFE8D6; 
   justify-content: center;   
   align-items: center;       
@@ -44,7 +44,7 @@ export const InfoCard = styled.View`
   width: 100%;           
   border-width: 1px;
   border-color: #E0E0E0; 
-  border-radius: 8px;   /* 둥근 모서리 12 -> 8 */
+  border-radius: 8px;
   padding: 24px 20px;    
   margin-bottom: 24px;   
 `;
@@ -56,8 +56,8 @@ export const InfoRow = styled.View<{isLast?: boolean}>`
 `;
 
 export const InfoIconWrapper = styled.View`
-  width: 34px;  /* 24 -> 34 */
-  height: 34px; /* 24 -> 34 */
+  width: 34px;
+  height: 34px;
   justify-content: center; 
   align-items: center;     
   margin-right: 12px;      

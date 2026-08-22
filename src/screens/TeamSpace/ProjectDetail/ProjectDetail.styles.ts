@@ -74,7 +74,7 @@ export const SectionTitle = styled.Text`
 export const NoticeCard = styled.TouchableOpacity`
   flex-direction: row;
   background-color: #ffffff;
-  border-radius: 5px; /* 8-> 5 */
+  border-radius: 5px;
   border-width: 1px;
   border-color: #ff8933;
   padding: 16px;

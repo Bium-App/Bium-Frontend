@@ -4,6 +4,8 @@ import type {SetOptions} from 'react-native-keychain';
 import type {AuthTokens, SessionResponse} from '../types/api';
 
 const SESSION_KEYS = ['accessToken', 'userId', 'deviceId'];
+// 예전 버전에서 AsyncStorage에 평문으로 저장하던 리프레시 토큰 키. Keychain 이전 후에도
+// 남아있을 수 있어 마이그레이션 대상으로만 쓴다.
 const LEGACY_REFRESH_TOKEN_KEY = 'refreshToken';
 const REFRESH_TOKEN_SERVICE = 'com.blazememo.auth.refresh-token';
 const REFRESH_TOKEN_ACCOUNT = 'refresh-token';
@@ -104,6 +106,7 @@ export const getRefreshToken = async (): Promise<string | null> => {
   });
   if (credentials) return credentials.password;
 
+  // Keychain에 없으면 예전 AsyncStorage 저장분을 찾아 Keychain으로 옮겨 저장한다.
   const legacyRefreshToken = await AsyncStorage.getItem(
     LEGACY_REFRESH_TOKEN_KEY,
   );

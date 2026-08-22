@@ -39,7 +39,7 @@ import FriendAdd from '../screens/TeamSpace/FriendAdd';
 import TeamCreate from '../screens/TeamSpace/TeamCreate';
 import FriendRequestList from '../screens/TeamSpace/FriendRequestList';
 
-// 🚨 마이페이지 그룹
+// 마이페이지 화면
 import MyPage from '../screens/MyPage/Main';
 import EditProfile from '../screens/MyPage/EditProfile';
 
@@ -143,7 +143,7 @@ export default function Navigation() {
         <Stack.Screen name="FriendRequestList" component={FriendRequestList} />
         <Stack.Screen name="TeamCreate" component={TeamCreate} />
 
-        {/* 🚨 마이페이지 하위 스택 */}
+        {/* 마이페이지 하위 스택 */}
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="Language" component={Language} />
         <Stack.Screen
@@ -152,7 +152,7 @@ export default function Navigation() {
         />
         <Stack.Screen name="Privacy" component={Privacy} />
 
-        {/* 💡 [2단계 인증 스택 등록 완료!] */}
+        {/* 2단계 인증 스택 */}
         <Stack.Screen name="TwoFactorIntro" component={TwoFactorIntro} />
         <Stack.Screen name="PasswordCheck" component={PasswordCheck} />
         <Stack.Screen name="MethodSelect" component={MethodSelect} />

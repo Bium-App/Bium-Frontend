@@ -8,6 +8,7 @@ import {
   getErrorMessage,
 } from '../utils/apiError';
 
+// 아이디/비밀번호 로그인 화면의 입력 상태와 제출 처리를 담당한다.
 export const useLogin = () => {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
@@ -24,9 +25,11 @@ export const useLogin = () => {
       const data = await loginApi({
         loginId: loginId.trim(),
         password,
+        // 기기 이름은 로그인 기기 목록 화면에서 각 세션을 구분하는 데 쓰인다.
         deviceName: getDeviceName(),
       });
 
+      // 로그인 응답으로 받은 세션(토큰 등)을 로컬에 저장한다.
       await storeSession(data);
       onSuccess?.();
     } catch (error) {

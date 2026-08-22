@@ -161,27 +161,22 @@ export const SubmitButtonText = styled.Text`
   color: #FFFFFF;
 `;
 
-/* --- 👇 여기서부터 전체 동의용 커스텀 토글 스타일이 추가되었습니다 👇 --- */
-
-/* 💡 완벽한 원형을 유지하는 커스텀 토글 스위치 배경 */
 export const CustomToggle = styled.TouchableOpacity<{isOn: boolean}>`
   width: 52px;
   height: 30px;
-  border-radius: 15px; /* 높이의 절반으로 완전한 둥근 캡슐 형태 마감 */
-  background-color: ${props => (props.isOn ? '#FF8933' : '#BBBBBB')}; /* 기존 회색 색상 반영 */
+  border-radius: 15px; /* 높이의 절반이라 완전한 캡슐 형태가 된다 */
+  background-color: ${props => (props.isOn ? '#FF8933' : '#BBBBBB')};
   justify-content: center;
-  padding: 2px; /* 원형 오브젝트가 테두리를 뚫고 나가지 않도록 패딩 부여 */
+  padding: 2px; /* 안쪽 원이 테두리를 벗어나지 않도록 여백을 둔다 */
 `;
 
-/* 💡 토글 스위치 내부의 찌러짐 없는 완벽한 흰색 동그라미 */
 export const ToggleCircle = styled.View<{isOn: boolean}>`
   width: 26px;
   height: 26px;
-  border-radius: 13px; /* 가로세로 똑같이 맞추고 절반을 깎아 완벽한 원 구현 */
+  border-radius: 13px; /* 가로세로를 맞추고 절반을 반지름으로 잡아 원형으로 만든다 */
   background-color: #FFFFFF;
   align-self: ${props => (props.isOn ? 'flex-end' : 'flex-start')};
-  
-  /* 미세한 입체감을 주는 그림자 효과 */
+
   shadow-color: #000;
   shadow-offset: 0px 2px;
   shadow-opacity: 0.1;

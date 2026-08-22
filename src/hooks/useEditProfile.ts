@@ -6,6 +6,9 @@ import {FILE_DOMAINS} from '../utils/filePicker';
 import {useCurrentUser} from './useCurrentUser';
 import {useFileSelection} from './useFileSelection';
 
+// 내 정보 수정 화면의 입력 상태를 관리한다. 사용자 조회/수정은
+// useCurrentUser에, 프로필 이미지 선택은 useFileSelection에 위임하고
+// 이 훅에서는 화면에 필요한 입력값 검증과 제출 흐름만 처리한다.
 export const useEditProfile = () => {
   const {user, isLoading, errorMessage, fetchUser, updateProfile} =
     useCurrentUser();
@@ -51,6 +54,8 @@ export const useEditProfile = () => {
 
     setIsSubmitting(true);
     try {
+      // 새로 선택한 이미지가 있으면 업로드해 URL을 받고, 없으면 기존 프로필
+      // 이미지 URL을 그대로 유지한다(기존 이미지가 없던 사용자는 null).
       const profileImageUrl = profileImage
         ? await uploadSelectedFileApi({
             domain: FILE_DOMAINS.PROFILE,

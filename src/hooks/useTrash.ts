@@ -17,6 +17,7 @@ export interface TrashItem {
   status: MemoStatus;
 }
 
+// TRASH 화면에서 삭제되었거나 만료된 메모 목록을 조회하고, 복구·영구 삭제를 처리하는 훅.
 export const useTrash = () => {
   const [trashItems, setTrashItems] = useState<TrashItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +30,8 @@ export const useTrash = () => {
       const memos = await getTrashMemosApi();
       setTrashItems(
         memos.map(memo => {
+          // TRASH로 이동한 메모는 deletedAt 기준 24시간이 지나면 영구 삭제 대상이 되므로
+          // 남은 시간을 계산해 표시한다.
           const expiresAt = dayjs(memo.deletedAt).add(24, 'hour');
           const remainingMinutes = Math.max(
             0,

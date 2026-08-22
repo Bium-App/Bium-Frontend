@@ -41,6 +41,7 @@ export const useSignUp = () => {
         nickname: nickname.trim(),
         email: email.trim(),
         phoneNumber: phoneNumber.trim(),
+        // 아이디/비밀번호로 직접 가입하는 일반 계정임을 나타낸다(소셜 가입과 구분).
         provider: 'LOCAL',
       });
       Alert.alert('가입 완료', '회원가입이 성공적으로 완료되었습니다.');

@@ -45,10 +45,8 @@ export default function ProjectTodo({
   navigation,
 }: ProjectTodoScreenProps) {
   const {t} = useTranslation();
-  // 라우터 파라미터에서 프로젝트 식별자 추출
   const {projectId, projectName} = route.params;
 
-  // 뷰모델 연결
   const {
     todos,
     searchQuery,

@@ -24,6 +24,7 @@ export interface PresignedUrlResponse {
   fileUrl: string;
 }
 
+// RN의 Blob은 업로드 후 close()를 호출해 명시적으로 리소스를 해제해야 할 수 있어 옵셔널로 둔다.
 export type UploadBlob = Blob & { close?: () => void };
 
 export interface UploadFileRequest {

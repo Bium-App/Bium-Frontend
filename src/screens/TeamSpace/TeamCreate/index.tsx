@@ -37,7 +37,6 @@ type TeamCreateScreenProps = NativeStackScreenProps<
 
 export default function TeamCreate({navigation}: TeamCreateScreenProps) {
   const {t} = useTranslation();
-  // 뷰모델 연결 및 상태, 함수 추출
   const {
     teamName,
     setTeamName,
@@ -125,7 +124,6 @@ export default function TeamCreate({navigation}: TeamCreateScreenProps) {
         </ContentInner>
       </ScrollContent>
       <BottomFixedArea>
-        {/* API 통신 중일 경우 중복 클릭 방지 처리 */}
         <SubmitBtn
           activeOpacity={0.8}
           onPress={handleCreateTeam}

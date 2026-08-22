@@ -47,6 +47,8 @@ export const useFriendAdd = () => {
   const [recommendationErrorMessage, setRecommendationErrorMessage] =
     useState('');
   const [searchErrorMessage, setSearchErrorMessage] = useState('');
+  // 검색어가 빠르게 바뀔 때 이전 요청의 응답이 최신 결과를 덮어쓰지 않도록
+  // 요청마다 증가하는 ID를 부여해 최신 요청인지 확인한다.
   const searchRequestIdRef = useRef(0);
 
   const fetchInitialData = useCallback(async (): Promise<void> => {

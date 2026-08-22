@@ -38,7 +38,6 @@ type FriendRequestListScreenProps = NativeStackScreenProps<
 export default function FriendRequestList({
   navigation,
 }: FriendRequestListScreenProps) {
-  // 뷰모델 상태 및 함수 연결
   const {
     searchQuery,
     setSearchQuery,

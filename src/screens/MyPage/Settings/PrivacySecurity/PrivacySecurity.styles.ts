@@ -21,7 +21,7 @@ export const MenuCard = styled.TouchableOpacity`
   align-items: center;               
   background-color: #FFFFFF;         
   padding: 20px 24px;               
-  border-radius: 12px;               /* 둥근 모서리 12 -> 10*/
+  border-radius: 12px;
   margin-bottom: 16px;               
   shadow-color: #6B6EA1;
   shadow-offset: 0px 1px;
@@ -34,6 +34,6 @@ export const MenuCard = styled.TouchableOpacity`
 
 export const MenuText = styled.Text`
   font-size: 15px;
-  font-weight: 200; /* 500 -> 200 */
+  font-weight: 200;
   color: #000000;   
 `;

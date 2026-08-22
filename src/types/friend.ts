@@ -5,6 +5,7 @@ export interface FriendUser {
   nickname: string;
   loginId?: string;
   profileImageUrl?: string | null;
+  // 함께 속한 팀스페이스 수다.
   commonProjects?: number;
 }
 

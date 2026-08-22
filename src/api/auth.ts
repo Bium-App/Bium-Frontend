@@ -56,6 +56,7 @@ export const loginApi = async ({
   return response.data;
 };
 
+// Google 등 소셜 로그인으로 받은 사용자 정보를 전달해 Bium 서비스 자체 세션을 발급받는다.
 export const socialLoginApi = async (
   request: SocialLoginRequest,
 ): Promise<SocialLoginResponse> => {
@@ -66,6 +67,7 @@ export const socialLoginApi = async (
   return response.data;
 };
 
+// type이 'ID'면 로그인 아이디를, 'PW'면 비밀번호 재설정 절차를 이메일로 안내한다.
 export const findAccountApi = async ({
   type,
   email,
@@ -113,6 +115,7 @@ export const twoFactorApi = async ({
   return response.data;
 };
 
+// CURRENT는 현재 기기의 리프레시 토큰만 무효화하고, ALL은 모든 기기의 세션을 로그아웃시킨다.
 export const logoutApi = async (
   type: LogoutType = 'CURRENT',
 ): Promise<ApiMutationResponse> => {

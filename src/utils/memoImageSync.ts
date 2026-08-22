@@ -71,6 +71,8 @@ type RecoveryResult =
   | {status: 'ROLLED_BACK'; serverImages: MemoImage[]}
   | {status: 'REPLACEMENT_COMPLETED'; serverImages: MemoImage[]};
 
+// 이미지 교체 도중 기존 이미지 삭제가 실패했을 때 새 이미지 연결을 되돌리거나
+// 기존 이미지 삭제를 재시도해 새/기존 이미지 중 한쪽 관계로 정리한다.
 const recoverFailedReplacement = async ({
   memoId,
   addedImageIds,
@@ -173,6 +175,8 @@ const recoverFailedReplacement = async ({
   );
 };
 
+// 새 이미지를 업로드·연결하고 삭제 대상 이미지를 지워 메모 이미지 목록을 서버와 맞춘다.
+// 기존 이미지 삭제가 실패하면 recoverFailedReplacement로 새/기존 이미지 관계를 정리한다.
 export const saveMemoImageChanges = async ({
   memoId,
   newFiles,

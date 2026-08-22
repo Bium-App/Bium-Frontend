@@ -15,6 +15,7 @@ def hasReleaseSigning = releaseSigningValues.values().every {
 def requestedReleaseBuild = gradle.startParameter.taskNames.any {
     it.toLowerCase().contains("release")
 }
+def configuredApiBaseUrl = (System.getenv("BLAZE_API_BASE_URL") ?: "").trim()
 
 if (requestedReleaseBuild && !hasReleaseSigning) {
     throw new GradleException(
@@ -22,6 +23,13 @@ if (requestedReleaseBuild && !hasReleaseSigning) {
         "Set BIUM_UPLOAD_STORE_FILE, BIUM_UPLOAD_STORE_PASSWORD, " +
         "BIUM_UPLOAD_KEY_ALIAS, and BIUM_UPLOAD_KEY_PASSWORD. " +
         "For an internal standalone APK, run assembleTeamTest instead."
+    )
+}
+
+if (requestedReleaseBuild && configuredApiBaseUrl.toLowerCase().startsWith("http://")) {
+    throw new GradleException(
+        "A release APK cannot use an insecure HTTP API because Android blocks it. " +
+        "Use assembleTeamTest for the current HTTP team server, or configure an HTTPS production URL."
     )
 }
 
@@ -135,6 +143,9 @@ android {
             signingConfig signingConfigs.debug
             matchingFallbacks = ['release']
             versionNameSuffix '-team-test'
+            // 백엔드가 아직 HTTPS 인증서를 발급받기 전까지, 팀 테스트 APK에 한해 임시로
+            // HTTP(cleartext) 통신을 허용한다. release(정식 배포)는 계속 false로 차단된다.
+            manifestPlaceholders = [usesCleartextTraffic: "true"]
         }
         release {
             if (hasReleaseSigning) {

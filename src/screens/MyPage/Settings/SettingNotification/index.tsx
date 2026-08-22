@@ -17,6 +17,7 @@ import {
   ToggleCircle,
 } from './SettingNotification.styles';
 
+// 전체/이벤트/푸시 알림 수신 여부를 개별 토글로 설정하는 화면.
 export default function SettingNotification({navigation}: RootScreenProps<'SettingNotification'>) {
   const {t} = useTranslation();
   const { settings, isLoading, saveSettings } = useUserSettings();

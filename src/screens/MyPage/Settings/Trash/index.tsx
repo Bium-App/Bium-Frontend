@@ -3,7 +3,7 @@ import type {RootScreenProps} from '../../../../types/navigation';
 import {TouchableOpacity, Alert, RefreshControl} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useTranslation} from 'react-i18next';
-import Header from '../../../../components/Header'; // 💡 항상 공통 컴포넌트로 분리해서 사용하는 헤더
+import Header from '../../../../components/Header';
 import AsyncState from '../../../../components/AsyncState';
 import IcFire from '../../../../assets/icons/ic_fire.svg';
 import IcIce from '../../../../assets/icons/ic_ice.svg';
@@ -34,9 +34,9 @@ import {
   DeleteText,
 } from './Trash.styles';
 
+// 휴지통 화면. 삭제되거나 만료되어 TRASH로 옮겨진 메모를 다중 선택해 복원하거나 영구 삭제한다.
 export default function Trash({navigation}: RootScreenProps<'Trash'>) {
   const {t} = useTranslation();
-  // 뷰모델에서 서버 데이터와 통신 함수 가져오기
   const { 
     trashItems, isLoading, errorMessage, fetchTrashMemos,
     handleRestoreMemos, handlePermanentDeleteMemos 
@@ -45,7 +45,6 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // 화면이 켜질 때 휴지통 데이터를 불러옴
   useEffect(() => {
     fetchTrashMemos();
   }, [fetchTrashMemos]);
@@ -76,11 +75,10 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
       { 
         text: t('common.confirm'), 
         onPress: () => {
-          // 확인 버튼 누르면 뷰모델의 API 호출 함수 실행 후 목록 새로고침
           const onSuccess = () => {
             setSelectedIds([]);     
             setIsEditMode(false);
-            fetchTrashMemos(); // 처리 후 서버에서 바뀐 데이터 다시 불러오기
+            fetchTrashMemos();
           };
 
           if (type === 'restore') {
@@ -117,15 +115,13 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
         }
       />
 
-      {/* 💡 isEditMode가 true(편집 모드)일 때만 나타나는 전체 선택 바 */}
       {isEditMode && (
         <SelectAllBar>
           <SelectAllButton onPress={handleSelectAll} activeOpacity={0.7}>
-            <Icon 
-              // 전체 개수와 선택된 개수가 같으면 꽉 찬 주황색 동그라미, 아니면 빈 회색 동그라미
-              name={selectedIds.length === trashItems.length && trashItems.length > 0 ? "checkmark-circle" : "ellipse-outline"} 
-              size={20}    /* 24 -> 20 */
-              color={selectedIds.length === trashItems.length && trashItems.length > 0 ? "#FF8933" : "#9B9B9B"}  /* C7C7CC - >9B9B9B */
+            <Icon
+              name={selectedIds.length === trashItems.length && trashItems.length > 0 ? "checkmark-circle" : "ellipse-outline"}
+              size={20}
+              color={selectedIds.length === trashItems.length && trashItems.length > 0 ? "#FF8933" : "#9B9B9B"}
             />
             <SelectText>{t('trash.all')}</SelectText>
           </SelectAllButton>
@@ -170,7 +166,7 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
                       <IcFire
                         width={32}
                         height={36}
-                        color={isSelected ? '#FF8933' : '#000000'}  /* 1A1A1A -> 000000 */
+                        color={isSelected ? '#FF8933' : '#000000'}
                       />
                     )}
                   </IconCircle>
@@ -183,9 +179,9 @@ export default function Trash({navigation}: RootScreenProps<'Trash'>) {
                   {isEditMode && (
                     <CheckZone>
                       <Icon 
-                        name={isSelected ? "checkmark-circle" : "ellipse-outline"} 
-                        size={20}    /*24 -> 20  */ 
-                        color={isSelected ? "#FF8933" : "#C7C7CC"} /* C7C7CC -> 9B9B9B*/
+                        name={isSelected ? "checkmark-circle" : "ellipse-outline"}
+                        size={20}
+                        color={isSelected ? "#FF8933" : "#C7C7CC"}
                       />
                     </CheckZone>
                   )}

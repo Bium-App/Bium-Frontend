@@ -21,6 +21,7 @@ import {
   CardDesc,
 } from './CustomerCenter.styles';
 
+// 고객센터 화면. 1:1 문의, 전화 문의, 문의 내역, 자주 묻는 질문으로 이동하는 메뉴를 보여준다.
 export default function CustomerCenter({navigation}: RootScreenProps<'CustomerCenter'>) {
   const menuItems = [
     {

@@ -133,6 +133,7 @@ export const pickDocumentFile = async (): Promise<SelectedFile | null> => {
       throw new Error('지원하지 않는 파일 형식입니다.');
     }
 
+    // 선택한 파일의 원본 uri는 접근이 만료될 수 있어 캐시 디렉터리로 복사해 둔다.
     const fileName = document.name ?? fallbackFileName('document');
     const [copyResult] = await keepLocalCopy({
       files: [{ uri: document.uri, fileName }],

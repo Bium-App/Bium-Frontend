@@ -60,7 +60,7 @@ export const DeviceName = styled.Text`
 `;
 
 export const DeviceDesc = styled.Text`
-  font-size: 12px; /* 13 -> 12 */
+  font-size: 12px;
   font-weight: 200;
   color: #000000;
 `;

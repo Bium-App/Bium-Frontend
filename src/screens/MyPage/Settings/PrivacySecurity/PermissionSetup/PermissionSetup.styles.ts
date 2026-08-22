@@ -31,9 +31,8 @@ export const RowLeft = styled.View`
   align-items: center;
 `;
 
-/* 💡 [정렬 핵심] 아이콘을 감싸는 박스의 크기를 28px로 넉넉하게 고정!
-   아이콘마다 크기가 조금씩 달라도, 이 박스 안에 정중앙 배치되어
-   우측의 텍스트 시작점이 완벽한 일직선으로 맞춰집니다. */
+/* 아이콘마다 실제 크기가 달라도 고정 크기 박스 중앙에 배치해, 옆 텍스트의
+   시작 위치가 항목마다 어긋나지 않도록 맞춘다. */
 export const IconWrapper = styled.View`
   width: 28px; 
   height: 28px;

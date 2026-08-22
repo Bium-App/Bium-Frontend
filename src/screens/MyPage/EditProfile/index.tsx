@@ -32,6 +32,8 @@ import {
   SubmitText,
 } from './EditProfile.styles';
 
+// 프로필 수정 화면. 신규 가입 온보딩과 마이페이지 진입 양쪽에서 재사용되며,
+// 온보딩 경로일 때는 뒤로가기 버튼을 숨기고 완료 시 메인 탭으로 이동한다.
 export default function EditProfile({
   navigation,
   route,

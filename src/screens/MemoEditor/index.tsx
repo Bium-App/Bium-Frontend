@@ -27,7 +27,7 @@ import {
   useEditorContent,
 } from '@10play/tentap-editor';
 import Header from '../../components/Header';
-import { useMemoEditor } from '../../hooks/useMemoEditor'; // 뷰모델 훅 임포트
+import { useMemoEditor } from '../../hooks/useMemoEditor';
 import { editorHtml } from '../../editor/generated/editorHtml';
 import { MEMO_EDITOR_EXTENSIONS } from '../../editor/memoEditorExtensions';
 import { formatFileSize } from '../../utils/filePicker';
@@ -119,7 +119,6 @@ const TimerButton = ({
   </TimerButtonWrapper>
 );
 
-// route 프로퍼티를 추가하여, 리스트에서 클릭해 들어왔을 때 데이터를 받을 수 있도록 처리
 type MemoEditorScreenProps = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'MemoEditor'>,
   NativeStackScreenProps<RootStackParamList>
@@ -137,16 +136,15 @@ const MEMO_EDITOR_THEME = {
   webviewContainer: { backgroundColor: '#FFFFFF' },
 };
 
+// 메모 작성/수정 화면. 리치 텍스트 에디터, 이미지 첨부, FIRE 타이머 설정을 다룬다.
 export default function MemoEditor({
   navigation,
   route,
 }: MemoEditorScreenProps) {
   const { t } = useTranslation();
-  // 이전 화면(홈/타임라인)에서 메모를 눌러 들어왔다면 route.params에 데이터가 들어있음
   const initialData = route?.params?.memoData;
   const memoId = initialData?.id;
 
-  // 서버 통신 및 폼 데이터를 뷰모델 훅에서 관리
   const {
     title,
     setTitle,
@@ -190,7 +188,6 @@ export default function MemoEditor({
   const initializedMemoRef = useRef<string | null>(null);
   const isSavingRef = useRef(false);
 
-  // 화면 내부 동작 전용 상태 (모달)
   const [isModalVisible, setModalVisible] = useState(false);
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
   const [imageAspectRatios, setImageAspectRatios] = useState<
@@ -295,7 +292,6 @@ export default function MemoEditor({
           memoId ? t('memo_editor.edit_title') : t('memo_editor.new_title')
         }
         right={
-          // 로딩 중일 때는 터치를 막고, handleSave에 네비게이션 콜백 전달
           <HeaderTextButton
             onPress={() => !isLoading && editorState.isReady && saveMemo()}
           >
@@ -319,7 +315,7 @@ export default function MemoEditor({
                 maxLength={50}
                 value={title}
                 onChangeText={setTitle}
-                editable={!isLoading} // 저장 중 입력 방지
+                editable={!isLoading}
               />
               <LengthText>{title.length}/50</LengthText>
             </TitleRow>

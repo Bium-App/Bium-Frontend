@@ -40,10 +40,6 @@ export default function Logout({navigation}: RootScreenProps<'Logout'>) {
 
       <Content>
         <IconBackground>
-          {/* 💡 [시각적 정중앙 맞추기]
-              SVG 내부의 화살표 모양 때문에 눈으로 보기에 한쪽으로 치우쳐 보일 수 있습니다.
-              transform을 사용해 아이콘을 살짝 위로(-4px), 오른쪽으로(4px) 밀어서 시각적 밸런스를 잡았습니다. 
-              (원하시는 느낌에 맞춰 숫자를 조금씩 조절해 보세요!) */}
           <IcLogout width={81} height={95} color="#FF8933" />
         </IconBackground>
 

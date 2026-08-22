@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import type {RootScreenProps} from '../../../../../types/navigation';
-import {TouchableOpacity, Alert} from 'react-native'; // 💡 기본 Switch는 걷어내고 제거했습니다.
+import {TouchableOpacity, Alert} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-// 💡 프로젝트 규칙: 헤더는 항상 공통 컴포넌트로 분리 사용
 import Header from '../../../../../components/Header';
 import IcGift from '../../../../../assets/icons/ic_gift.svg';
 import IcBell from '../../../../../assets/icons/ic_bell.svg';
@@ -38,7 +37,6 @@ import {
   CheckboxSquare,
   SubmitButton,
   SubmitButtonText,
-  /* 💡 추가된 커스텀 토글 컴포넌트 */
   CustomToggle,
   ToggleCircle,
 } from './MarketingConsent.styles';
@@ -97,7 +95,7 @@ export default function MarketingConsent({navigation}: RootScreenProps<'Marketin
   }, [settings.allowEvent]);
 
   const toggleAll = () => {
-    const nextValue = !isAllAgreed; // 현재 상태를 반대로 뒤집음
+    const nextValue = !isAllAgreed;
     setIsAllAgreed(nextValue);
     setAgreements({
       event: nextValue,
@@ -170,7 +168,6 @@ export default function MarketingConsent({navigation}: RootScreenProps<'Marketin
 
         <AllConsentCard>
           <AllConsentText>마케팅 정보 전체 수신 동의</AllConsentText>
-          {/* 💡 기존의 크기를 줄이던 View 래퍼를 완전히 걷어내고 완벽한 원형 토글을 바짝 적용 완료 */}
           <CustomToggle
             activeOpacity={0.8}
             isOn={isAllAgreed}

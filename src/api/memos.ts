@@ -56,6 +56,7 @@ export const updateMemoApi = async (
   return response.data;
 };
 
+// 같은 status 엔드포인트를 action=STATUS로 호출해 메모를 FIRE/ICE 상태로 전환한다.
 export const updateMemoStatusApi = async (
   memoId: EntityId,
   status: MemoStatus,
@@ -68,6 +69,7 @@ export const updateMemoStatusApi = async (
   return response.data;
 };
 
+// 같은 status 엔드포인트를 action=PIN으로 호출해 ICE 메모의 고정 여부를 바꾼다.
 export const updateMemoPinApi = async (
   memoId: EntityId,
   isPinned: boolean,
@@ -80,6 +82,7 @@ export const updateMemoPinApi = async (
   return response.data;
 };
 
+// 메모를 삭제 요청해 TRASH로 이동시킨다. 영구 삭제는 deleteTrashMemosApi가 담당한다.
 export const moveMemoToTrashApi = async (
   memoId: EntityId,
 ): Promise<ApiMutationResponse> => {
@@ -94,6 +97,7 @@ export const getTrashMemosApi = async (): Promise<TrashMemo[]> => {
   return parseRootArray<TrashMemo>(response.data, '휴지통 목록');
 };
 
+// TRASH에 있는 메모를 원래 상태(FIRE/ICE)로 되돌린다.
 export const restoreMemoApi = async (
   memoId: EntityId,
 ): Promise<ApiMutationResponse> => {
@@ -103,6 +107,7 @@ export const restoreMemoApi = async (
   return response.data;
 };
 
+// 선택한 메모를 TRASH에서 영구 삭제한다.
 export const deleteTrashMemosApi = async (
   memoIds: EntityId[],
 ): Promise<ApiMutationResponse> => {

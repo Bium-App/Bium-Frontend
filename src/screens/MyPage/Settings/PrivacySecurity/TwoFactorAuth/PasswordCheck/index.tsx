@@ -84,10 +84,10 @@ export default function PasswordCheck({navigation}: RootScreenProps<'PasswordChe
             <PasswordInputContainer isFocused={isPasswordFocused}>
               <PasswordInput
                 placeholder="비밀번호"
-                placeholderTextColor="#AAAAAA" /* 999999 -> AAAAAA */
+                placeholderTextColor="#AAAAAA"
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry // 비밀번호를 마스킹 처리(••••)
+                secureTextEntry
                 onFocus={() => setIsPasswordFocused(true)}
                 onBlur={() => setIsPasswordFocused(false)}
               />

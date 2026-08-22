@@ -41,7 +41,7 @@ export const InputContainer = styled.View<{isFocused: boolean}>`
   flex-direction: row;
   align-items: center;
   border-width: 1px;
-  border-color: ${props => (props.isFocused ? '#FF8933' : '#AAAAAA')}; /*E5E5E5 -> AAAAAA */
+  border-color: ${props => (props.isFocused ? '#FF8933' : '#AAAAAA')};
   border-radius: 8px; 
   padding-horizontal: 16px;
   background-color: #FFFFFF;

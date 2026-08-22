@@ -4,7 +4,7 @@ import { TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useTranslation} from 'react-i18next';
 import Header from '../../components/Header';
-import { useSignUp } from '../../hooks/useSignUp'; // ViewModel Hook Import
+import { useSignUp } from '../../hooks/useSignUp';
 
 import {
   Container,
@@ -22,7 +22,6 @@ import {
 
 export default function SignUp({navigation}: RootScreenProps<'SignUp'>) {
   const {t} = useTranslation();
-  // 기존 useState -> 훅에서 상태와 함수를 모두 가져옴
   const {
     loginId,
     setLoginId,

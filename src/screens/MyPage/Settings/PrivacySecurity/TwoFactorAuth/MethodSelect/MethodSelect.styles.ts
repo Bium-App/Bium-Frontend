@@ -21,16 +21,16 @@ export const TopContentWrapper = styled.View`
 `;
 
 export const TitleText = styled.Text`
-  font-size: 24px; /* 22 -> 24 */
-  font-weight: 500; /* 700 -> 500 */
+  font-size: 24px;
+  font-weight: 500;
   color: #000000;
   margin-top: 32px;
   margin-bottom: 32px;
 `;
 
 export const SectionLabel = styled.Text`
-  font-size: 14px; /* 13 -> 14 */
-  font-weight: 500; /*600 -> 500 */
+  font-size: 14px;
+  font-weight: 500;
   color: #000000;
   margin-bottom: 12px;
 `;
@@ -38,7 +38,7 @@ export const SectionLabel = styled.Text`
 export const OptionsCard = styled.View`
   width: 100%;
   border-width: 1px;
-  border-color: #e8e8e8; /* E5E5E5 ->E8E8E8 */
+  border-color: #e8e8e8;
   border-radius: 8px;
   background-color: #ffffff;
 `;
@@ -52,7 +52,7 @@ export const OptionItem = styled.TouchableOpacity`
 export const Divider = styled.View`
   width: 100%;
   height: 1px;
-  background-color: #dadada; /*E5E5E5 - > DADADA */
+  background-color: #dadada;
 `;
 
 export const RadioOuter = styled.View<{isSelected: boolean}>`
@@ -78,8 +78,8 @@ export const OptionTextContent = styled.View`
 `;
 
 export const OptionTitle = styled.Text`
-  font-size: 16px; /* 15 -> 16*/
-  font-weight: 500; /* 600 -> 500*/
+  font-size: 16px;
+  font-weight: 500;
   color: #000000;
 `;
 

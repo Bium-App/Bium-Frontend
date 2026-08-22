@@ -88,9 +88,11 @@ export default function MemoCard({
   return (
     <Swipeable
       ref={swipeableRef}
+      // 상단 고정은 ICE 메모에만 허용되어 왼쪽 스와이프 액션도 ICE 메모에서만 노출한다.
       renderLeftActions={
         item.Status === 'ICE' ? renderLeftActions : undefined
       }
+      // 고정되지 않은 FIRE 메모만 오른쪽 스와이프로 ICE 전환할 수 있다.
       renderRightActions={
         item.isPinned || item.Status === 'ICE'
           ? undefined

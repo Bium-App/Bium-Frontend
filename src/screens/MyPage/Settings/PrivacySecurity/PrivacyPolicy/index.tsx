@@ -25,6 +25,7 @@ import {
   BulletText
 } from './PrivacyPolicy.styles';
 
+// 개인정보 처리방침 화면. 수집·이용, 제공 및 위탁, 보호조치·파기, 이용자 권리를 섹션별로 안내하는 정적 화면이다.
 export default function PrivacyPolicy({navigation}: RootScreenProps<'PrivacyPolicy'>) {
   return (
     <Container>

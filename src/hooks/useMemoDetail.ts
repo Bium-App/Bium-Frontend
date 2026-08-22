@@ -10,6 +10,7 @@ import {getApiErrorMessage, getApiResponseMessage} from '../utils/apiError';
 import type {EntityId} from '../types/api';
 import type {MemoDetail as MemoDetailData, MemoStatus} from '../types/memo';
 
+// 메모 상세 화면에서 메모 조회, 상태 변경(FIRE/ICE), 고정(pin), TRASH 이동을 처리하는 훅.
 export const useMemoDetail = (memoId: EntityId) => {
   const [memo, setMemo] = useState<MemoDetailData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,8 +48,8 @@ export const useMemoDetail = (memoId: EntityId) => {
   const changeStatus = (status: MemoStatus) =>
     runMemoAction(async () => {
       await updateMemoStatusApi(memoId, status);
-      // 얼음 메모만 고정할 수 있어서, 불로 바뀌면 고정도 같이 풀어야 한다.
-      // 서버가 상태 변경 시 자동으로 고정을 풀어주지 않는다.
+      // ICE 메모만 pin이 가능하므로, 상태를 FIRE로 바꿀 때는 기존 pin도 함께 해제한다.
+      // 서버가 상태 변경 시 pin을 자동으로 해제하지 않아 클라이언트에서 별도로 요청한다.
       if (status === 'FIRE' && memo?.isPinned) {
         await updateMemoPinApi(memoId, false);
       }

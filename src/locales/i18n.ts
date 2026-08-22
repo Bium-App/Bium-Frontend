@@ -3,7 +3,7 @@ import type {LanguageDetectorAsyncModule} from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// 언어 및 지역 화면에서 사용하는 번역 데이터
+// 앱 전체에서 사용하는 다국어 번역 리소스
 const resources = {
   ko: {
     translation: {
@@ -521,7 +521,7 @@ const resources = {
   }
 };
 
-// 2. 사용자가 이전에 저장한 언어 설정이 있는지 확인하는 로직
+// AsyncStorage에 저장된 언어 설정을 불러오고, 변경 시 다시 저장한다.
 const languageDetector: LanguageDetectorAsyncModule = {
   type: 'languageDetector',
   async: true,
@@ -538,7 +538,7 @@ const languageDetector: LanguageDetectorAsyncModule = {
   }
 };
 
-// 3. i18n 초기화
+// 저장된 언어 설정을 감지해 i18next를 초기화한다.
 i18n
   .use(languageDetector)
   .use(initReactI18next)

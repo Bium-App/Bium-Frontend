@@ -28,6 +28,7 @@ const PERMISSION_ROWS = [
   {key: 'bell', label: '알림', Icon: IcBell, width: 24, height: 24},
 ] as const;
 
+// 필수 권한 설정 화면. 앱이 사용하는 권한 목록을 보여주고, 항목을 누르면 기기 설정 앱으로 이동시킨다.
 export default function PermissionSetup({navigation}: RootScreenProps<'PermissionSetup'>) {
   return (
     <Container>

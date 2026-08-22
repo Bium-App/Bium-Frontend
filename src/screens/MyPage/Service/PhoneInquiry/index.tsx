@@ -23,6 +23,7 @@ import {
   FooterNoticeText
 } from './PhoneInquiry.styles';
 
+// 전화 문의 화면. 고객센터 운영시간과 전화번호를 안내하고 탭하면 전화 연결을 시도한다.
 export default function PhoneInquiry({navigation}: RootScreenProps<'PhoneInquiry'>) {
   
   const handleCall = () => {

@@ -20,6 +20,7 @@ import {
   BottomPadding,
 } from './MyPageMain.styles';
 
+// 마이페이지 메인 화면. 프로필 요약과 설정/서비스/계정 메뉴로 각 하위 화면 진입을 제공한다.
 export default function MyPageMain({navigation}: MyPageTabScreenProps) {
   const {t} = useTranslation();
   const {user, isLoading, errorMessage, fetchUser} = useCurrentUser();

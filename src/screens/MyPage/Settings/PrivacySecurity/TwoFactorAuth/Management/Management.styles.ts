@@ -35,7 +35,7 @@ export const IconImageWrapper = styled.View`
 export const ToggleCard = styled.View`
   width: 100%;
   border-width: 1px;
-  border-color: #FFFFFF; /*EEEEEE -> FFFFFF*/
+  border-color: #FFFFFF;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 32px; 
@@ -94,7 +94,7 @@ export const SectionLabel = styled.Text`
 export const MethodsCard = styled.View`
   width: 100%;
   border-width: 1px;
-  border-color: #E8E8E8; /* EEEEEE -> E8E8E8 */
+  border-color: #E8E8E8;
   border-radius: 12px;
   background-color: #FFFFFF;
 `;

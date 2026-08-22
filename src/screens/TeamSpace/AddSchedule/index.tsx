@@ -35,6 +35,7 @@ type AddScheduleScreenProps = NativeStackScreenProps<
 const formatDisplayDateTime = (date: Date): string =>
   dayjs(date).format('YYYY년 M월 D일 HH:mm');
 
+// 팀 스페이스 일정을 추가하거나 수정하는 화면. scheduleId 존재 여부로 수정/신규 작성을 구분한다.
 export default function AddSchedule({
   route,
   navigation,

@@ -15,6 +15,7 @@ const isSelectedFile = (value: unknown): value is SelectedFile => {
   );
 };
 
+// 저장된 값이 손상되었거나 형식이 맞지 않으면 빈 목록으로 처리한다.
 export const getRecentFiles = async (): Promise<SelectedFile[]> => {
   try {
     const stored = await AsyncStorage.getItem(RECENT_FILES_KEY);
@@ -28,6 +29,7 @@ export const getRecentFiles = async (): Promise<SelectedFile[]> => {
   }
 };
 
+// 같은 파일을 다시 선택하면 맨 앞으로 옮기고, 최근 목록은 최대 개수까지만 유지한다.
 export const saveRecentFile = async (file: SelectedFile): Promise<void> => {
   const current = await getRecentFiles();
   const next = [

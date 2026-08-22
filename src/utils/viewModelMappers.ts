@@ -106,6 +106,8 @@ export const mapSearchResponse = (
   })),
 ];
 
+// NotificationListItem.type은 MemoStatus가 아니라 알림 목록에서 쓰는 표시용 뱃지 구분이다.
+// 메모 알림은 FIRE, 그 외(친구/팀 관련) 알림은 ICE 뱃지로 보여준다.
 export const mapNotificationResponse = (
   notification: Notification,
 ): NotificationListItem => ({

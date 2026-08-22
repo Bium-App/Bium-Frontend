@@ -32,6 +32,7 @@ import {
   SubmitButtonText,
 } from './MethodSelect.styles';
 
+// 2단계 인증 설정 흐름의 두 번째 단계: 휴대폰/이메일 중 인증 수단을 선택해 VerifyCode로 이동한다.
 export default function MethodSelect({navigation}: RootScreenProps<'MethodSelect'>) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMethod, setSelectedMethod] =

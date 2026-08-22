@@ -16,6 +16,7 @@ export interface ScheduleSummary {
   title: string;
   startAt: string;
   endAt: string;
+  // null이면 개인 일정, 값이 있으면 해당 팀스페이스의 일정이다.
   teamSpaceId?: EntityId | null;
   createdAt?: string;
   updatedAt?: string;

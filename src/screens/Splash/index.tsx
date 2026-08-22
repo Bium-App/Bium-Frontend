@@ -79,6 +79,7 @@ const SPLASH_DATA: SplashItem[] = [
   }
 ];
 
+// 로그인 전 앱 소개 온보딩 캐러셀 화면. 슬라이드를 넘기다 마지막에서 회원가입으로 이동한다.
 export default function Splash({navigation}: RootScreenProps<'Splash'>) {
   const {t} = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);

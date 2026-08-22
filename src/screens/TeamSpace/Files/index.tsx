@@ -402,7 +402,6 @@ export default function Files({ route, navigation }: FilesScreenProps) {
               isLast={true}
             >
               <DeleteIcon width={18} height={18} color="#FF0000" />
-              {/* FF4D4D-> FF0000 */}
               <PopupOptionText isDanger={true}>삭제</PopupOptionText>
             </PopupOptionBtn>
           </PopupContent>

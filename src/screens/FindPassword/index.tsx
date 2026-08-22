@@ -18,6 +18,7 @@ import {
   HelperText,
 } from './FindPassword.styles';
 
+// 비밀번호 찾기 화면. 이메일을 입력받아 임시 비밀번호를 발급받도록 안내한다.
 export default function FindPassword({
   navigation,
 }: RootScreenProps<'FindPassword'>) {

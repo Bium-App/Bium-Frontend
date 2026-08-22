@@ -96,7 +96,6 @@ export default function Inquiry({ navigation }: RootScreenProps<'Inquiry'>) {
 
   return (
     <Container>
-      {/* 최상단 공통 헤더 */}
       <Header
         left={
           <TouchableOpacity
@@ -124,10 +123,8 @@ export default function Inquiry({ navigation }: RootScreenProps<'Inquiry'>) {
             isOpen={isDropdownOpen}
           >
             <DropdownHeaderLeft>
-              {/* 항목이 선택되어 SelectedIcon이 존재할 때만 렌더링 */}
               {SelectedIcon && (
                 <DropdownSelectedIconWrapper>
-                  {/* 추출해 둔 SVG 컴포넌트에 주황색 컬러값을 주어 렌더링합니다! */}
                   <SelectedIcon width={24} height={24} color="#FF8933" />
                 </DropdownSelectedIconWrapper>
               )}
@@ -139,7 +136,6 @@ export default function Inquiry({ navigation }: RootScreenProps<'Inquiry'>) {
               </DropdownText>
             </DropdownHeaderLeft>
 
-            {/* 우측 열고 닫는 화살표 아이콘 */}
             <Icon
               name={isDropdownOpen ? 'chevron-up' : 'chevron-down'}
               size={22}
@@ -147,7 +143,6 @@ export default function Inquiry({ navigation }: RootScreenProps<'Inquiry'>) {
             />
           </DropdownHeader>
 
-          {/* isDropdownOpen 상태가 true일 때만 목록이 열림 */}
           {isDropdownOpen && (
             <DropdownList>
               {INQUIRY_TYPES.map(type => {
@@ -162,7 +157,6 @@ export default function Inquiry({ navigation }: RootScreenProps<'Inquiry'>) {
                     onPress={() => handleSelectType(type)}
                   >
                     <DropdownItemIconWrapper>
-                      {/* 목록 내부 아이콘: 선택되면 주황색, 아니면 회색 */}
                       <SvgIcon
                         width={24}
                         height={24}

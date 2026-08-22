@@ -9,6 +9,7 @@ interface UseFileSelectionOptions {
   kind?: SelectedFileKind;
 }
 
+// 문서/이미지 파일 선택과 최근 사용 파일 기록 저장을 담당하는 훅.
 export const useFileSelection = ({
   kind = 'document',
 }: UseFileSelectionOptions = {}) => {

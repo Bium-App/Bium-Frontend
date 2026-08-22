@@ -15,6 +15,7 @@ import {
   NoticeDate,
 } from './Notice.styles';
 
+// 공지사항 화면. 공지 목록을 보여주고 항목을 누르면 상세 내용을 Alert로 표시한다.
 export default function Notice({navigation}: RootScreenProps<'Notice'>) {
   const { notices, isLoading, errorMessage, fetchNotices } =
     useServiceNotices();

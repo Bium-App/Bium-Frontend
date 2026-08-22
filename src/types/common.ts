@@ -22,6 +22,7 @@ export interface ServiceNotice {
   updatedAt?: string;
 }
 
+// ONE_ON_ONE은 1:1 문의, SUGGESTION은 서비스 개선 제안이다.
 export type InquiryType = 'ONE_ON_ONE' | 'SUGGESTION';
 
 export interface CreateInquiryRequest {
@@ -53,6 +54,7 @@ export interface Notification {
   type: NotificationType;
   message: string;
   isRead: boolean;
+  // type에 따라 가리키는 대상(메모/친구요청/팀 등)의 id가 달라진다.
   targetId: EntityId;
   createdAt?: string;
 }

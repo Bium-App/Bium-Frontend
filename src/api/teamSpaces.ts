@@ -184,6 +184,7 @@ export const updateTeamTodoApi = async (
   return response.data;
 };
 
+// updateTeamTodoApi와 같은 엔드포인트를 쓰되 체크 여부 등 일부 필드만 골라 갱신한다.
 export const toggleTeamTodoApi = async (
   todoId: EntityId,
   todo: UpdateTeamTodoRequest,

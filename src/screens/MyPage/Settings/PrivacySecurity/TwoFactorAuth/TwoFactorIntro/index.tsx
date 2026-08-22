@@ -26,6 +26,7 @@ import {
   SubmitButtonText
 } from './TwoFactorIntro.styles';
 
+// 2단계 인증 설정 흐름의 첫 단계: 기능을 소개하고 시작 시 비밀번호 확인(PasswordCheck)으로 이동한다.
 export default function TwoFactorIntro({navigation}: RootScreenProps<'TwoFactorIntro'>) {
   
   return (

@@ -33,7 +33,9 @@ const apiClient = axios.create({
   },
 });
 
+// 여러 요청이 동시에 401을 받아도 토큰 재발급은 한 번만 진행하도록 진행 중인 요청을 공유한다.
 let refreshRequest: Promise<string> | null = null;
+// 재발급 실패로 인한 만료 알림을 세션당 한 번만 띄우기 위한 플래그.
 let didShowSessionExpiredAlert = false;
 
 const refreshAccessToken = async (): Promise<string> => {
@@ -104,6 +106,7 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // 401 응답을 받으면 토큰을 재발급받아 원래 요청을 한 번 더 시도한다.
     originalRequest._retry = true;
     try {
       const accessToken = await getRefreshedAccessToken();
@@ -111,6 +114,7 @@ apiClient.interceptors.response.use(
       didShowSessionExpiredAlert = false;
       return apiClient(originalRequest);
     } catch (refreshError) {
+      // 재발급마저 실패하면 세션을 정리하고 로그인 화면으로 돌려보낸다.
       if (refreshError && typeof refreshError === 'object') {
         logApiError(refreshError as AxiosError);
       }

@@ -49,6 +49,7 @@ type ScheduleScreenProps = NativeStackScreenProps<
   'Schedule'
 >;
 
+// 팀 스페이스 일정 목록 화면. 날짜별로 묶어 보여주고 검색, 일정 추가/상세 이동을 지원한다.
 export default function Schedule({route, navigation}: ScheduleScreenProps) {
   const {t, i18n} = useTranslation();
   const {projectId, projectName} = route.params;

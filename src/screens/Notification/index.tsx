@@ -24,6 +24,7 @@ import {
   DeleteButton,
 } from './Notification.styles';
 
+// 알림 목록 화면. 알림 종류에 따라 해당 화면으로 이동시키고 개별 삭제도 지원한다.
 export default function Notification({
   navigation,
 }: RootScreenProps<'Notification'>) {

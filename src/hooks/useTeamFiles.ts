@@ -23,6 +23,7 @@ export interface TeamFileListItem {
   info: string;
 }
 
+// 확장자로 이미지 여부를 구분해 목록에서 썸네일과 파일 아이콘을 다르게 표시한다.
 const getFileType = (fileName?: string): TeamFileType => {
   const extension = fileName?.split('.').pop()?.toLowerCase();
   return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].includes(

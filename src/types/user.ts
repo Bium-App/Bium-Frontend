@@ -9,6 +9,7 @@ export interface User {
   email: string;
   phoneNumber: string;
   profileImageUrl: string | null;
+  // 로그인 방식이다(LOCAL, GOOGLE 등).
   provider?: string;
 }
 

@@ -24,6 +24,7 @@ export const useAddSchedule = ({
   initialData,
   onSuccess,
 }: UseAddScheduleOptions) => {
+  // 라우트로 전달되는 일정 데이터의 id 필드명이 화면마다 달라 두 경우를 모두 확인한다.
   const scheduleId = initialData?.scheduleId ?? initialData?.id;
   const [scheduleTitle, setScheduleTitle] = useState(initialData?.title ?? '');
   const [scheduleContent, setScheduleContent] = useState(
@@ -112,6 +113,7 @@ export const useAddSchedule = ({
       setStartAt(selectedDate);
       setHasStartAt(true);
       if (!dayjs(endAt).isAfter(selectedDate)) {
+        // 시작 시간을 종료 시간 이후로 옮기면 종료 시간을 시작 시간 1시간 뒤로 자동 조정한다.
         setEndAt(dayjs(selectedDate).add(1, 'hour').toDate());
       }
     } else if (selectedField === 'end') {

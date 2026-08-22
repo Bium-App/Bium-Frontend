@@ -22,6 +22,7 @@ import {
   KeyboardContainer,
 } from './ServiceSuggestion.styles';
 
+// 서비스 개선 의견을 자유 서술형으로 작성해 제출하는 화면.
 export default function ServiceSuggestion({navigation}: RootScreenProps<'ServiceSuggestion'>) {
   const {
     suggestion,

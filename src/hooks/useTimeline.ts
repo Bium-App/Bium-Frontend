@@ -23,6 +23,8 @@ export interface TimelineMemoItem {
   expiredAt: string | null;
 }
 
+// 타임라인 화면에서 FIRE 메모와 ICE 메모(고정/일반)를 구분해 불러오고, 만료된 FIRE 메모의
+// TRASH 이동과 고정(pin) 토글을 처리하는 훅.
 export const useTimeline = () => {
   const [fireMemos, setFireMemos] = useState<TimelineMemoItem[]>([]);
   const [icePinnedMemos, setIcePinnedMemos] = useState<TimelineMemoItem[]>([]);
@@ -42,6 +44,8 @@ export const useTimeline = () => {
         return;
       }
       const memos = await getUserMemosApi();
+      // FIRE 메모는 expiredAt이 지나면 TRASH로 이동해야 하므로, 목록을 불러올 때마다
+      // 만료된 FIRE 메모를 가려내 TRASH로 옮긴다.
       const expiredMemos = memos.filter(memo => isExpiredFireMemo(memo));
       const activeMemos = memos.filter(memo => !isExpiredFireMemo(memo));
 
@@ -91,6 +95,7 @@ export const useTimeline = () => {
     if (!target) return;
 
     const updated = { ...target, isPinned: !isPinned };
+    // 서버 응답을 기다리지 않고 먼저 화면에 반영해 고정 토글을 즉시 보여준다.
     if (isPinned) {
       setIcePinnedMemos(current => current.filter(memo => memo.id !== memoId));
       setIceRegularMemos(current => [updated, ...current]);
@@ -103,6 +108,7 @@ export const useTimeline = () => {
       await updateMemoPinApi(memoId, !isPinned);
       await fetchMemos();
     } catch (error) {
+      // 요청이 실패하면 다시 불러와 미리 반영했던 상태를 서버 기준으로 되돌린다.
       await fetchMemos();
       throw error;
     }

@@ -56,6 +56,8 @@ const formatDateTime = (value?: string | null): string | null => {
   return date.toLocaleString();
 };
 
+// 메모 상세 화면. 리치 에디터로 메모 내용을 읽기 전용으로 보여주고 FIRE/ICE 전환,
+// pin, TRASH 이동, 수정 화면 진입을 제공한다.
 export default function MemoDetail({
   navigation,
   route,
@@ -104,6 +106,9 @@ export default function MemoDetail({
     [],
   );
 
+  // 에디터가 준비된 뒤 같은 내용을 이미 적용했다면 다시 설정하지 않는다.
+  // editor.setContent를 반복 호출하면 웹뷰 내부 스크롤이나 렌더링 상태가
+  // 매번 초기화되므로, appliedContentRef로 마지막 적용 내용을 기억해 막는다.
   useEffect(() => {
     if (!editorState.isReady) return;
     if (appliedContentRef.current === initialEditorContent) return;

@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {useTranslation} from 'react-i18next';
 import Header from '../../../components/Header'; 
 import AsyncState from '../../../components/AsyncState';
-import { useTeamSpaceHome } from '../../../hooks/useTeamSpaceHome'; // 추가된 뷰모델
+import { useTeamSpaceHome } from '../../../hooks/useTeamSpaceHome';
 import type {
   MainTabParamList,
   RootStackParamList,
@@ -73,7 +73,6 @@ export default function TeamSpaceHome({
     projectId: EntityId,
     projectName: string,
   ) => {
-    // 팀방에 들어갈 때, 어떤 프로젝트인지 식별하기 위해 projectId를 함께 넘겨줌
     navigation.navigate('ProjectDetail', {projectId, projectName});
   };
 
@@ -98,7 +97,6 @@ export default function TeamSpaceHome({
 
       <ActionRow>
         <FilterTab activeOpacity={0.8}>
-          {/* 전체 개수를 서버에서 받아온 팀 배열의 길이(teams.length)로 동적 반영 */}
           <FilterTabText>{t('team.all_count', {count: teams.length})}</FilterTabText>
         </FilterTab>
 
@@ -116,7 +114,6 @@ export default function TeamSpaceHome({
 
       <ListContainer 
         showsVerticalScrollIndicator={false}
-        // 사용자가 화면을 위로 잡아당겼을 때(Pull-to-Refresh) 서버에서 데이터를 최신화하는 기능
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={fetchTeams} tintColor="#FF8933" />
         }

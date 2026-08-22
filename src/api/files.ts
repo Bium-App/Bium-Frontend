@@ -20,6 +20,7 @@ import type {
   UploadSelectedFileRequest,
 } from '../types/file';
 
+// 파일 업로드는 presigned URL을 발급받아 S3에 직접 PUT하는 2단계로 이뤄진다.
 export const getPresignedUrlApi = async ({
   domain,
   fileName,

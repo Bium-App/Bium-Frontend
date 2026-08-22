@@ -20,6 +20,7 @@ import {
   LinkDivider,
 } from './FindId.styles';
 
+// 아이디 찾기 화면. 이메일을 입력받아 가입된 로그인 아이디를 조회해 보여준다.
 export default function FindId({navigation}: RootScreenProps<'FindId'>) {
   const {t} = useTranslation();
   const { email, setEmail, isLoading, findLoginId } = useFindId();

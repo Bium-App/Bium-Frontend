@@ -37,6 +37,7 @@ export const useTeamManagement = (teamSpaceId?: EntityId) => {
       setCurrentUserId(userIdResult.value);
     }
 
+    // 현재 사용자 ID 조회 실패는 화면 오류로 취급하지 않고 팀/멤버 조회 실패만 오류로 처리한다.
     const failedResult = [teamResult, membersResult].find(
       result => result.status === 'rejected',
     );
@@ -64,6 +65,7 @@ export const useTeamManagement = (teamSpaceId?: EntityId) => {
   );
   const canManage = currentMember?.role === 'LEADER';
 
+  // 역할 변경·추방 API는 userId가 아니라 teamMemberId를 요구하므로 별도로 검증한다.
   const requireMemberId = (member: TeamMember): EntityId => {
     if (member.teamMemberId === undefined || member.teamMemberId === null) {
       throw new Error(

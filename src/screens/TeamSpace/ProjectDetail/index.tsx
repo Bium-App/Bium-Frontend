@@ -103,10 +103,8 @@ export default function ProjectDetail({
   route,
   navigation,
 }: ProjectDetailScreenProps) {
-  // 이전 화면에서 전달받은 팀 고유 ID 추출
   const { projectId, projectName } = route.params;
 
-  // 뷰모델 연결
   const {
     notices,
     todos,

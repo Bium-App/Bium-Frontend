@@ -133,6 +133,7 @@ test('v1.18 인증·Google 로그인·기기 계약을 사용한다', async () =
   await socialLoginApi({
     provider: 'GOOGLE',
     providerId: 'google-user-id',
+    idToken: 'google-id-token',
     email: 'google@example.com',
     name: '구글 사용자',
     profileImageUrl: 'https://image.example.com/profile.jpg',
@@ -168,6 +169,7 @@ test('v1.18 인증·Google 로그인·기기 계약을 사용한다', async () =
   expect(apiClient.post).toHaveBeenCalledWith('/api/auth/social-login', {
     provider: 'GOOGLE',
     providerId: 'google-user-id',
+    idToken: 'google-id-token',
     email: 'google@example.com',
     name: '구글 사용자',
     profileImageUrl: 'https://image.example.com/profile.jpg',

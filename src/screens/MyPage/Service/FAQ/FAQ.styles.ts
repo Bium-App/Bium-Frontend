@@ -20,7 +20,7 @@ export const TopSection = styled.View`
   margin-bottom: 24px;
 `;
 
-/* 💡 돋보기(자식 요소)가 절대 좌표로 위치를 잡을 수 있도록 position: relative 추가 */
+/* 자식 요소인 돋보기를 절대 좌표로 배치하기 위한 기준 컨테이너다. */
 export const IllustrationBackground = styled.View`
   width: 176px;
   height: 176px;
@@ -32,13 +32,10 @@ export const IllustrationBackground = styled.View`
   position: relative; 
 `;
 
-/* 💡 돋보기를 종이 위에 원하는 위치로 띄우기 위한 래퍼 (Wrapper) */
 export const GlassWrapper = styled.View`
   position: absolute;
-  /* 우측 하단에서 얼만큼 떨어질지 설정. 시안에 맞게 미세 조정(ex: 35 -> 40) 가능합니다 */
-  bottom: 43px; 
+  bottom: 43px;
   right: 1px;
-  /* 그림자 효과나 입체감을 주고 싶다면 여기에 elevation 속성을 넣어도 됩니다 */
 `;
 
 export const Title = styled.Text`

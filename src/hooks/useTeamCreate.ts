@@ -61,6 +61,7 @@ export const useTeamCreate = (navigation: Navigation) => {
       setSearchResults([]);
       return undefined;
     }
+    // 디바운스 대기 중 검색어가 바뀌면 이전 타이머의 응답이 최신 결과를 덮어쓰지 않도록 막는다.
     let isCurrentRequest = true;
     const timerId = setTimeout(async () => {
       try {

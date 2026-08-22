@@ -56,6 +56,7 @@ const getRemainingTime = (expiredAt?: string | null): string => {
     .join(':');
 };
 
+// 홈 화면의 개인 메모 목록을 불러오고, 만료된 FIRE 메모의 TRASH 이동, 상태 변경, 고정(pin) 처리를 담당한다.
 export const useHome = () => {
   const [memoSections, setMemoSections] = useState<MemoSection[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +70,8 @@ export const useHome = () => {
       if (!userId) return;
 
       const memos = await getUserMemosApi();
+      // FIRE 메모는 expiredAt이 지나면 TRASH로 이동해야 하므로, 목록을 불러올 때마다
+      // 만료된 FIRE 메모를 가려내 TRASH로 옮긴다.
       const expiredMemos = memos.filter(memo => isExpiredFireMemo(memo));
       const activeMemos = memos.filter(memo => !isExpiredFireMemo(memo));
 
@@ -133,8 +136,8 @@ export const useHome = () => {
   ) =>
     runMemoAction(async () => {
       await updateMemoStatusApi(memoId, status);
-      // 얼음 메모만 고정할 수 있어서, 불로 바뀌면 고정도 같이 풀어야 한다.
-      // 서버가 상태 변경 시 자동으로 고정을 풀어주지 않는다.
+      // ICE 메모만 pin이 가능하므로, 상태를 FIRE로 바꿀 때는 기존 pin도 함께 해제한다.
+      // 서버가 상태 변경 시 pin을 자동으로 해제하지 않아 클라이언트에서 별도로 요청한다.
       if (status === 'FIRE' && wasPinned) {
         await updateMemoPinApi(memoId, false);
       }

@@ -29,6 +29,7 @@ import {
   LogoutButtonText,
 } from './DeviceManagement.styles';
 
+// 로그인 기기 관리 화면. 현재 로그인 기기와 최근 로그인 기록을 보여주고 개별/전체 로그아웃을 제공한다.
 export default function DeviceManagement({navigation}: RootScreenProps<'DeviceManagement'>) {
   const {
     devices,

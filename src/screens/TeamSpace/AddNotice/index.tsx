@@ -25,6 +25,7 @@ type AddNoticeScreenProps = NativeStackScreenProps<
   'AddNotice'
 >;
 
+// 팀 스페이스 공지를 작성하는 화면. 제목/내용과 상단 고정 여부를 입력받아 저장한다.
 export default function AddNotice({route, navigation}: AddNoticeScreenProps) {
   const {projectId} = route.params;
   const {

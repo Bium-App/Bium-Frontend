@@ -44,7 +44,6 @@ type FriendAddScreenProps = NativeStackScreenProps<
 >;
 
 export default function FriendAdd({navigation}: FriendAddScreenProps) {
-  // 뷰모델 상태 및 함수 연결
   const {
     searchQuery,
     handleSearch,

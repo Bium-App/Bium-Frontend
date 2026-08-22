@@ -45,6 +45,7 @@ export const normalizeUserSettings = (value: unknown): UserSettings => {
 export const getStoredUserSettings = async (): Promise<UserSettings> => {
   const stored = await AsyncStorage.getItem(USER_SETTINGS_KEY);
   if (!stored) {
+    // 통합 설정 키가 없으면 이전 버전에서 개별 키로 저장하던 값을 찾아 변환한다.
     const legacy = await AsyncStorage.getMany([
       'userLanguage',
       'userTimezone',

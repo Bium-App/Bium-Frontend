@@ -7,6 +7,7 @@
     "android:local": "cross-env BLAZE_API_ENV=local react-native run-android",
     "android:aws": "cross-env BLAZE_API_ENV=aws react-native run-android",
     "android:production": "cross-env BLAZE_API_ENV=production react-native run-android",
+    "android:team-test:apk": "node scripts/build-android-team-test.cjs",
     "editor:build": "vite --config ./editor-web/vite.config.ts build && node ./node_modules/@10play/tentap-editor/scripts/buildEditor.js ./editor-web/build/index.html ./src/editor/generated/editorHtml.js",
     "editor:dev": "vite --config ./editor-web/vite.config.ts",
     "ios": "cross-env BLAZE_API_ENV=local react-native run-ios --no-packager",

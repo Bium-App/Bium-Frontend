@@ -33,6 +33,7 @@ import {
   IconContainer,
 } from './Management.styles';
 
+// 2단계 인증을 이미 설정한 사용자가 사용 여부를 토글하고 등록된 인증 수단을 확인하는 관리 화면.
 export default function Management({navigation}: RootScreenProps<'Management'>) {
   const { user } = useCurrentUser();
   const { settings, isLoading, saveSettings } = useUserSettings();

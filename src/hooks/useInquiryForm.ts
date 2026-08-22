@@ -62,6 +62,7 @@ export const useInquiryForm = (navigation: Navigation) => {
           })
         : null;
 
+      // 문의 분류를 전달할 별도 필드가 없어 내용 앞에 붙여 서버로 함께 전달한다.
       await createInquiryApi({
         type: 'ONE_ON_ONE',
         title: title.trim(),

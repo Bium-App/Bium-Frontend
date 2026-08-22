@@ -31,11 +31,11 @@ export const InputWrapper = styled.View`
 export const ReadOnlyInput = styled.TextInput`
   height: 52px;
   border-width: 1px;
-  border-color: #AAAAAA; /*E5E5E5 -> AAAAAA */
+  border-color: #AAAAAA;
   border-radius: 8px;
   padding-horizontal: 16px;
   font-size: 15px;
-  color: #000000; /*999999 -> AAAAAA */
+  color: #000000;
   background-color: #FFFFFF;
 `;
 
@@ -74,7 +74,7 @@ export const SubmitButton = styled.TouchableOpacity`
 `;
 
 export const SubmitButtonText = styled.Text`
-  font-size: 18px; /* 16 -> 18*/
+  font-size: 18px;
   font-weight: 600;
   color: #FFFFFF;
 `;

@@ -75,6 +75,7 @@ export const useNotification = () => {
     }
   };
 
+  // 알림 종류에 따라 이동할 화면과 필요한 상세 조회를 분기해서 처리한다.
   const openNotification = async (
     notification: NotificationListItem,
     {onNavigate}: NotificationHandlers = {},

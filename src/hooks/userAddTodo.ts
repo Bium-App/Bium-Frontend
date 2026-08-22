@@ -48,6 +48,7 @@ export const useAddTodo = (
         dueDate: selectedDateStr ? dayjs(date).format('YYYY-MM-DD') : null,
         sendPush: isTodoNotiEnabled,
       };
+      // 라우트로 전달되는 할 일 데이터의 필드명이 화면마다 달라(id/todoId, isDone/isChecked) 두 경우를 모두 확인한다.
       const todoId = initialData?.id ?? initialData?.todoId;
       if (todoId) {
         await updateTeamTodoApi(todoId, {

@@ -39,6 +39,8 @@ const getMonthParams = (): { year: number; month: number } => ({
   month: dayjs().month() + 1,
 });
 
+// 팀스페이스 대시보드 화면에서 공지·할 일·일정 데이터 조회와
+// 각 등록/수정 모달의 입력 상태를 함께 관리한다.
 export const useProjectDetail = (projectId?: EntityId) => {
   const [notices, setNotices] = useState<DashboardNoticeItem[]>([]);
   const [todos, setTodos] = useState<ProjectTodoItem[]>([]);

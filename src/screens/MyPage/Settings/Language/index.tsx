@@ -32,7 +32,6 @@ import {
   ModalOptionText,
 } from './Language.styles';
 
-// dayjs 시차(Timezone) 플러그인 활성화
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -53,14 +52,12 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
   const currentTimezone = selectedTimezone || 'Asia/Seoul';
   const currentFormatType = selectedFormatType || 'YYYY-MM-DD';
 
-  // 선택된 지역에 맞춰 실제 날짜를 계산해 주는 함수
   const getFormattedDate = (
     ianaTimezone: string,
     formatType: string,
   ): string => {
     const currentTime = dayjs().tz(ianaTimezone);
 
-    // 선택된 형식에 맞춰서 텍스트로 변환
     if (formatType === 'YYYY-MM-DD') return currentTime.format('YYYY-MM-DD');
     if (formatType === 'YYYY.MM.DD') return currentTime.format('YYYY.MM.DD');
     if (formatType === 'MM/DD/YYYY') return currentTime.format('MM/DD/YYYY');
@@ -85,7 +82,6 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
     timezoneOptions.find(option => option.value === currentTimezone)?.label ??
     currentTimezone;
 
-  // 텍스트가 아닌 '형식 규칙' 자체를 관리합니다
   const formatTypes = ['YYYY-MM-DD', 'YYYY.MM.DD', 'MM/DD/YYYY', 'DD-MM-YYYY'];
 
   const handleSave = async () => {
@@ -182,7 +178,6 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
             >
               <RowText>{t('date_format')}</RowText>
               <RightContainer>
-                {/* 💡 선택된 시간대와 형식을 계산해서 실제 날짜를 출력합니다 */}
                 <SubText>
                   {getFormattedDate(currentTimezone, currentFormatType)}
                 </SubText>
@@ -203,7 +198,7 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
         </SaveButton>
       </BottomContainer>
 
-      {/* 🚨 에러를 방지하기 위해 animationType을 "slide"로 수정했습니다 */}
+      {/* fade 애니메이션 사용 시 모달 전환 오류가 발생해 slide를 사용한다 */}
       <Modal
         visible={isTimezoneModalVisible}
         transparent={true}
@@ -236,7 +231,7 @@ export default function Language({navigation}: RootScreenProps<'Language'>) {
         </ModalOverlay>
       </Modal>
 
-      {/* 🚨 에러를 방지하기 위해 animationType을 "slide"로 수정했습니다 */}
+      {/* fade 애니메이션 사용 시 모달 전환 오류가 발생해 slide를 사용한다 */}
       <Modal
         visible={isDateModalVisible}
         transparent={true}

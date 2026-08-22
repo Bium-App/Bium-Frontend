@@ -18,6 +18,7 @@ export interface MemoEditorData {
   images?: MemoImage[];
 }
 
+// 화면마다 필드명이 달라(id/todoId, isDone/isChecked) 두 이름을 모두 옵셔널로 받아 흡수한다.
 export interface TeamTodoRouteData {
   todoId?: EntityId;
   id?: EntityId;

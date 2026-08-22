@@ -46,6 +46,7 @@ const formatRemainingTime = (remainingSeconds: number): string => {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
+// FIRE 메모의 만료 시각까지 남은 시간을 원형 게이지와 함께 보여주는 타이머다.
 export default function BurningTimer({
   createdAt,
   expiredAt,

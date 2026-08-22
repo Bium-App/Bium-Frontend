@@ -74,15 +74,14 @@ export default function Withdrawal({navigation}: RootScreenProps<'Withdrawal'>) 
           </BulletRow>
         </InfoBox>
 
-        {/* 동의 체크박스 터치 영역 */}
         <AgreeContainer
           activeOpacity={0.7}
           onPress={() => setIsAgreed(!isAgreed)}
         >
           <Icon
             name={isAgreed ? 'checkmark-circle' : 'ellipse-outline'}
-            size={20} /* 24 -> 20 */
-            color={isAgreed ? '#FF8933' : '#D9D9D9'} /* C7C7C7 -> D9D9D9 */
+            size={20}
+            color={isAgreed ? '#FF8933' : '#D9D9D9'}
           />
           <AgreeText>{t('withdrawal_screen.agree')}</AgreeText>
         </AgreeContainer>

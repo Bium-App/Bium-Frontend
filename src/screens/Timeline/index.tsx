@@ -66,13 +66,13 @@ type TimelineScreenProps = CompositeScreenProps<
 
 type TimelineTab = 'fire' | 'ice';
 
+// 타임라인 화면. FIRE/ICE 탭 전환과 ICE 메모의 고정(pin) 표시를 처리한다.
 export default function Timeline({ navigation }: TimelineScreenProps) {
   const {t} = useTranslation();
   const isFocused = useIsFocused();
   const [activeTab, setActiveTab] = useState<TimelineTab>('ice');
   const [isPinnedExpanded, setIsPinnedExpanded] = useState(true);
 
-  // 뷰모델에서 서버 데이터와 로딩 상태, 통신 함수를 가져옵니다.
   const {
     fireMemos,
     icePinnedMemos,
@@ -93,7 +93,6 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
       ? fireMemos.length > 0
       : icePinnedMemos.length > 0 || iceRegularMemos.length > 0;
 
-  // 화면이 켜질 때 서버에서 데이터를 불러옵니다.
   useFocusEffect(
     useCallback(() => {
       fetchMemos();
@@ -123,7 +122,6 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
     handlePinPress(item);
   };
 
-  // 불 메모 렌더링 로직
   const renderFireMemos = () => {
     return fireMemos.map((item, index) => {
       const isFirst = index === 0;
@@ -167,7 +165,6 @@ export default function Timeline({ navigation }: TimelineScreenProps) {
     });
   };
 
-  // 얼음 메모 렌더링 로직
   const renderIceItem = (
     item: TimelineMemoItem,
     index: number,

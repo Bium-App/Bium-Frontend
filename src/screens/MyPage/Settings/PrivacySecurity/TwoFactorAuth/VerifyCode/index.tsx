@@ -25,6 +25,7 @@ import {
 
 const CODE_EXPIRES_IN_SECONDS = 180;
 
+// 2단계 인증 설정 흐름의 세 번째 단계: 전송된 인증번호를 확인하고 성공 시 Success로 이동한다.
 export default function VerifyCode({route, navigation}: RootScreenProps<'VerifyCode'>) {
   const [code, setCode] = useState('');
   const [isFocused, setIsFocused] = useState(false);
